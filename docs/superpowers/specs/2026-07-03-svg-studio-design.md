@@ -29,7 +29,7 @@ Sostituire la creazione manuale su Canva delle schede tecniche prodotto (infogra
 
 ## 4. Architettura
 
-Applicazione **Next.js + TypeScript + Tailwind**, in esecuzione locale. DB **SQLite via Prisma**. Chiamate esterne: feed satur.it, API Gemini, API Iconify.
+Applicazione **Next.js + TypeScript + Tailwind**, in esecuzione locale. DB **SQLite via Prisma**, file singolo in `data/svg-studio.db` dentro la cartella del progetto — un solo PC, nessuna sincronizzazione tra postazioni (fuori scope v1; se in futuro serve condivisione tra più PC in ufficio, si valuterà una migrazione a Postgres senza cambiare lo schema logico). Backup = copia del file `.db`. Contiene: cache del feed parsato, estrazioni (per SKU + hash input, alla base della cache deterministica di §5.4), scene salvate/riapribili, libreria icone (chiave → SVG, sorgente, licenza, stato approvazione). Migrazioni versionate in `prisma/migrations/`. Chiamate esterne: feed satur.it, API Gemini, API Iconify.
 
 Sei componenti a confini netti:
 
