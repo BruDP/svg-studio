@@ -3,7 +3,8 @@ import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
 
-const databaseUrl = process.env.DATABASE_URL || 'file:./data/svg-studio.db'
+const databaseUrl = process.env.DATABASE_URL
+if (!databaseUrl) throw new Error('DATABASE_URL non impostata (verifica il file .env)')
 
 export const db = globalForPrisma.prisma ?? new PrismaClient({
   adapter: new PrismaBetterSqlite3({
