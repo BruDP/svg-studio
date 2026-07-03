@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@google/genai": "^2.10.0",
+    "@prisma/adapter-better-sqlite3": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "better-sqlite3": "^12.11.1",
     "csv-parse": "^7.0.1",
     "he": "^1.2.0",
     "next": "16.2.10",

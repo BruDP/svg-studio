@@ -1,0 +1,46 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model FeedMeta {
+  id           Int      @id @default(autoincrement())
+  sourceHash   String
+  downloadedAt DateTime @default(now())
+}
+
+model Product {
+  sku        String   @id
+  payload    String   // JSON di ProductRecord
+  rowHash    String
+  searchText String   // lowercase: sku + descrizione breve, per LIKE
+  updatedAt  DateTime @updatedAt
+}
+
+model Extraction {
+  sku       String
+  inputHash String
+  proposal  String   // JSON di SchedaProposal
+  createdAt DateTime @default(now())
+
+  @@id([sku, inputHash])
+}
+
+model Icon {
+  key       String   @id // chiave canonica del dizionario
+  svg       String
+  source    String   // 'locale' | 'iconify:<set>' | 'gemini'
+  license   String
+  status    String   // 'approvata' | 'in-revisione'
+  updatedAt DateTime @updatedAt
+}
+
+model Scene {
+  sku       String   @id
+  sceneJson String
+  updatedAt DateTime @updatedAt
+}
