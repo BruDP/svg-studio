@@ -1,0 +1,16 @@
+version: 1
+categorie:
+  - frigorifero
+  - congelatore
+  - lavatrice
+  - forno
+  - condizionatore
+  - aspirapolvere
+  - piccoli_elettrodomestici
+  - sedia_ufficio_gaming
+  - arredo_interno
+  - arredo_esterno
+  - barbecue
+  - valigie
+  - bagno_doccia
+  - altro

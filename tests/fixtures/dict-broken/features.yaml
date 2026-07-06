@@ -1,0 +1,9 @@
+version: 1
+features:
+  no_frost:
+    label: "Sistema No Frost"
+    icona: tabler:snowflake-off
+    priorita: 90
+    badge: false
+    valore: assente
+    categorie: [lavatrice]

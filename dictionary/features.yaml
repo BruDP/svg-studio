@@ -1,0 +1,170 @@
+version: 1
+features:
+  classe_energetica:
+    label: "Classe {valore}"
+    icona: tabler:leaf
+    priorita: 95
+    badge: false
+    valore: obbligatorio
+    categorie: [frigorifero, congelatore, lavatrice, forno, condizionatore]
+  no_frost:
+    label: "Sistema No Frost"
+    icona: tabler:snowflake-off
+    priorita: 90
+    badge: false
+    valore: assente
+    categorie: [frigorifero, congelatore]
+  capacita_litri:
+    label: "{valore} L"
+    icona: tabler:bucket
+    priorita: 85
+    badge: true
+    valore: obbligatorio
+    categorie: [frigorifero, congelatore, valigie, aspirapolvere, piccoli_elettrodomestici]
+  display_touch:
+    label: "Display touch"
+    icona: tabler:hand-click
+    priorita: 70
+    badge: false
+    valore: assente
+    categorie: [frigorifero, congelatore, lavatrice, forno, condizionatore, piccoli_elettrodomestici]
+  ripiani_regolabili:
+    label: "Ripiani regolabili"
+    icona: tabler:layout-rows
+    priorita: 65
+    badge: false
+    valore: assente
+    categorie: [frigorifero, congelatore, arredo_interno]
+  lunghezza_cavo:
+    label: "Cavo {valore} cm"
+    icona: tabler:plug
+    priorita: 40
+    badge: false
+    valore: obbligatorio
+    categorie: [frigorifero, congelatore, lavatrice, forno, condizionatore, aspirapolvere, piccoli_elettrodomestici]
+  portata_max_kg:
+    label: "{valore} KG"
+    icona: tabler:weight
+    priorita: 88
+    badge: true
+    valore: obbligatorio
+    categorie: [sedia_ufficio_gaming, arredo_interno, arredo_esterno]
+  cuscini_inclusi:
+    label: "Cuscini inclusi"
+    icona: tabler:pillow
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [sedia_ufficio_gaming, arredo_interno, arredo_esterno]
+  ruote_spostamento:
+    label: "Dotato di {valore} ruote per spostamento"
+    icona: tabler:steering-wheel
+    priorita: 62
+    badge: false
+    valore: obbligatorio
+    categorie: [sedia_ufficio_gaming, arredo_interno]
+  struttura_girevole:
+    label: "Struttura girevole"
+    icona: tabler:rotate
+    priorita: 58
+    badge: false
+    valore: assente
+    categorie: [sedia_ufficio_gaming]
+  schienale_reclinabile:
+    label: "Schienale reclinabile"
+    icona: tabler:armchair
+    priorita: 64
+    badge: false
+    valore: assente
+    categorie: [sedia_ufficio_gaming, arredo_esterno]
+  montaggio_facile:
+    label: "Montaggio facile, kit incluso"
+    icona: tabler:tools
+    priorita: 30
+    badge: false
+    valore: assente
+    categorie: [sedia_ufficio_gaming, arredo_interno, arredo_esterno, barbecue]
+  pulizia_panno:
+    label: "Pulire con un panno"
+    icona: tabler:wash-dry-flat
+    priorita: 20
+    badge: false
+    valore: assente
+    categorie: [sedia_ufficio_gaming, arredo_interno, arredo_esterno]
+  led_rgb:
+    label: "{valore} effetti LED RGB selezionabili"
+    icona: tabler:bulb
+    priorita: 75
+    badge: false
+    valore: obbligatorio
+    categorie: [sedia_ufficio_gaming, arredo_interno]
+  struttura_acciaio:
+    label: "Struttura in acciaio al carbonio"
+    icona: tabler:building-factory-2
+    priorita: 72
+    badge: false
+    valore: assente
+    categorie: [arredo_interno, arredo_esterno, barbecue]
+  cuscino_sfoderabile:
+    label: "Cuscino sfoderabile"
+    icona: tabler:zip
+    priorita: 55
+    badge: false
+    valore: assente
+    categorie: [arredo_interno, arredo_esterno, sedia_ufficio_gaming]
+  fodera_lavabile:
+    label: "Fodera lavabile a {valore}°"
+    icona: tabler:wash
+    priorita: 54
+    badge: false
+    valore: obbligatorio
+    categorie: [arredo_interno, arredo_esterno]
+  uso_interno_esterno:
+    label: "Adatto ad uso interno ed esterno"
+    icona: tabler:home-move
+    priorita: 68
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno, arredo_interno]
+  ruote_girevoli_360:
+    label: "{valore} ruote girevoli a 360°"
+    icona: tabler:wheel
+    priorita: 70
+    badge: false
+    valore: obbligatorio
+    categorie: [valigie]
+  chiusura_combinazione:
+    label: "Chiusura con combinazione"
+    icona: tabler:lock-square
+    priorita: 66
+    badge: false
+    valore: assente
+    categorie: [valigie]
+  doppia_cerniera:
+    label: "Doppia cerniera"
+    icona: tabler:separator-vertical
+    priorita: 50
+    badge: false
+    valore: assente
+    categorie: [valigie]
+  manico_regolabile:
+    label: "Manico regolabile"
+    icona: tabler:arrow-autofit-up
+    priorita: 52
+    badge: false
+    valore: assente
+    categorie: [valigie, aspirapolvere]
+  ultraleggero:
+    label: "Ultraleggere e resistenti"
+    icona: tabler:feather
+    priorita: 48
+    badge: false
+    valore: assente
+    categorie: [valigie]
+  alimentazione_carbonella:
+    label: "Alimentazione a carbonella"
+    icona: tabler:flame
+    priorita: 80
+    badge: false
+    valore: assente
+    categorie: [barbecue]
