@@ -74,5 +74,6 @@ export async function extractRaw(
 ): Promise<RawExtraction> {
   const prompt = buildPrompt(product, dict)
   const jsonText = await generate(prompt, dict)
+  if (!jsonText.trim()) throw new Error('Gemini ha restituito una risposta vuota')
   return JSON.parse(jsonText) as RawExtraction
 }
