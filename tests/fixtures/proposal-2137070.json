@@ -1,0 +1,28 @@
+{
+  "sku": "2137070",
+  "categoria": "barbecue",
+  "features": [
+    {
+      "chiave": "alimentazione_carbonella",
+      "etichetta": "Alimentazione a carbonella",
+      "valore": null,
+      "verificata": true,
+      "priorita": 80,
+      "badge": false
+    },
+    {
+      "chiave": "montaggio_facile",
+      "etichetta": "Montaggio facile, kit incluso",
+      "valore": null,
+      "verificata": false,
+      "priorita": 30,
+      "badge": false
+    }
+  ],
+  "badges": [],
+  "dimensioni": {
+    "larghezza": 51,
+    "profondita": 63,
+    "altezza": 84.5
+  }
+}
