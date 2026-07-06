@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest'
-import { rmSync, mkdirSync, existsSync } from 'node:fs'
+import { rmSync, mkdirSync, existsSync, readdirSync } from 'node:fs'
 import { cacheImage, readCachedImage } from '@/lib/images/cache'
 
 const DIR = 'tests/tmp/images'
@@ -26,16 +26,17 @@ describe('cacheImage', () => {
     expect(calls).toBe(1)
   })
 
-  it('non riscarica se il contenuto è già in cache (dedup)', async () => {
+  it('dedup su hash di contenuto: due URL diversi con stessi byte producono un solo file', async () => {
     let calls = 0
     const download = async () => {
       calls++
       return fakePng
     }
-    const a = await cacheImage('https://x/y.png', { download, dir: DIR })
-    const b = await cacheImage('https://x/y.png', { download, dir: DIR })
-    expect(calls).toBe(1)
+    const a = await cacheImage('https://x/a.png', { download, dir: DIR })
+    const b = await cacheImage('https://y/b.png', { download, dir: DIR })
+    expect(calls).toBe(2)
     expect(a.hash).toBe(b.hash)
+    expect(readdirSync(DIR).length).toBe(1)
   })
 
   it('readCachedImage rilegge gli stessi byte', async () => {
