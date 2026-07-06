@@ -2,6 +2,7 @@ import { expect, test } from 'vitest'
 import { loadDictionary } from '@/lib/dictionary/loader'
 import { rankFeatures } from '@/lib/extraction/ranking'
 import type { ValidatedFeature } from '@/lib/extraction/validator'
+import type { Dictionary } from '@/lib/dictionary/types'
 
 const dict = loadDictionary()
 const vf = (chiave: string, valore: string | null = null): ValidatedFeature => ({
@@ -14,6 +15,19 @@ const vf = (chiave: string, valore: string | null = null): ValidatedFeature => (
 test('ordina per priorità decrescente, tie-break alfabetico sulla chiave', () => {
   const out = rankFeatures([vf('display_touch'), vf('no_frost'), vf('classe_energetica', 'E')], 'frigorifero', dict)
   expect(out.features.map((f) => f.chiave)).toEqual(['classe_energetica', 'no_frost', 'display_touch'])
+})
+
+test('tie-break genuino: due feature a pari priorità nella stessa categoria si ordinano alfabeticamente', () => {
+  const syntheticDict: Dictionary = {
+    version: 1,
+    categorie: ['altro'],
+    features: {
+      zeta_feature: { label: 'Zeta', icona: 'tabler:z', priorita: 50, badge: false, valore: 'assente', categorie: ['altro'] },
+      alfa_feature: { label: 'Alfa', icona: 'tabler:a', priorita: 50, badge: false, valore: 'assente', categorie: ['altro'] },
+    },
+  }
+  const out = rankFeatures([vf('zeta_feature'), vf('alfa_feature')], 'altro', syntheticDict)
+  expect(out.features.map((f) => f.chiave)).toEqual(['alfa_feature', 'zeta_feature'])
 })
 
 test('le chiavi badge finiscono in badges, non in features', () => {
