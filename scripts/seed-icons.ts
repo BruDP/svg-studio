@@ -23,9 +23,11 @@ async function main() {
     const preferita = dict.features[key].icona // forma "set:name" dal dizionario
     let id = preferita
     try {
-      // se l'icona preferita non è nei set ammessi/non esiste, ripiega su una ricerca per chiave
-      const candidati = await searchIconify(key.replace(/_/g, ' '))
-      if (!preferita.includes(':') && candidati[0]) id = candidati[0].id
+      // se l'icona preferita non è in forma set:name, ripiega su una ricerca per chiave
+      if (!preferita.includes(':')) {
+        const candidati = await searchIconify(key.replace(/_/g, ' '))
+        if (candidati[0]) id = candidati[0].id
+      }
       const rawSvg = await fetchIconifySvg(id)
       await saveIcon({ key, rawSvg, source: `iconify:${id.split(':')[0]}`, license: 'iconify-permissive' })
       creati++
