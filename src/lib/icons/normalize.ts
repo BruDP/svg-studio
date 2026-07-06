@@ -1,3 +1,8 @@
+// Valore di un attributo, in una delle due forme quotate: "..." oppure '...'.
+const QUOTED_VALUE = `(?:"[^"]*"|'[^']*')`
+// Valore di un attributo senza virgolette, terminato da spazio o da ">".
+const UNQUOTED_VALUE = `[^\\s>]*`
+
 /**
  * Sanitizzazione SVG basata su regex (nessun DOM lato server). Rimuove i vettori
  * di rischio: script, style, handler inline, riferimenti a risorse esterne.
@@ -7,15 +12,17 @@ export function sanitizeSvg(raw: string): string {
   let s = raw
   s = s.replace(/<script[\s\S]*?<\/script>/gi, '')
   s = s.replace(/<style[\s\S]*?<\/style>/gi, '')
-  // attributi handler inline: on*="..."
-  s = s.replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, '')
-  s = s.replace(/\son[a-z]+\s*=\s*'[^']*'/gi, '')
+  // attributi handler inline: on*="...", on*='...' oppure on*=valore-senza-spazi
+  s = s.replace(new RegExp(`\\son[a-z]+\\s*=\\s*(?:${QUOTED_VALUE}|${UNQUOTED_VALUE})`, 'gi'), '')
   // elementi che caricano risorse esterne
   s = s.replace(/<image[\s\S]*?>/gi, '')
   s = s.replace(/<use[\s\S]*?>/gi, '')
-  // riferimenti http(s) residui in qualunque attributo
-  s = s.replace(/\s[a-z:]+\s*=\s*"https?:[^"]*"/gi, '')
-  s = s.replace(/\s[a-z:]+\s*=\s*'https?:[^']*'/gi, '')
+  // riferimenti a risorse esterne/attive: solo su href/xlink:href/src, non su
+  // attributi qualunque (altrimenti si cancella anche xmlns="http://...").
+  s = s.replace(
+    new RegExp(`\\s(?:xlink:href|href|src)\\s*=\\s*${QUOTED_VALUE}`, 'gi'),
+    (match) => (/(?:https?|javascript|data):/i.test(match) ? '' : match),
+  )
   if (!/<svg[\s>]/i.test(s)) {
     throw new Error('SVG non valido dopo la sanitizzazione: manca il tag <svg>')
   }

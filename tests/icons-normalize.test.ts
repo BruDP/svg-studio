@@ -10,11 +10,33 @@ describe('sanitizeSvg', () => {
     expect(out).not.toMatch(/<script/i)
     expect(out).not.toMatch(/<style/i)
     expect(out).not.toMatch(/onclick/i)
-    expect(out).not.toMatch(/https?:/i)
+    // l'immagine esterna (e il suo http(s)) deve sparire, ma non xmlns
+    expect(out).not.toMatch(/evil\.example/i)
+    expect(out).not.toMatch(/<image/i)
   })
 
   it('lancia se non c\'è un tag svg', () => {
     expect(() => sanitizeSvg('<div>no svg</div>')).toThrow()
+  })
+
+  it('preserva xmlns sul tag svg', () => {
+    const out = sanitizeSvg(raw)
+    expect(out).toMatch(/<svg[^>]*\sxmlns="http:\/\/www\.w3\.org\/2000\/svg"/)
+  })
+
+  it('rimuove un handler onclick non quotato', () => {
+    const out = sanitizeSvg('<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0" onclick=steal()/></svg>')
+    expect(out).not.toMatch(/onclick/i)
+  })
+
+  it('rimuove href javascript: e http(s):, mantenendo path/d e xmlns', () => {
+    const out = sanitizeSvg(
+      '<svg xmlns="http://www.w3.org/2000/svg"><a href="javascript:alert(1)"><path d="M3 3h14v14H3z"/></a><a href="https://evil/x.png"></a></svg>',
+    )
+    expect(out).not.toMatch(/javascript:/i)
+    expect(out).not.toMatch(/https?:\/\/evil/i)
+    expect(out).toMatch(/d="M3 3h14v14H3z"/)
+    expect(out).toMatch(/xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)
   })
 })
 
@@ -35,5 +57,10 @@ describe('normalizeIconSvg', () => {
 
   it('è idempotente', () => {
     expect(normalizeIconSvg(normalizeIconSvg(raw))).toBe(normalizeIconSvg(raw))
+  })
+
+  it('preserva xmlns sul tag svg', () => {
+    const out = normalizeIconSvg(raw)
+    expect(out).toMatch(/<svg[^>]*\sxmlns="http:\/\/www\.w3\.org\/2000\/svg"/)
   })
 })
