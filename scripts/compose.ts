@@ -49,10 +49,10 @@ async function main() {
     }
   }
 
-  const fotoElement = scene.elements.find((e) => e.type === 'foto') as { imageHash: string } | undefined
+  const haFoto = scene.elements.some((e) => e.type === 'foto')
   let dataUri: string | null = null
-  if (fotoElement) {
-    // ricava l'estensione dal file in cache: prova jpg poi png
+  if (haFoto) {
+    // ricava l'estensione dal file in cache: prova jpg, poi png, poi webp
     for (const ext of ['jpg', 'png', 'webp']) {
       try {
         const buf = readCachedImage(imageHash, ext)

@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterAll } from 'vitest'
+import { rmSync } from 'node:fs'
 import sharp from 'sharp'
 import { composeSceneForProduct } from '../scripts/compose-lib'
 import { parseScene } from '@/lib/scene/schema'
@@ -27,6 +28,10 @@ const proposal: SchedaProposal = {
   badges: [],
   dimensioni: { larghezza: 51, profondita: 63, altezza: 84.5 },
 }
+
+afterAll(() => {
+  rmSync('tests/tmp-compose', { recursive: true, force: true })
+})
 
 async function sampleImage(): Promise<Buffer> {
   const w = 80
