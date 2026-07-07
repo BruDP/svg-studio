@@ -57,6 +57,21 @@ export async function resolveRenderBundle(scene: Scene, deps: BundleDeps = {}): 
   return { iconMap, imageDataUri }
 }
 
+/** Mappa chiave→inner-SVG per le chiavi con icona approvata (le altre assenti). */
+export async function resolveIconsForKeys(
+  chiavi: string[],
+  deps: { getIcon?: (k: string) => Promise<{ svg: string } | null> } = {},
+): Promise<Record<string, string>> {
+  const getIcon = deps.getIcon ?? ((k: string) => getApprovedIcon(k))
+  const out: Record<string, string> = {}
+  for (const k of chiavi) {
+    if (k in out) continue
+    const rec = await getIcon(k)
+    if (rec) out[k] = innerSvg(rec.svg)
+  }
+  return out
+}
+
 /** Render canonico server-side: bundle + renderScene → stringa SVG. Usato da preview ed export. */
 export async function renderSceneServer(scene: Scene, deps: BundleDeps = {}): Promise<string> {
   const bundle = await resolveRenderBundle(scene, deps)

@@ -3,7 +3,6 @@
 import { useState, useTransition } from 'react'
 import { proposeSceneAction, exportSceneAction } from '../actions'
 import type { ProposeResult } from '@/lib/ui/types'
-import { ScenePreview } from '@/lib/ui/ScenePreview'
 
 export function StudioClient() {
   const [sku, setSku] = useState('')
@@ -63,7 +62,14 @@ export function StudioClient() {
       {data && (
         <div className="flex flex-col gap-4 md:flex-row">
           <div className="flex-1">
-            <ScenePreview svg={data.svg} />
+            {/* Anteprima client-side (renderScene su scena+iconMap+imageDataUri): Task 4 di Fase 3b. */}
+            {data.imageDataUri && (
+              <img
+                alt="Foto prodotto"
+                src={data.imageDataUri}
+                className="w-full max-w-[1000px] aspect-square border border-zinc-200 bg-white object-contain"
+              />
+            )}
           </div>
           <aside className="w-full md:w-72">
             <h2 className="font-medium text-zinc-700">{data.prodotto.descrizioneBreve}</h2>
