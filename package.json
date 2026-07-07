@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "propose": "tsx scripts/propose.ts",
-    "seed:icons": "tsx scripts/seed-icons.ts"
+    "seed:icons": "tsx scripts/seed-icons.ts",
+    "compose": "tsx scripts/compose.ts"
   },
   "dependencies": {
     "@google/genai": "^2.10.0",
