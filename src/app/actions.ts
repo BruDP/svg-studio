@@ -37,6 +37,7 @@ export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
 
 export async function exportSceneAction(sceneJson: string): Promise<{ path: string; thumbDataUri: string }> {
   const scene: Scene = parseScene(JSON.parse(sceneJson))
+  if (!/^[A-Za-z0-9._-]+$/.test(scene.sku)) throw new Error('SKU non valido')
   const svg = await renderSceneServer(scene)
   const path = await exportScene({ svg, sku: scene.sku })
   const thumb = await sharp(path).resize(240, 240).jpeg({ quality: 80 }).toBuffer()

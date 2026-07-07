@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { resolveRenderBundle } from '@/lib/render/bundle'
+import { resolveRenderBundle, isValidImageHash } from '@/lib/render/bundle'
 import { parseScene } from '@/lib/scene/schema'
 import type { Scene } from '@/lib/scene/types'
 import { SCENE_VERSION } from '@/lib/scene/types'
@@ -47,5 +47,20 @@ describe('resolveRenderBundle', () => {
     expect(svg.trim().endsWith('</svg>')).toBe(true)
     expect(svg).toContain('M1 1') // icona approvata inserita
     expect(svg).toContain('data:image/png;base64,') // foto incorporata
+  })
+})
+
+describe('isValidImageHash', () => {
+  it('accetta un hash sha256 esadecimale minuscolo di 64 caratteri', () => {
+    const validHash = 'a'.repeat(64)
+    expect(isValidImageHash(validHash)).toBe(true)
+  })
+
+  it('rifiuta hash non validi (corti, non-hex, path traversal)', () => {
+    expect(isValidImageHash('not-a-hash')).toBe(false)
+    expect(isValidImageHash('abc')).toBe(false)
+    expect(isValidImageHash('A'.repeat(64))).toBe(false) // maiuscole non ammesse
+    expect(isValidImageHash('../../etc/passwd')).toBe(false)
+    expect(isValidImageHash('f'.repeat(63))).toBe(false) // lunghezza errata
   })
 })

@@ -19,11 +19,17 @@ function innerSvg(svg: string): string {
   return svg.replace(/^[\s\S]*?<svg[^>]*>/i, '').replace(/<\/svg>\s*$/i, '')
 }
 
+/** Un hash immagine valido è uno sha256 esadecimale minuscolo (64 caratteri), come prodotto da data/images. */
+export function isValidImageHash(hash: string): boolean {
+  return /^[a-f0-9]{64}$/.test(hash)
+}
+
 export async function resolveRenderBundle(scene: Scene, deps: BundleDeps = {}): Promise<RenderBundle> {
   const getIcon = deps.getIcon ?? ((k: string) => getApprovedIcon(k))
   const readImage =
     deps.readImage ??
     ((hash: string) => {
+      if (!isValidImageHash(hash)) return null
       for (const ext of ['jpg', 'png', 'webp']) {
         try {
           return { bytes: readCachedImage(hash, ext), ext }
