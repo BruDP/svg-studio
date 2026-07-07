@@ -48,3 +48,8 @@ data/
 output/
 .env
 .env.local
+
+# playwright
+playwright-report/
+test-results/
+/e2e/.cache/

@@ -1,0 +1,14 @@
+{
+  "sku": "2137070",
+  "images": ["https://esempio.local/foto.png"],
+  "descrizioneBreve": "Barbecue a carbone",
+  "descrizioneEstesa": "Barbecue in acciaio con montaggio facile.",
+  "notaTecnica": ["Materiale: acciaio", "Dimensioni: l. 51 x p. 63 x h. 84,5 cm"],
+  "notaEmozionale": "",
+  "prezzo": "",
+  "marchio": "",
+  "urlSlug": "",
+  "colore": "",
+  "materiale": "acciaio",
+  "imballo": { "lunghezza": null, "larghezza": null, "altezza": null }
+}
