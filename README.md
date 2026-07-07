@@ -13,4 +13,6 @@ Generatore di schede tecniche prodotto (satur.it) da feed Magento. Spec: `docs/s
 
 - `npm test` — suite Vitest (include validazione dizionario e golden test di determinismo)
 - `npm run propose -- <SKU>` — scarica/aggiorna il feed e stampa la proposta di scheda per uno SKU
+- `npm run seed:icons` — popola la libreria icone da Iconify per le chiavi del dizionario (una tantum)
+- `npm run compose -- <SKU>` — genera la scheda tecnica raster `output/{SKU}.jpg` (estrazione + composizione + render + export)
 - `npm run dev` — app web (dalla Fase 3)

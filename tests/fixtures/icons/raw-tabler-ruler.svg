@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 20 20" fill="#123456" stroke="#000000" stroke-width="2">
+  <style>.x{fill:red}</style>
+  <script>alert(1)</script>
+  <path d="M3 3h14v14H3z" onclick="steal()"/>
+  <image href="https://evil.example/pixel.png"/>
+</svg>

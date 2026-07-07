@@ -8,12 +8,15 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "propose": "tsx scripts/propose.ts"
+    "propose": "tsx scripts/propose.ts",
+    "seed:icons": "tsx scripts/seed-icons.ts",
+    "compose": "tsx scripts/compose.ts"
   },
   "dependencies": {
     "@google/genai": "^2.10.0",
     "@prisma/adapter-better-sqlite3": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@resvg/resvg-js": "^2.6.2",
     "better-sqlite3": "^12.11.1",
     "csv-parse": "^7.0.1",
     "dotenv": "^17.4.2",
@@ -21,6 +24,7 @@
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "sharp": "^0.35.3",
     "yaml": "^2.9.0",
     "zod": "^4.4.3"
   },

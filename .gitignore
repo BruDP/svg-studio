@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+tests/tmp-compose/
+tests/tmp-out/
 
 # next.js
 /.next/
