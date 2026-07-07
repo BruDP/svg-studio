@@ -1,0 +1,7 @@
+{
+  "categoria": "barbecue",
+  "features": [
+    { "chiave": "struttura_acciaio", "valore": null, "testoSorgente": "Barbecue in acciaio" },
+    { "chiave": "montaggio_facile", "valore": null, "testoSorgente": "montaggio facile" }
+  ]
+}

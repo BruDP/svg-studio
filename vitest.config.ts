@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
     // l'esecuzione parallela dei file di test causerebbe race condition sul DB.
     test: {
       include: ['tests/**/*.test.ts'],
+      exclude: ['e2e/**', 'node_modules/**'],
       fileParallelism: false,
       env: {
         DATABASE_URL: env.DATABASE_URL,

@@ -10,7 +10,8 @@
     "test": "vitest run",
     "propose": "tsx scripts/propose.ts",
     "seed:icons": "tsx scripts/seed-icons.ts",
-    "compose": "tsx scripts/compose.ts"
+    "compose": "tsx scripts/compose.ts",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@google/genai": "^2.10.0",
@@ -29,6 +30,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
     "@types/he": "^1.2.3",
     "@types/node": "^20",
