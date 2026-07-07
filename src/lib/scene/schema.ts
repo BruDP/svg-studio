@@ -59,6 +59,10 @@ const scene = z.object({
   elements: z.array(element),
 })
 
+// Guardia a compile-time: se lo schema zod diverge dal tipo Scene, qui fallisce la compilazione.
+const _sceneTypeGuard = (s: z.infer<typeof scene>): Scene => s
+void _sceneTypeGuard
+
 export function parseScene(input: unknown): Scene {
   return scene.parse(input) as Scene
 }

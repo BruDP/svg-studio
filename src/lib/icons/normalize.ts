@@ -20,7 +20,7 @@ export function sanitizeSvg(raw: string): string {
   // riferimenti a risorse esterne/attive: solo su href/xlink:href/src, non su
   // attributi qualunque (altrimenti si cancella anche xmlns="http://...").
   s = s.replace(
-    new RegExp(`\\s(?:xlink:href|href|src)\\s*=\\s*${QUOTED_VALUE}`, 'gi'),
+    new RegExp(`\\s(?:xlink:href|href|src)\\s*=\\s*(?:${QUOTED_VALUE}|${UNQUOTED_VALUE})`, 'gi'),
     (match) => (/(?:https?|javascript|data):/i.test(match) ? '' : match),
   )
   if (!/<svg[\s>]/i.test(s)) {

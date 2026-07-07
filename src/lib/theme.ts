@@ -10,6 +10,7 @@ export const theme = {
     badgeBg: '#4A4A4A',
     badgeTesto: '#FFFFFF',
     sfondo: '#FFFFFF',
+    fotoPlaceholder: '#EEEEEE',
   },
   icona: {
     raggio: 42,

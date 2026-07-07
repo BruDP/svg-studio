@@ -1,4 +1,4 @@
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { Resvg } from '@resvg/resvg-js'
 import sharp from 'sharp'
@@ -12,9 +12,10 @@ export function renderSvgToPng(svg: string, size = 1000): Buffer {
       loadSystemFonts: false,
       defaultFontFamily: theme.fontFamily,
     },
+    // background opaco: resvg-js non può emettere trasparenza in questo percorso di rendering.
     background: theme.colors.sfondo,
   })
-  return Buffer.from(resvg.render().asPng())
+  return resvg.render().asPng()
 }
 
 export async function exportScene(input: {
@@ -29,7 +30,6 @@ export async function exportScene(input: {
   const jpeg = await sharp(png).jpeg({ quality: 92 }).toBuffer()
   mkdirSync(dir, { recursive: true })
   const outPath = path.join(dir, `${input.sku}.jpg`)
-  const { writeFileSync } = await import('node:fs')
   writeFileSync(outPath, jpeg)
   return outPath
 }

@@ -38,6 +38,16 @@ describe('sanitizeSvg', () => {
     expect(out).toMatch(/d="M3 3h14v14H3z"/)
     expect(out).toMatch(/xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)
   })
+
+  it('rimuove href esterni non quotati, mantenendo path/d e xmlns', () => {
+    const out = sanitizeSvg(
+      '<svg xmlns="http://www.w3.org/2000/svg"><path d="M3 3h14v14H3z"/><a href=https://evil.example/x></a><a href=javascript:alert(1)></a></svg>',
+    )
+    expect(out).not.toMatch(/evil\.example/i)
+    expect(out).not.toMatch(/javascript:/i)
+    expect(out).toMatch(/d="M3 3h14v14H3z"/)
+    expect(out).toMatch(/xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)
+  })
 })
 
 describe('normalizeIconSvg', () => {

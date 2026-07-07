@@ -35,7 +35,7 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
     case 'foto': {
       const href = deps.image(el.imageHash)
       if (!href) {
-        return `<rect x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" fill="#EEEEEE"/>`
+        return `<rect x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" fill="${theme.colors.fotoPlaceholder}"/>`
       }
       return `<image x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" href="${href}" preserveAspectRatio="xMidYMid meet"/>`
     }

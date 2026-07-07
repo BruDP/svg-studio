@@ -4,7 +4,13 @@ export interface IconifyCandidate {
   name: string
 }
 
-/** Set line-art a licenza permissiva (Spec §7). */
+/**
+ * Set line-art a licenza permissiva (Spec §7).
+ * Nota: il renderer avvolge le icone come line-art a stroke (`<g fill="none" stroke=...>`),
+ * quindi vanno approvati solo glifi basati su stroke. "solar" include anche alcuni glifi
+ * basati su fill, che risulterebbero invisibili finché non arriva il supporto fill-icon
+ * in una fase successiva.
+ */
 export const ICONIFY_SETS = ['tabler', 'lucide', 'solar'] as const
 
 const SEARCH_BASE = 'https://api.iconify.design/search'
