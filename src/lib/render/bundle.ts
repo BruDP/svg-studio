@@ -1,0 +1,61 @@
+import type { Scene } from '@/lib/scene/types'
+import { getApprovedIcon } from '@/lib/icons/repository'
+import { readCachedImage } from '@/lib/images/cache'
+import { renderScene } from '@/lib/render/svg'
+import { extToMime } from '@/lib/ui/mime'
+
+export interface RenderBundle {
+  iconMap: Record<string, string>
+  imageDataUri: string | null
+}
+
+type BundleDeps = {
+  getIcon?: (k: string) => Promise<{ svg: string } | null>
+  readImage?: (hash: string) => { bytes: Buffer; ext: string } | null
+}
+
+/** Estrae il contenuto interno di un SVG normalizzato (rimuove il wrapper <svg>…</svg>). */
+function innerSvg(svg: string): string {
+  return svg.replace(/^[\s\S]*?<svg[^>]*>/i, '').replace(/<\/svg>\s*$/i, '')
+}
+
+export async function resolveRenderBundle(scene: Scene, deps: BundleDeps = {}): Promise<RenderBundle> {
+  const getIcon = deps.getIcon ?? ((k: string) => getApprovedIcon(k))
+  const readImage =
+    deps.readImage ??
+    ((hash: string) => {
+      for (const ext of ['jpg', 'png', 'webp']) {
+        try {
+          return { bytes: readCachedImage(hash, ext), ext }
+        } catch {
+          // prova la prossima estensione
+        }
+      }
+      return null
+    })
+
+  const iconMap: Record<string, string> = {}
+  let imageDataUri: string | null = null
+
+  for (const el of scene.elements) {
+    if (el.type === 'icona-label' && !(el.chiave in iconMap)) {
+      const rec = await getIcon(el.chiave)
+      if (rec) iconMap[el.chiave] = innerSvg(rec.svg)
+    }
+    if (el.type === 'foto' && imageDataUri === null) {
+      const img = readImage(el.imageHash)
+      if (img) imageDataUri = `data:${extToMime(img.ext)};base64,${img.bytes.toString('base64')}`
+    }
+  }
+
+  return { iconMap, imageDataUri }
+}
+
+/** Render canonico server-side: bundle + renderScene → stringa SVG. Usato da preview ed export. */
+export async function renderSceneServer(scene: Scene, deps: BundleDeps = {}): Promise<string> {
+  const bundle = await resolveRenderBundle(scene, deps)
+  return renderScene(scene, {
+    icon: (k) => bundle.iconMap[k] ?? null,
+    image: () => bundle.imageDataUri,
+  })
+}
