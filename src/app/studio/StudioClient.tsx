@@ -8,6 +8,7 @@ import { applyMutation } from '@/lib/scene/mutations'
 import { EditorPreview } from '@/lib/ui/EditorPreview'
 import { FeaturePanel } from './FeaturePanel'
 import { PhotoPicker } from './PhotoPicker'
+import { SkuSearch } from './SkuSearch'
 
 type Bundle = {
   iconMap: Record<string, string>
@@ -31,11 +32,11 @@ export function StudioClient() {
   const [errore, setErrore] = useState<string | null>(null)
   const [inCorso, start] = useTransition()
 
-  function proponi() {
+  function proponiSku(skuArg: string = sku) {
     setErrore(null); setThumb(null); setMsg(null)
     start(async () => {
       try {
-        const r = await proposeSceneAction(sku)
+        const r = await proposeSceneAction(skuArg)
         dispatch({ type: 'reset', scene: r.scene })
         setBundle({ iconMap: r.iconMap, imageDataUri: r.imageDataUri, categoriaFeatures: r.categoriaFeatures, immagini: r.immagini })
         setProdotto(r.prodotto)
@@ -91,10 +92,12 @@ export function StudioClient() {
       <div className="flex gap-2">
         <input aria-label="SKU" className="flex-1 rounded border border-zinc-300 px-3 py-2"
           placeholder="Inserisci SKU (es. 2137070)" value={sku}
-          onChange={(e) => setSku(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && proponi()} />
+          onChange={(e) => setSku(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && proponiSku()} />
         <button className="rounded bg-zinc-800 px-4 py-2 text-white disabled:opacity-50"
-          onClick={proponi} disabled={inCorso || sku.trim() === ''}>{inCorso ? 'Elaboro…' : 'Proponi'}</button>
+          onClick={() => proponiSku()} disabled={inCorso || sku.trim() === ''}>{inCorso ? 'Elaboro…' : 'Proponi'}</button>
       </div>
+
+      <SkuSearch onScegli={(s) => { setSku(s); proponiSku(s) }} />
 
       {errore && <p role="alert" className="text-red-600">{errore}</p>}
       {msg && <p className="text-emerald-700">{msg}</p>}

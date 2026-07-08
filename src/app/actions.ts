@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs'
 import sharp from 'sharp'
 import { refreshFeedIfStale } from '@/lib/feed/fetcher'
-import { getProduct } from '@/lib/feed/repository'
+import { getProduct, searchProducts } from '@/lib/feed/repository'
 import { loadDictionary } from '@/lib/dictionary/loader'
 import { extractProposal } from '@/lib/extraction/engine'
 import { composeSceneForProduct } from '../../scripts/compose-lib'
@@ -50,6 +50,12 @@ export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
     salvataDisponibile: salvata !== null,
     immagini: product.images,
   }
+}
+
+export async function cercaSkuAction(q: string): Promise<{ sku: string; descrizioneBreve: string }[]> {
+  const s = (q ?? '').trim()
+  if (s.length < 2) return []
+  return searchProducts(s)
 }
 
 export async function cambiaFotoAction(sku: string, url: string): Promise<{ imageHash: string; imageDataUri: string }> {
