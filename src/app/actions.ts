@@ -1,5 +1,6 @@
 'use server'
 
+import { readFileSync } from 'node:fs'
 import sharp from 'sharp'
 import { refreshFeedIfStale } from '@/lib/feed/fetcher'
 import { getProduct } from '@/lib/feed/repository'
@@ -78,6 +79,9 @@ export async function exportSceneAction(sceneJson: string): Promise<{ path: stri
   if (!/^[A-Za-z0-9._-]+$/.test(scene.sku)) throw new Error('SKU non valido')
   const svg = await renderSceneServer(scene)
   const path = await exportScene({ svg, sku: scene.sku })
-  const thumb = await sharp(path).resize(240, 240).jpeg({ quality: 80 }).toBuffer()
+  // Miniatura da Buffer (non da path): su Windows sharp/libvips mmappa il file di input e,
+  // nel processo server long-lived, l'handle resta appeso impedendo una successiva
+  // sovrascrittura di output/{sku}.jpg (ri-export dello stesso SKU). Leggere i byte evita l'mmap.
+  const thumb = await sharp(readFileSync(path)).resize(240, 240).jpeg({ quality: 80 }).toBuffer()
   return { path, thumbDataUri: `data:image/jpeg;base64,${thumb.toString('base64')}` }
 }
