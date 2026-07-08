@@ -5,7 +5,7 @@ import { proposeSceneAction, exportSceneAction, saveSceneAction, loadSceneAction
 import type { ProposeResult } from '@/lib/ui/types'
 import type { Scene } from '@/lib/scene/types'
 import { applyMutation } from '@/lib/scene/mutations'
-import { ScenePreview } from '@/lib/ui/ScenePreview'
+import { EditorPreview } from '@/lib/ui/EditorPreview'
 import { FeaturePanel } from './FeaturePanel'
 
 type Bundle = { iconMap: Record<string, string>; imageDataUri: string | null; categoriaFeatures: ProposeResult['categoriaFeatures'] }
@@ -82,7 +82,7 @@ export function StudioClient() {
 
       {scene && bundle && prodotto && (
         <div className="flex flex-col gap-4 md:flex-row">
-          <div className="flex-1"><ScenePreview scene={scene} iconMap={bundle.iconMap} imageDataUri={bundle.imageDataUri} /></div>
+          <div className="flex-1"><EditorPreview scene={scene} iconMap={bundle.iconMap} imageDataUri={bundle.imageDataUri} dispatch={dispatch} /></div>
           <aside className="w-full md:w-80 space-y-3">
             <div>
               <h2 className="font-medium text-zinc-700">{prodotto.descrizioneBreve}</h2>
