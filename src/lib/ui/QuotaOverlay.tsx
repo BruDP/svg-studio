@@ -4,6 +4,9 @@ import { type RefObject, useCallback } from 'react'
 import type { Scene, QuotaElement } from '@/lib/scene/types'
 import type { SceneAction } from '@/lib/scene/mutations'
 
+// Deve coincidere con scene.canvas.width/height (oggi 1000×1000 dal solo template
+// colonna-sinistra). Se in futuro i template usassero canvas di dimensioni diverse,
+// ricavarlo da scene.canvas invece di questa costante.
 const CANVAS = 1000
 
 export function QuotaOverlay({
@@ -32,9 +35,13 @@ export function QuotaOverlay({
       const up = () => {
         window.removeEventListener('pointermove', move)
         window.removeEventListener('pointerup', up)
+        window.removeEventListener('pointercancel', up)
       }
       window.addEventListener('pointermove', move)
       window.addEventListener('pointerup', up)
+      // pointercancel: gesture interrotta (touch/pen, gesture OS, context menu) → stessa pulizia,
+      // altrimenti il listener pointermove resterebbe appeso a inseguire il cursore.
+      window.addEventListener('pointercancel', up)
     },
     [containerRef, dispatch],
   )
