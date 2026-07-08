@@ -24,6 +24,11 @@ async function main() {
   })
   // FeedMeta recente → refreshFeedIfStale salta il download nel modo finto
   await db.feedMeta.create({ data: { sourceHash: 'e2e' } })
+  // Pulizia db.scene: il test "salva e riprendi" scrive una scena modificata per lo SKU di
+  // fixture; senza questa pulizia una scena salvata da un'esecuzione precedente resta nel DB
+  // (sqlite persiste su disco tra esecuzioni di `npm run e2e`) e rende i run non ripetibili
+  // in modo verificabile. Girando in global-setup, la pulizia avviene una sola volta per run.
+  await db.scene.deleteMany({ where: { sku: '2137070' } })
   await db.$disconnect()
 }
 

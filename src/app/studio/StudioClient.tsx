@@ -1,94 +1,104 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { proposeSceneAction, exportSceneAction } from '../actions'
+import { useReducer, useState, useTransition } from 'react'
+import { proposeSceneAction, exportSceneAction, saveSceneAction, loadSceneAction } from '../actions'
 import type { ProposeResult } from '@/lib/ui/types'
+import type { Scene } from '@/lib/scene/types'
+import { applyMutation } from '@/lib/scene/mutations'
 import { ScenePreview } from '@/lib/ui/ScenePreview'
+import { FeaturePanel } from './FeaturePanel'
+
+type Bundle = { iconMap: Record<string, string>; imageDataUri: string | null; categoriaFeatures: ProposeResult['categoriaFeatures'] }
 
 export function StudioClient() {
   const [sku, setSku] = useState('')
-  const [data, setData] = useState<ProposeResult | null>(null)
+  const [bundle, setBundle] = useState<Bundle | null>(null)
+  const [scene, dispatch] = useReducer(
+    (s: Scene | null, a: Parameters<typeof applyMutation>[1] | { type: 'reset'; scene: Scene }) =>
+      a.type === 'reset' ? a.scene : s ? applyMutation(s, a) : s,
+    null,
+  )
+  const [prodotto, setProdotto] = useState<ProposeResult['prodotto'] | null>(null)
+  const [salvataDisponibile, setSalvata] = useState(false)
   const [thumb, setThumb] = useState<string | null>(null)
+  const [msg, setMsg] = useState<string | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
-  const [inCorso, startTransition] = useTransition()
+  const [inCorso, start] = useTransition()
 
   function proponi() {
-    setErrore(null)
-    setThumb(null)
-    startTransition(async () => {
+    setErrore(null); setThumb(null); setMsg(null)
+    start(async () => {
       try {
-        setData(await proposeSceneAction(sku))
-      } catch (e) {
-        setData(null)
-        setErrore(e instanceof Error ? e.message : 'Errore sconosciuto')
-      }
+        const r = await proposeSceneAction(sku)
+        dispatch({ type: 'reset', scene: r.scene })
+        setBundle({ iconMap: r.iconMap, imageDataUri: r.imageDataUri, categoriaFeatures: r.categoriaFeatures })
+        setProdotto(r.prodotto)
+        setSalvata(r.salvataDisponibile)
+      } catch (e) { setBundle(null); setErrore(e instanceof Error ? e.message : 'Errore') }
+    })
+  }
+
+  function riprendi() {
+    setErrore(null); setThumb(null); setMsg(null)
+    start(async () => {
+      try {
+        const r = await loadSceneAction(sku)
+        if (!r) { setMsg('Nessuna scheda salvata per questo SKU'); return }
+        dispatch({ type: 'reset', scene: r.scene })
+        setBundle((b) => (b ? { ...b, iconMap: r.iconMap, imageDataUri: r.imageDataUri } : b))
+      } catch (e) { setErrore(e instanceof Error ? e.message : 'Errore') }
+    })
+  }
+
+  function salva() {
+    if (!scene) return
+    start(async () => {
+      try { await saveSceneAction(JSON.stringify(scene)); setMsg('Scheda salvata'); setSalvata(true) }
+      catch (e) { setErrore(e instanceof Error ? e.message : 'Errore salvataggio') }
     })
   }
 
   function esporta() {
-    if (!data) return
+    if (!scene) return
     setErrore(null)
-    startTransition(async () => {
-      try {
-        const res = await exportSceneAction(JSON.stringify(data.scene))
-        setThumb(res.thumbDataUri)
-      } catch (e) {
-        setErrore(e instanceof Error ? e.message : 'Errore export')
-      }
+    start(async () => {
+      try { setThumb((await exportSceneAction(JSON.stringify(scene))).thumbDataUri) }
+      catch (e) { setErrore(e instanceof Error ? e.message : 'Errore export') }
     })
   }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-2">
-        <input
-          aria-label="SKU"
-          className="flex-1 rounded border border-zinc-300 px-3 py-2"
-          placeholder="Inserisci SKU (es. 2137070)"
-          value={sku}
-          onChange={(e) => setSku(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && proponi()}
-        />
-        <button
-          className="rounded bg-zinc-800 px-4 py-2 text-white disabled:opacity-50"
-          onClick={proponi}
-          disabled={inCorso || sku.trim() === ''}
-        >
-          {inCorso ? 'Elaboro…' : 'Proponi'}
-        </button>
+        <input aria-label="SKU" className="flex-1 rounded border border-zinc-300 px-3 py-2"
+          placeholder="Inserisci SKU (es. 2137070)" value={sku}
+          onChange={(e) => setSku(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && proponi()} />
+        <button className="rounded bg-zinc-800 px-4 py-2 text-white disabled:opacity-50"
+          onClick={proponi} disabled={inCorso || sku.trim() === ''}>{inCorso ? 'Elaboro…' : 'Proponi'}</button>
       </div>
 
       {errore && <p role="alert" className="text-red-600">{errore}</p>}
+      {msg && <p className="text-emerald-700">{msg}</p>}
 
-      {data && (
+      {scene && bundle && prodotto && (
         <div className="flex flex-col gap-4 md:flex-row">
-          <div className="flex-1">
-            <ScenePreview svg={data.svg} />
-          </div>
-          <aside className="w-full md:w-72">
-            <h2 className="font-medium text-zinc-700">{data.prodotto.descrizioneBreve}</h2>
-            <p className="mb-2 text-sm text-zinc-500">SKU {data.prodotto.sku}</p>
-            <ul className="mb-4 space-y-1 text-sm">
-              {data.scene.elements
-                .filter((el) => el.type === 'icona-label')
-                .map((el) => (
-                  <li key={el.id} className={'verificata' in el && !el.verificata ? 'text-amber-600' : 'text-zinc-700'}>
-                    {'etichetta' in el ? el.etichetta : ''}
-                    {'verificata' in el && !el.verificata ? ' ⚠︎' : ''}
-                  </li>
-                ))}
-            </ul>
-            <button
-              className="rounded bg-emerald-700 px-4 py-2 text-white disabled:opacity-50"
-              onClick={esporta}
-              disabled={inCorso}
-            >
-              Esporta JPEG
-            </button>
+          <div className="flex-1"><ScenePreview scene={scene} iconMap={bundle.iconMap} imageDataUri={bundle.imageDataUri} /></div>
+          <aside className="w-full md:w-80 space-y-3">
+            <div>
+              <h2 className="font-medium text-zinc-700">{prodotto.descrizioneBreve}</h2>
+              <p className="text-sm text-zinc-500">SKU {prodotto.sku}</p>
+            </div>
+            <FeaturePanel scene={scene} categoriaFeatures={bundle.categoriaFeatures} dispatch={dispatch} />
+            <div className="flex gap-2">
+              <button className="rounded bg-zinc-700 px-4 py-2 text-white disabled:opacity-50" onClick={salva} disabled={inCorso}>Salva</button>
+              <button className="rounded bg-emerald-700 px-4 py-2 text-white disabled:opacity-50" onClick={esporta} disabled={inCorso}>Esporta JPEG</button>
+              {salvataDisponibile && (
+                <button className="rounded border border-zinc-300 px-4 py-2 text-zinc-700 disabled:opacity-50" onClick={riprendi} disabled={inCorso}>Riprendi salvata</button>
+              )}
+            </div>
             {thumb && (
-              <div className="mt-3">
+              <div>
                 <p className="text-sm text-zinc-500">Esportata:</p>
-                {/* miniatura di conferma; è un data URI generato da noi */}
                 <img alt="Anteprima esportata" src={thumb} className="mt-1 border border-zinc-200" width={240} height={240} />
               </div>
             )}

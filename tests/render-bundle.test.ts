@@ -50,6 +50,18 @@ describe('resolveRenderBundle', () => {
   })
 })
 
+describe('resolveIconsForKeys', () => {
+  it('mappa solo le chiavi con icona approvata, inner SVG', async () => {
+    const { resolveIconsForKeys } = await import('@/lib/render/bundle')
+    const getIcon = async (k: string) =>
+      k === 'ok' ? { svg: '<svg viewBox="0 0 24 24"><path d="M9 9"/></svg>' } : null
+    const map = await resolveIconsForKeys(['ok', 'no', 'ok'], { getIcon })
+    expect(Object.keys(map)).toEqual(['ok'])
+    expect(map.ok).toContain('M9 9')
+    expect(map.ok).not.toMatch(/<svg/i)
+  })
+})
+
 describe('isValidImageHash', () => {
   it('accetta un hash sha256 esadecimale minuscolo di 64 caratteri', () => {
     const validHash = 'a'.repeat(64)

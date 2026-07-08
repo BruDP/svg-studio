@@ -2,7 +2,8 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { Resvg } from '@resvg/resvg-js'
 import sharp from 'sharp'
-import { FONT_FILES, theme } from '@/lib/theme'
+import { theme } from '@/lib/theme'
+import { FONT_FILES } from '@/lib/fonts'
 
 export function renderSvgToPng(svg: string, size = 1000): Buffer {
   const resvg = new Resvg(svg, {
