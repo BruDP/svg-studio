@@ -13,6 +13,8 @@ import { parseScene } from '@/lib/scene/schema'
 import type { Scene } from '@/lib/scene/types'
 import type { ProposeResult } from '@/lib/ui/types'
 import { isFake, fakeGenerate, fakeDownload } from '@/lib/testing/fake'
+import { cacheImage, readCachedImage } from '@/lib/images/cache'
+import { extToMime } from '@/lib/ui/mime'
 import { db } from '@/lib/db'
 
 export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
@@ -46,7 +48,19 @@ export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
     prodotto: { sku: product.sku, descrizioneBreve: product.descrizioneBreve },
     categoriaFeatures: applicabili,
     salvataDisponibile: salvata !== null,
+    immagini: product.images,
   }
+}
+
+export async function cambiaFotoAction(sku: string, url: string): Promise<{ imageHash: string; imageDataUri: string }> {
+  const product = await getProduct((sku ?? '').trim())
+  if (!product) throw new Error('Prodotto non trovato')
+  if (!product.images.includes(url)) throw new Error('URL immagine non appartenente al prodotto')
+  const deps = isFake() ? { download: fakeDownload() } : undefined
+  const cached = await cacheImage(url, deps)
+  const bytes = readCachedImage(cached.hash, cached.ext)
+  const imageDataUri = `data:${extToMime(cached.ext)};base64,${bytes.toString('base64')}`
+  return { imageHash: cached.hash, imageDataUri }
 }
 
 export async function saveSceneAction(sceneJson: string): Promise<void> {

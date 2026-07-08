@@ -1,14 +1,20 @@
 'use client'
 
 import { useReducer, useState, useTransition } from 'react'
-import { proposeSceneAction, exportSceneAction, saveSceneAction, loadSceneAction } from '../actions'
+import { proposeSceneAction, exportSceneAction, saveSceneAction, loadSceneAction, cambiaFotoAction } from '../actions'
 import type { ProposeResult } from '@/lib/ui/types'
 import type { Scene } from '@/lib/scene/types'
 import { applyMutation } from '@/lib/scene/mutations'
 import { EditorPreview } from '@/lib/ui/EditorPreview'
 import { FeaturePanel } from './FeaturePanel'
+import { PhotoPicker } from './PhotoPicker'
 
-type Bundle = { iconMap: Record<string, string>; imageDataUri: string | null; categoriaFeatures: ProposeResult['categoriaFeatures'] }
+type Bundle = {
+  iconMap: Record<string, string>
+  imageDataUri: string | null
+  categoriaFeatures: ProposeResult['categoriaFeatures']
+  immagini: string[]
+}
 
 export function StudioClient() {
   const [sku, setSku] = useState('')
@@ -31,7 +37,7 @@ export function StudioClient() {
       try {
         const r = await proposeSceneAction(sku)
         dispatch({ type: 'reset', scene: r.scene })
-        setBundle({ iconMap: r.iconMap, imageDataUri: r.imageDataUri, categoriaFeatures: r.categoriaFeatures })
+        setBundle({ iconMap: r.iconMap, imageDataUri: r.imageDataUri, categoriaFeatures: r.categoriaFeatures, immagini: r.immagini })
         setProdotto(r.prodotto)
         setSalvata(r.salvataDisponibile)
       } catch (e) { setBundle(null); setErrore(e instanceof Error ? e.message : 'Errore') }
@@ -55,6 +61,19 @@ export function StudioClient() {
     start(async () => {
       try { await saveSceneAction(JSON.stringify(scene)); setMsg('Scheda salvata'); setSalvata(true) }
       catch (e) { setErrore(e instanceof Error ? e.message : 'Errore salvataggio') }
+    })
+  }
+
+  function cambiaFoto(url: string) {
+    if (!prodotto) return
+    start(async () => {
+      try {
+        const { imageHash, imageDataUri } = await cambiaFotoAction(prodotto.sku, url)
+        dispatch({ type: 'imposta-foto', imageHash })
+        setBundle((b) => (b ? { ...b, imageDataUri } : b))
+      } catch (e) {
+        setErrore(e instanceof Error ? e.message : 'Errore cambio foto')
+      }
     })
   }
 
@@ -88,6 +107,7 @@ export function StudioClient() {
               <h2 className="font-medium text-zinc-700">{prodotto.descrizioneBreve}</h2>
               <p className="text-sm text-zinc-500">SKU {prodotto.sku}</p>
             </div>
+            <PhotoPicker immagini={bundle.immagini} onScegli={cambiaFoto} />
             <FeaturePanel scene={scene} categoriaFeatures={bundle.categoriaFeatures} dispatch={dispatch} />
             <div className="flex gap-2">
               <button className="rounded bg-zinc-700 px-4 py-2 text-white disabled:opacity-50" onClick={salva} disabled={inCorso}>Salva</button>
