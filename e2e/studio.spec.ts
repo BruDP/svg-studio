@@ -73,3 +73,47 @@ test('salva e riprendi: la scheda modificata persiste', async ({ page }) => {
   await page.getByRole('button', { name: 'Riprendi salvata' }).click()
   await expect(etichette).toHaveCount(primaN - 1, { timeout: 30_000 }) // salvata = una in meno
 })
+
+test('drag di una maniglia quota sposta l\'estremo', async ({ page }) => {
+  await apriEProponi(page, '2137070')
+  await expect(page.locator('svg').filter({ hasText: 'barbecue' })).toBeVisible({ timeout: 30_000 })
+
+  const maniglia = page.locator('[data-testid^="quota-"]').first()
+  await expect(maniglia).toBeVisible()
+  const prima = await maniglia.boundingBox()
+  expect(prima).not.toBeNull()
+
+  // trascina la maniglia di ~80px a sinistra e ~40px in basso
+  await maniglia.hover()
+  await page.mouse.down()
+  await page.mouse.move(prima!.x + prima!.width / 2 - 80, prima!.y + prima!.height / 2 + 40, { steps: 8 })
+  await page.mouse.up()
+
+  const dopo = await maniglia.boundingBox()
+  expect(Math.abs(dopo!.x - prima!.x) + Math.abs(dopo!.y - prima!.y)).toBeGreaterThan(20)
+
+  // l'export riflette comunque la scena modificata
+  await page.getByRole('button', { name: 'Esporta JPEG' }).click()
+  await expect(page.getByAltText('Anteprima esportata')).toBeVisible({ timeout: 30_000 })
+})
+
+test('cambio foto: selezionare una miniatura non rompe anteprima ed export', async ({ page }) => {
+  await apriEProponi(page, '2137070')
+  await expect(page.locator('svg').filter({ hasText: 'barbecue' })).toBeVisible({ timeout: 30_000 })
+  await page.getByRole('button', { name: 'Foto 2' }).click()
+  await expect(page.locator('svg').filter({ hasText: 'barbecue' })).toBeVisible()
+  await page.getByRole('button', { name: 'Esporta JPEG' }).click()
+  await expect(page.getByAltText('Anteprima esportata')).toBeVisible({ timeout: 30_000 })
+})
+
+test('ricerca per nome trova il prodotto e lo carica', async ({ page }) => {
+  await page.goto('/studio')
+  const cerca = page.getByLabel('Cerca per nome')
+  await expect(async () => {
+    await cerca.fill('barbecue')
+    await expect(page.getByRole('button', { name: 'Cerca' })).toBeEnabled()
+  }).toPass({ timeout: 15_000 })
+  await page.getByRole('button', { name: 'Cerca' }).click()
+  await page.getByRole('button', { name: 'Scegli 2137070' }).click()
+  await expect(page.locator('svg').filter({ hasText: 'barbecue' })).toBeVisible({ timeout: 30_000 })
+})
