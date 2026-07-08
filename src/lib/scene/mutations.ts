@@ -6,6 +6,8 @@ export type SceneAction =
   | { type: 'rimuovi'; id: string }
   | { type: 'aggiungi-feature'; chiave: string; etichetta: string }
   | { type: 'modifica-etichetta'; id: string; etichetta: string }
+  | { type: 'sposta-quota'; id: string; estremo: 'inizio' | 'fine'; x: number; y: number }
+  | { type: 'imposta-foto'; imageHash: string }
 
 function isIcona(el: SceneElement): el is IconLabelElement {
   return el.type === 'icona-label'
@@ -79,6 +81,29 @@ export function applyMutation(scene: Scene, action: SceneAction): Scene {
         ...scene,
         elements: scene.elements.map((el) =>
           isIcona(el) && el.id === action.id ? { ...el, etichetta: action.etichetta } : el,
+        ),
+      }
+    }
+    case 'sposta-quota': {
+      const clamp = (v: number, max: number) => Math.max(0, Math.min(max, v))
+      const x = clamp(action.x, scene.canvas.width)
+      const y = clamp(action.y, scene.canvas.height)
+      return {
+        ...scene,
+        elements: scene.elements.map((el) =>
+          el.type === 'quota' && el.id === action.id
+            ? action.estremo === 'inizio'
+              ? { ...el, x1: x, y1: y }
+              : { ...el, x2: x, y2: y }
+            : el,
+        ),
+      }
+    }
+    case 'imposta-foto': {
+      return {
+        ...scene,
+        elements: scene.elements.map((el) =>
+          el.type === 'foto' ? { ...el, imageHash: action.imageHash } : el,
         ),
       }
     }
