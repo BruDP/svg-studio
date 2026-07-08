@@ -55,8 +55,7 @@ export function applyMutation(scene: Scene, action: SceneAction): Scene {
       return conIcone(scene, riflow(arr, startY))
     }
     case 'rimuovi': {
-      const arr = icone.filter((e) => e.id !== action.id)
-      if (arr.length === icone.length) return scene
+      if (!icone.some((e) => e.id === action.id)) return scene
       // ricostruisci senza l'elemento rimosso
       const elements = scene.elements.filter((e) => e.id !== action.id)
       const riflowate = riflow(elements.filter(isIcona), startY)

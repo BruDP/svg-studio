@@ -33,7 +33,7 @@ export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
   // icone per TUTTE le feature applicabili alla categoria (così "aggiungi" ha già l'icona)
   const applicabili = Object.entries(dict.features)
     .filter(([, def]) => def.categorie.includes(proposal.categoria))
-    .map(([chiave, def]) => ({ chiave, etichetta: def.label.replace('{valore}', '') }))
+    .map(([chiave, def]) => ({ chiave, etichetta: def.label.replace('{valore}', '').trim() }))
   const bundle = await resolveRenderBundle(scene)
   const iconMapChiavi = await resolveIconsForKeys(applicabili.map((f) => f.chiave))
   const iconMap = { ...iconMapChiavi, ...bundle.iconMap }

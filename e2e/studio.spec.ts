@@ -62,6 +62,7 @@ test('salva e riprendi: la scheda modificata persiste', async ({ page }) => {
 
   const etichette = page.getByLabel(/^Etichetta /)
   const primaN = await etichette.count()
+  expect(primaN).toBeGreaterThan(0)
   await page.getByRole('button', { name: /^Rimuovi / }).first().click()
   await page.getByRole('button', { name: 'Salva' }).click()
   await expect(page.getByText('Scheda salvata')).toBeVisible({ timeout: 30_000 })

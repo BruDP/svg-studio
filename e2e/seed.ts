@@ -28,7 +28,7 @@ async function main() {
   // fixture; senza questa pulizia una scena salvata da un'esecuzione precedente resta nel DB
   // (sqlite persiste su disco tra esecuzioni di `npm run e2e`) e rende i run non ripetibili
   // in modo verificabile. Girando in global-setup, la pulizia avviene una sola volta per run.
-  await db.scene.deleteMany()
+  await db.scene.deleteMany({ where: { sku: '2137070' } })
   await db.$disconnect()
 }
 
