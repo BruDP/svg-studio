@@ -1,14 +1,21 @@
 'use client'
 
 import { useReducer, useState, useTransition } from 'react'
-import { proposeSceneAction, exportSceneAction, saveSceneAction, loadSceneAction } from '../actions'
+import { proposeSceneAction, exportSceneAction, saveSceneAction, loadSceneAction, cambiaFotoAction } from '../actions'
 import type { ProposeResult } from '@/lib/ui/types'
 import type { Scene } from '@/lib/scene/types'
 import { applyMutation } from '@/lib/scene/mutations'
-import { ScenePreview } from '@/lib/ui/ScenePreview'
+import { EditorPreview } from '@/lib/ui/EditorPreview'
 import { FeaturePanel } from './FeaturePanel'
+import { PhotoPicker } from './PhotoPicker'
+import { SkuSearch } from './SkuSearch'
 
-type Bundle = { iconMap: Record<string, string>; imageDataUri: string | null; categoriaFeatures: ProposeResult['categoriaFeatures'] }
+type Bundle = {
+  iconMap: Record<string, string>
+  imageDataUri: string | null
+  categoriaFeatures: ProposeResult['categoriaFeatures']
+  immagini: string[]
+}
 
 export function StudioClient() {
   const [sku, setSku] = useState('')
@@ -25,13 +32,13 @@ export function StudioClient() {
   const [errore, setErrore] = useState<string | null>(null)
   const [inCorso, start] = useTransition()
 
-  function proponi() {
+  function proponiSku(skuArg: string = sku) {
     setErrore(null); setThumb(null); setMsg(null)
     start(async () => {
       try {
-        const r = await proposeSceneAction(sku)
+        const r = await proposeSceneAction(skuArg)
         dispatch({ type: 'reset', scene: r.scene })
-        setBundle({ iconMap: r.iconMap, imageDataUri: r.imageDataUri, categoriaFeatures: r.categoriaFeatures })
+        setBundle({ iconMap: r.iconMap, imageDataUri: r.imageDataUri, categoriaFeatures: r.categoriaFeatures, immagini: r.immagini })
         setProdotto(r.prodotto)
         setSalvata(r.salvataDisponibile)
       } catch (e) { setBundle(null); setErrore(e instanceof Error ? e.message : 'Errore') }
@@ -58,6 +65,19 @@ export function StudioClient() {
     })
   }
 
+  function cambiaFoto(url: string) {
+    if (!prodotto) return
+    start(async () => {
+      try {
+        const { imageHash, imageDataUri } = await cambiaFotoAction(prodotto.sku, url)
+        dispatch({ type: 'imposta-foto', imageHash })
+        setBundle((b) => (b ? { ...b, imageDataUri } : b))
+      } catch (e) {
+        setErrore(e instanceof Error ? e.message : 'Errore cambio foto')
+      }
+    })
+  }
+
   function esporta() {
     if (!scene) return
     setErrore(null)
@@ -72,22 +92,25 @@ export function StudioClient() {
       <div className="flex gap-2">
         <input aria-label="SKU" className="flex-1 rounded border border-zinc-300 px-3 py-2"
           placeholder="Inserisci SKU (es. 2137070)" value={sku}
-          onChange={(e) => setSku(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && proponi()} />
+          onChange={(e) => setSku(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && proponiSku()} />
         <button className="rounded bg-zinc-800 px-4 py-2 text-white disabled:opacity-50"
-          onClick={proponi} disabled={inCorso || sku.trim() === ''}>{inCorso ? 'Elaboro…' : 'Proponi'}</button>
+          onClick={() => proponiSku()} disabled={inCorso || sku.trim() === ''}>{inCorso ? 'Elaboro…' : 'Proponi'}</button>
       </div>
+
+      <SkuSearch onScegli={(s) => { setSku(s); proponiSku(s) }} />
 
       {errore && <p role="alert" className="text-red-600">{errore}</p>}
       {msg && <p className="text-emerald-700">{msg}</p>}
 
       {scene && bundle && prodotto && (
         <div className="flex flex-col gap-4 md:flex-row">
-          <div className="flex-1"><ScenePreview scene={scene} iconMap={bundle.iconMap} imageDataUri={bundle.imageDataUri} /></div>
+          <div className="flex-1"><EditorPreview scene={scene} iconMap={bundle.iconMap} imageDataUri={bundle.imageDataUri} dispatch={dispatch} /></div>
           <aside className="w-full md:w-80 space-y-3">
             <div>
               <h2 className="font-medium text-zinc-700">{prodotto.descrizioneBreve}</h2>
               <p className="text-sm text-zinc-500">SKU {prodotto.sku}</p>
             </div>
+            <PhotoPicker immagini={bundle.immagini} onScegli={cambiaFoto} />
             <FeaturePanel scene={scene} categoriaFeatures={bundle.categoriaFeatures} dispatch={dispatch} />
             <div className="flex gap-2">
               <button className="rounded bg-zinc-700 px-4 py-2 text-white disabled:opacity-50" onClick={salva} disabled={inCorso}>Salva</button>
