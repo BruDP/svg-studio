@@ -315,3 +315,87 @@ features:
     badge: false
     valore: assente
     categorie: [condizionatore_portatile, ventilatore, condizionatore]
+  struttura_ferro:
+    label: "Struttura in ferro"
+    icona: tabler:fence
+    priorita: 61
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno, arredo_interno]
+  struttura_alluminio:
+    label: "Struttura in alluminio"
+    icona: tabler:building
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno]
+  piedini_antiscivolo:
+    label: "Piedini antiscivolo"
+    icona: tabler:grip-horizontal
+    priorita: 52
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno, arredo_interno]
+  richiudibile:
+    label: "Richiudibile e salvaspazio"
+    icona: tabler:fold
+    priorita: 55
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno, arredo_interno]
+  copertura_poliestere:
+    label: "Copertura in poliestere"
+    icona: tabler:shirt
+    priorita: 45
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno]
+  top_ceramica:
+    label: "Top in ceramica"
+    icona: tabler:circle-square
+    priorita: 68
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno]
+  design_moderno:
+    label: "Design moderno"
+    icona: tabler:sparkles
+    priorita: 35
+    badge: false
+    valore: assente
+    categorie: [arredo_interno, arredo_esterno]
+  specchio_figura_intera:
+    label: "Specchio a figura intera"
+    icona: tabler:rectangle-vertical
+    priorita: 80
+    badge: false
+    valore: assente
+    categorie: [arredo_interno]
+  cornice_legno:
+    label: "Cornice in legno MDF"
+    icona: tabler:frame
+    priorita: 65
+    badge: false
+    valore: assente
+    categorie: [arredo_interno]
+  apertura_cavalletto:
+    label: "Apertura a cavalletto"
+    icona: tabler:triangle
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [arredo_interno]
+  vano_contenitore:
+    label: "Doppio vano interno"
+    icona: tabler:box
+    priorita: 55
+    badge: false
+    valore: assente
+    categorie: [arredo_interno]
+  portata_ripiano:
+    label: "Portata {valore} kg per ripiano"
+    icona: tabler:stack-2
+    priorita: 50
+    badge: false
+    valore: obbligatorio
+    categorie: [arredo_interno]
