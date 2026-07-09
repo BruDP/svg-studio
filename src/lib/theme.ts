@@ -23,11 +23,19 @@ export const theme = {
     titolo: 40,
     etichetta: 26,
     badge: 30,
+    // Rapporto larghezza/carattere calibrato empiricamente sul font Poppins reale
+    // (via resvg + FONT_FILES, media su etichette rappresentative del dizionario: ~0.51 em/carattere).
+    larghezzaCarattereEm: 0.52,
+    interlinea: 1.15, // moltiplicatore di riga per le etichette spezzate su piu' righe
   },
   margini: {
     canvas: 60,
     colonnaX: 60,
     colonnaGap: 96, // distanza verticale tra icone in colonna
     labelGap: 20, // distanza cerchio → etichetta
+    // Larghezza massima (px) di un'etichetta prima di andare a capo: deve coincidere con
+    // lo spazio disponibile nel template colonna-sinistra (FOTO_BOX.x=480) meno un margine
+    // di sicurezza — se in futuro un template diverso posiziona la foto altrove, ricalcolare.
+    labelMaxLarghezza: 290,
   },
 } as const

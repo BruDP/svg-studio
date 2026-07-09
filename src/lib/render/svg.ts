@@ -8,6 +8,40 @@ function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
+function larghezzaStimata(testo: string, fontSize: number): number {
+  return testo.length * fontSize * theme.testo.larghezzaCarattereEm
+}
+
+/**
+ * Spezza un'etichetta troppo lunga su piu' righe (word-wrap greedy) in modo che non superi
+ * maxWidth e non venga coperta dalla foto (disegnata dopo, quindi sopra, nello z-order SVG).
+ * Oltre maxRighe comprime il resto con un'ellissi: difesa in profondita' per testo patologico.
+ */
+function spezzaEtichetta(testo: string, maxWidth: number, fontSize: number, maxRighe = 2): string[] {
+  const parole = testo.split(' ')
+  const righe: string[] = []
+  let corrente = ''
+  for (const parola of parole) {
+    const prova = corrente ? `${corrente} ${parola}` : parola
+    if (corrente && larghezzaStimata(prova, fontSize) > maxWidth) {
+      righe.push(corrente)
+      corrente = parola
+    } else {
+      corrente = prova
+    }
+  }
+  if (corrente) righe.push(corrente)
+  if (righe.length <= maxRighe) return righe
+
+  const tenute = righe.slice(0, maxRighe - 1)
+  let restante = righe.slice(maxRighe - 1).join(' ')
+  while (restante.length > 1 && larghezzaStimata(`${restante}…`, fontSize) > maxWidth) {
+    restante = restante.slice(0, -1)
+  }
+  tenute.push(`${restante}…`)
+  return tenute
+}
+
 function renderElement(el: SceneElement, deps: { icon: IconResolver; image: ImageResolver }): string {
   switch (el.type) {
     case 'testo': {
@@ -29,7 +63,20 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       const glifo = inner
         ? `<g transform="translate(${gx} ${gy}) scale(${scala})" fill="none" stroke="${theme.colors.cerchioStroke}" stroke-width="${theme.icona.stroke / scala}">${inner}</g>`
         : ''
-      const label = `<text x="${el.x + r * 2 + theme.margini.labelGap}" y="${cy + theme.testo.etichetta / 3}" font-family="${theme.fontFamily}" font-size="${theme.testo.etichetta}" fill="${theme.colors.testo}">${esc(el.etichetta)}</text>`
+      const labelX = el.x + r * 2 + theme.margini.labelGap
+      const fontSize = theme.testo.etichetta
+      const righe = spezzaEtichetta(el.etichetta, theme.margini.labelMaxLarghezza, fontSize)
+      const label =
+        righe.length <= 1
+          ? `<text x="${labelX}" y="${cy + fontSize / 3}" font-family="${theme.fontFamily}" font-size="${fontSize}" fill="${theme.colors.testo}">${esc(el.etichetta)}</text>`
+          : (() => {
+              const lineHeight = fontSize * theme.testo.interlinea
+              const firstY = cy + fontSize / 3 - ((righe.length - 1) * lineHeight) / 2
+              const tspans = righe
+                .map((riga, i) => `<tspan x="${labelX}" y="${firstY + i * lineHeight}">${esc(riga)}</tspan>`)
+                .join('')
+              return `<text font-family="${theme.fontFamily}" font-size="${fontSize}" fill="${theme.colors.testo}">${tspans}</text>`
+            })()
       return cerchio + glifo + label
     }
     case 'foto': {

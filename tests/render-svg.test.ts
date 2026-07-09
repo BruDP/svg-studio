@@ -45,4 +45,30 @@ describe('renderScene', () => {
     if (!existsSync(goldenPath)) return // generato allo Step 5
     expect(renderScene(scene, deps)).toBe(readFileSync(goldenPath, 'utf8'))
   })
+
+  it('etichetta corta: resta un unico <text>, nessun <tspan> (nessuna regressione)', () => {
+    const svg = renderScene(scene, deps)
+    // "Acciaio" e "Montaggio facile" nel golden sono corte: non devono generare tspan.
+    expect(svg).not.toContain('<tspan')
+  })
+
+  it('etichetta troppo lunga per la colonna va a capo su piu righe (tspan) invece di essere coperta dalla foto', () => {
+    const sceneLunga = {
+      ...scene,
+      elements: scene.elements.map((el) =>
+        el.type === 'icona-label' ? { ...el, etichetta: 'Dotato di 10 ruote per lo spostamento rapido' } : el,
+      ),
+    }
+    const svg = renderScene(sceneLunga, deps)
+    expect(svg).toContain('<tspan')
+    // ogni riga (tspan) deve restare sotto la larghezza massima di colonna: nessuna riga
+    // supera i ~21 caratteri (theme.margini.labelMaxLarghezza / (fontSize * rapporto calibrato)).
+    const righe = [...svg.matchAll(/<tspan[^>]*>([^<]*)<\/tspan>/g)].map((m) => m[1])
+    expect(righe.length).toBeGreaterThan(1)
+    for (const riga of righe) {
+      expect(riga.replace('…', '').length).toBeLessThanOrEqual(22)
+    }
+    // il testo intero deve restare presente (nessuna parola persa), a parte l'eventuale ellissi.
+    expect(righe.join(' ').replace('…', '')).toContain('Dotato')
+  })
 })
