@@ -30,6 +30,7 @@ export function StudioClient() {
   const [prodotto, setProdotto] = useState<ProposeResult['prodotto'] | null>(null)
   const [salvataDisponibile, setSalvata] = useState(false)
   const [thumb, setThumb] = useState<string | null>(null)
+  const [avvisoExport, setAvvisoExport] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
   const [pickerChiave, setPickerChiave] = useState<string | null>(null)
@@ -83,9 +84,15 @@ export function StudioClient() {
 
   function esporta() {
     if (!scene) return
-    setErrore(null)
+    setErrore(null); setAvvisoExport(null)
     start(async () => {
-      try { setThumb((await exportSceneAction(JSON.stringify(scene))).thumbDataUri) }
+      try {
+        const r = await exportSceneAction(JSON.stringify(scene))
+        setThumb(r.thumbDataUri)
+        if (r.iconeNonApprovate.length > 0) {
+          setAvvisoExport(`⚠ ${r.iconeNonApprovate.length} icone non approvate non sono nella scheda. Approvale in /icone.`)
+        }
+      }
       catch (e) { setErrore(e instanceof Error ? e.message : 'Errore export') }
     })
   }
@@ -107,7 +114,7 @@ export function StudioClient() {
 
       {scene && bundle && prodotto && (
         <div className="flex flex-col gap-4 md:flex-row">
-          <div className="flex-1"><EditorPreview scene={scene} iconMap={bundle.iconMap} imageDataUri={bundle.imageDataUri} dispatch={dispatch} /></div>
+          <div className="flex-1"><EditorPreview scene={scene} iconMap={bundle.iconMap} imageDataUri={bundle.imageDataUri} dispatch={dispatch} inRevisione={bundle.iconeNonApprovate} /></div>
           <aside className="w-full md:w-80 space-y-3">
             <div>
               <h2 className="font-medium text-zinc-700">{prodotto.descrizioneBreve}</h2>
@@ -126,6 +133,7 @@ export function StudioClient() {
               <div>
                 <p className="text-sm text-zinc-500">Esportata:</p>
                 <img alt="Anteprima esportata" src={thumb} className="mt-1 border border-zinc-200" width={240} height={240} />
+                {avvisoExport && <p className="mt-1 text-sm text-amber-700">{avvisoExport}</p>}
               </div>
             )}
           </aside>
