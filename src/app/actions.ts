@@ -7,15 +7,18 @@ import { getProduct, searchProducts } from '@/lib/feed/repository'
 import { loadDictionary } from '@/lib/dictionary/loader'
 import { extractProposal } from '@/lib/extraction/engine'
 import { composeSceneForProduct } from '../../scripts/compose-lib'
-import { resolveRenderBundle, resolveIconsForKeys, renderSceneServer } from '@/lib/render/bundle'
+import { resolveRenderBundle, resolveIconsForKeys, resolveEditorIcons, renderSceneServer, innerSvg } from '@/lib/render/bundle'
 import { exportScene } from '@/lib/export/raster'
 import { parseScene } from '@/lib/scene/schema'
 import type { Scene } from '@/lib/scene/types'
 import type { ProposeResult } from '@/lib/ui/types'
-import { isFake, fakeGenerate, fakeDownload } from '@/lib/testing/fake'
+import { isFake, fakeGenerate, fakeDownload, fakeSearchIconify, fakeFetchIconifySvg } from '@/lib/testing/fake'
 import { cacheImage, readCachedImage } from '@/lib/images/cache'
 import { extToMime } from '@/lib/ui/mime'
 import { db } from '@/lib/db'
+import { searchIconify, fetchIconifySvg, ICONIFY_SETS } from '@/lib/icons/iconify'
+import { saveIcon, approveIcon, getIcon } from '@/lib/icons/repository'
+import { normalizeIconSvg } from '@/lib/icons/normalize'
 
 export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
   const s = (sku ?? '').trim()
@@ -36,9 +39,10 @@ export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
   const applicabili = Object.entries(dict.features)
     .filter(([, def]) => def.categorie.includes(proposal.categoria))
     .map(([chiave, def]) => ({ chiave, etichetta: def.label.replace('{valore}', '').trim() }))
-  const bundle = await resolveRenderBundle(scene)
-  const iconMapChiavi = await resolveIconsForKeys(applicabili.map((f) => f.chiave))
-  const iconMap = { ...iconMapChiavi, ...bundle.iconMap }
+  const bundle = await resolveRenderBundle(scene) // resta per imageDataUri
+  const chiaviScena = scene.elements.filter((e) => e.type === 'icona-label').map((e) => e.chiave)
+  const editor = await resolveEditorIcons(applicabili.map((f) => f.chiave).concat(chiaviScena))
+  const iconMap = editor.iconMap
 
   const salvata = await db.scene.findUnique({ where: { sku: s } })
   return {
@@ -49,6 +53,7 @@ export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
     categoriaFeatures: applicabili,
     salvataDisponibile: salvata !== null,
     immagini: product.images,
+    iconeNonApprovate: editor.inRevisione,
   }
 }
 
@@ -79,22 +84,31 @@ export async function saveSceneAction(sceneJson: string): Promise<void> {
   })
 }
 
-export async function loadSceneAction(
-  sku: string,
-): Promise<{ scene: Scene; iconMap: Record<string, string>; imageDataUri: string | null } | null> {
+export async function loadSceneAction(sku: string): Promise<{
+  scene: Scene
+  iconMap: Record<string, string>
+  imageDataUri: string | null
+  iconeNonApprovate: string[]
+} | null> {
   const s = (sku ?? '').trim()
   if (!/^[A-Za-z0-9._-]+$/.test(s)) throw new Error('SKU non valido')
   const row = await db.scene.findUnique({ where: { sku: s } })
   if (!row) return null
   const scene: Scene = parseScene(JSON.parse(row.sceneJson))
   const dict = loadDictionary()
-  const applicabili = Object.keys(dict.features)
   const bundle = await resolveRenderBundle(scene)
-  const iconMapChiavi = await resolveIconsForKeys(applicabili)
-  return { scene, iconMap: { ...iconMapChiavi, ...bundle.iconMap }, imageDataUri: bundle.imageDataUri }
+  const editor = await resolveEditorIcons(Object.keys(dict.features))
+  return {
+    scene,
+    iconMap: editor.iconMap,
+    imageDataUri: bundle.imageDataUri,
+    iconeNonApprovate: editor.inRevisione,
+  }
 }
 
-export async function exportSceneAction(sceneJson: string): Promise<{ path: string; thumbDataUri: string }> {
+export async function exportSceneAction(
+  sceneJson: string,
+): Promise<{ path: string; thumbDataUri: string; iconeNonApprovate: string[] }> {
   const scene: Scene = parseScene(JSON.parse(sceneJson))
   if (!/^[A-Za-z0-9._-]+$/.test(scene.sku)) throw new Error('SKU non valido')
   const svg = await renderSceneServer(scene)
@@ -103,5 +117,69 @@ export async function exportSceneAction(sceneJson: string): Promise<{ path: stri
   // nel processo server long-lived, l'handle resta appeso impedendo una successiva
   // sovrascrittura di output/{sku}.jpg (ri-export dello stesso SKU). Leggere i byte evita l'mmap.
   const thumb = await sharp(readFileSync(path)).resize(240, 240).jpeg({ quality: 80 }).toBuffer()
-  return { path, thumbDataUri: `data:image/jpeg;base64,${thumb.toString('base64')}` }
+  const chiaviScena = [...new Set(scene.elements.filter((e) => e.type === 'icona-label').map((e) => e.chiave))]
+  const approvate = await resolveIconsForKeys(chiaviScena)
+  const iconeNonApprovate = chiaviScena.filter((k) => !(k in approvate))
+  return {
+    path,
+    thumbDataUri: `data:image/jpeg;base64,${thumb.toString('base64')}`,
+    iconeNonApprovate,
+  }
+}
+
+export async function cercaIconeAction(q: string): Promise<{ id: string; innerSvg: string }[]> {
+  const s = (q ?? '').trim()
+  if (s.length < 2) return []
+  const search = isFake() ? { fetchJson: undefined } : {}
+  const candidati = isFake() ? await fakeSearchIconify()(s) : await searchIconify(s, search)
+  const fetchSvg = isFake() ? fakeFetchIconifySvg() : (id: string) => fetchIconifySvg(id)
+  const out: { id: string; innerSvg: string }[] = []
+  for (const c of candidati.slice(0, 12)) {
+    try {
+      const raw = await fetchSvg(c.id)
+      out.push({ id: c.id, innerSvg: innerSvg(normalizeIconSvg(raw)) })
+    } catch {
+      // salta le candidate non scaricabili
+    }
+  }
+  return out
+}
+
+export async function scegliIconaAction(chiave: string, iconifyId: string): Promise<{ innerSvg: string }> {
+  const dict = loadDictionary()
+  if (!(chiave in dict.features)) throw new Error('Chiave non nel dizionario')
+  const [set, name] = iconifyId.split(':')
+  if (!name || !(ICONIFY_SETS as readonly string[]).includes(set)) throw new Error('Id icona non valido')
+  const raw = isFake() ? await fakeFetchIconifySvg()(iconifyId) : await fetchIconifySvg(iconifyId)
+  const rec = await saveIcon({ key: chiave, rawSvg: raw, source: `iconify:${set}`, license: 'iconify-permissive' })
+  return { innerSvg: innerSvg(rec.svg) }
+}
+
+export async function approveIconAction(chiave: string): Promise<void> {
+  await approveIcon(chiave)
+}
+
+export async function seedIconeAction(): Promise<{ create: number; salta: number }> {
+  const dict = loadDictionary()
+  let create = 0
+  let salta = 0
+  for (const chiave of Object.keys(dict.features)) {
+    if (await getIcon(chiave)) {
+      salta++
+      continue
+    }
+    try {
+      const cand = isFake() ? await fakeSearchIconify()(chiave) : await searchIconify(chiave.replace(/_/g, ' '))
+      const id = dict.features[chiave].icona.includes(':') ? dict.features[chiave].icona : cand[0]?.id
+      if (!id) {
+        continue
+      }
+      const raw = isFake() ? await fakeFetchIconifySvg()(id) : await fetchIconifySvg(id)
+      await saveIcon({ key: chiave, rawSvg: raw, source: `iconify:${id.split(':')[0]}`, license: 'iconify-permissive' })
+      create++
+    } catch {
+      // salta la chiave in errore
+    }
+  }
+  return { create, salta }
 }
