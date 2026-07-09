@@ -2,9 +2,9 @@
   <rect width="1000" height="1000" fill="#FFFFFF"/>
   <circle cx="102" cy="202" r="42" fill="none" stroke="#4A4A4A" stroke-width="3"/><g transform="translate(80 180) scale(1.8333333333333333)" fill="none" stroke="#4A4A4A" stroke-width="1.6363636363636365"><path d="M2 2h20"/></g><text x="164" y="210.66666666666666" font-family="Poppins" font-size="26" fill="#4A4A4A">Acciaio</text>
   <circle cx="102" cy="298" r="42" fill="none" stroke="#4A4A4A" stroke-width="3"/><text x="164" y="306.6666666666667" font-family="Poppins" font-size="26" fill="#4A4A4A">Montaggio facile</text>
-  <image x="480" y="214" width="412" height="412" href="data:image/png;base64,AAAA" preserveAspectRatio="xMidYMid meet"/>
-  <line x1="904" y1="214" x2="904" y2="626" stroke="#4A4A4A" stroke-width="2"/><text x="904" y="420" font-family="Poppins" font-size="26" fill="#4A4A4A">84,5 cm</text>
-  <line x1="480" y1="638" x2="892" y2="638" stroke="#4A4A4A" stroke-width="2"/><text x="686" y="638" font-family="Poppins" font-size="26" fill="#4A4A4A">51 cm</text>
-  <line x1="892" y1="626" x2="928" y2="662" stroke="#4A4A4A" stroke-width="2"/><text x="910" y="644" font-family="Poppins" font-size="26" fill="#4A4A4A">63 cm</text>
-  <rect x="480" y="678" width="103" height="52" rx="10" fill="#4A4A4A"/><text x="531.5" y="714" text-anchor="middle" font-family="Poppins" font-size="30" font-weight="600" fill="#FFFFFF">99 L</text>
+  <image x="460" y="238" width="444" height="444" href="data:image/png;base64,AAAA" preserveAspectRatio="xMidYMid meet"/>
+  <line x1="916" y1="238" x2="916" y2="682" stroke="#4A4A4A" stroke-width="2"/><text x="916" y="460" font-family="Poppins" font-size="26" fill="#4A4A4A">84,5 cm</text>
+  <line x1="460" y1="694" x2="904" y2="694" stroke="#4A4A4A" stroke-width="2"/><text x="682" y="694" font-family="Poppins" font-size="26" fill="#4A4A4A">51 cm</text>
+  <line x1="904" y1="682" x2="940" y2="718" stroke="#4A4A4A" stroke-width="2"/><text x="922" y="700" font-family="Poppins" font-size="26" fill="#4A4A4A">63 cm</text>
+  <rect x="460" y="734" width="103" height="52" rx="10" fill="#4A4A4A"/><text x="511.5" y="770" text-anchor="middle" font-family="Poppins" font-size="30" font-weight="600" fill="#FFFFFF">99 L</text>
 </svg>

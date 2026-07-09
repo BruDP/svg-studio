@@ -7,12 +7,19 @@ import { colonnaPositions, fitFoto, quoteFromBBox } from './engine'
 export const TEMPLATE_ID = 'colonna-sinistra'
 export const CANVAS = { width: 1000, height: 1000 }
 
-/** Riquadro destinato alla foto (metà destra del canvas, con margini). */
+/**
+ * Riquadro destinato alla foto (metà destra del canvas, con margini).
+ * Ingrandito: parte più in alto e più a sinistra e occupa più altezza, così il
+ * prodotto (spesso in formato ritratto) risulta grande come nelle schede di
+ * riferimento. `x` resta a destra della colonna icone+etichette (che finisce
+ * ~x=454: cerchio a x=60..144 + labelMaxLarghezza 290). Il margine destro riserva
+ * spazio alla freccia-quota verticale e alla sua etichetta ("70 cm").
+ */
 const FOTO_BOX = {
-  x: 480,
-  y: 140,
-  width: CANVAS.width - 480 - theme.margini.canvas - theme.freccia.testa * 4,
-  height: 560,
+  x: 460,
+  y: 110,
+  width: CANVAS.width - 460 - theme.margini.canvas - theme.freccia.testa * 3,
+  height: 700,
 }
 
 export function composeColonnaSinistra(input: {

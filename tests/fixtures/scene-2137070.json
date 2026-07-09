@@ -29,47 +29,47 @@
       "type": "foto",
       "id": "ph",
       "imageHash": "abc123",
-      "x": 480,
-      "y": 214,
-      "width": 412,
-      "height": 412
+      "x": 460,
+      "y": 238,
+      "width": 444,
+      "height": 444
     },
     {
       "type": "quota",
       "id": "q0",
       "orientamento": "verticale",
       "valore": "84,5 cm",
-      "x1": 904,
-      "y1": 214,
-      "x2": 904,
-      "y2": 626
+      "x1": 916,
+      "y1": 238,
+      "x2": 916,
+      "y2": 682
     },
     {
       "type": "quota",
       "id": "q1",
       "orientamento": "orizzontale",
       "valore": "51 cm",
-      "x1": 480,
-      "y1": 638,
-      "x2": 892,
-      "y2": 638
+      "x1": 460,
+      "y1": 694,
+      "x2": 904,
+      "y2": 694
     },
     {
       "type": "quota",
       "id": "q2",
       "orientamento": "diagonale",
       "valore": "63 cm",
-      "x1": 892,
-      "y1": 626,
-      "x2": 928,
-      "y2": 662
+      "x1": 904,
+      "y1": 682,
+      "x2": 940,
+      "y2": 718
     },
     {
       "type": "badge",
       "id": "bg0",
       "testo": "99 L",
-      "x": 480,
-      "y": 678
+      "x": 460,
+      "y": 734
     }
   ]
 }
