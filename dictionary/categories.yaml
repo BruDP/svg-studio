@@ -1,10 +1,13 @@
-version: 1
+version: 2
 categorie:
   - frigorifero
   - congelatore
   - lavatrice
   - forno
   - condizionatore
+  - condizionatore_portatile
+  - ventilatore
+  - deumidificatore
   - aspirapolvere
   - piccoli_elettrodomestici
   - sedia_ufficio_gaming

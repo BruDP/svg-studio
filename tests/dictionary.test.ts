@@ -6,6 +6,9 @@ test('il dizionario reale carica e valida', () => {
   expect(dict.version).toBe(1)
   expect(Object.keys(dict.features).length).toBeGreaterThanOrEqual(20)
   expect(dict.categorie).toContain('frigorifero')
+  expect(dict.categorie).toContain('condizionatore_portatile')
+  expect(dict.categorie).toContain('ventilatore')
+  expect(dict.categorie).toContain('deumidificatore')
 })
 
 test('ogni feature con valore obbligatorio ha {valore} nella label, e viceversa', () => {
