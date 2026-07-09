@@ -8,14 +8,6 @@
   },
   "elements": [
     {
-      "type": "testo",
-      "id": "titolo",
-      "testo": "barbecue",
-      "x": 60,
-      "y": 60,
-      "ruolo": "titolo"
-    },
-    {
       "type": "icona-label",
       "id": "f0",
       "chiave": "materiale_acciaio",

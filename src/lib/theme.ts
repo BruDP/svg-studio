@@ -19,6 +19,11 @@ export const theme = {
     stroke: 2,
     testa: 12,
   },
+  badge: {
+    altezza: 52,
+    raggio: 10, // rx dell'angolo arrotondato
+    paddingX: 20, // spazio orizzontale per lato tra testo e bordo del box
+  },
   testo: {
     titolo: 40,
     etichetta: 26,

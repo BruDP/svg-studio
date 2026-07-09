@@ -23,15 +23,8 @@ export function composeColonnaSinistra(input: {
   const { proposal, imageHash, bbox } = input
   const elements: SceneElement[] = []
 
-  // Titolo in alto a sinistra
-  elements.push({
-    type: 'testo',
-    id: 'titolo',
-    testo: proposal.categoria,
-    x: theme.margini.canvas,
-    y: theme.margini.canvas,
-    ruolo: 'titolo',
-  })
+  // Nessun titolo: le schede di riferimento non hanno intestazione (la chiave categoria
+  // grezza non è adatta come titolo). Le icone partono dall'alto della colonna.
 
   // Icone in colonna, nell'ordine del ranking
   const posizioni = colonnaPositions(proposal.features.length, 160)

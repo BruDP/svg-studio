@@ -46,6 +46,24 @@ describe('renderScene', () => {
     expect(renderScene(scene, deps)).toBe(readFileSync(goldenPath, 'utf8'))
   })
 
+  it('badge: la larghezza del box accomoda il testo lungo (nessun taglio)', () => {
+    const badgeScene = parseScene({
+      version: 1,
+      sku: 'TEST',
+      templateId: 'colonna-sinistra',
+      canvas: { width: 1000, height: 1000 },
+      elements: [{ type: 'badge', id: 'b1', testo: '7000 BTU', x: 100, y: 100 }],
+    })
+    const svg = renderScene(badgeScene, deps)
+    // rect del badge identificato dall'altezza (theme.badge.altezza = 52)
+    const m = svg.match(/<rect[^>]*width="(\d+)" height="52"/)
+    expect(m).not.toBeNull()
+    const w = Number(m![1])
+    // larghezza testo stimata "7000 BTU" (8 char) a font badge 30 con ratio 0.52 ≈ 125px:
+    // il box deve contenerla (il testo è centrato in x+w/2). La vecchia formula (8*8+40=104) tagliava.
+    expect(w).toBeGreaterThanOrEqual(125)
+  })
+
   it('etichetta corta: resta un unico <text>, nessun <tspan> (nessuna regressione)', () => {
     const svg = renderScene(scene, deps)
     // "Acciaio" e "Montaggio facile" nel golden sono corte: non devono generare tspan.
