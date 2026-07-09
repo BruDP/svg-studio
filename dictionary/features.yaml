@@ -1,4 +1,4 @@
-version: 1
+version: 2
 features:
   classe_energetica:
     label: "Classe {valore}"
@@ -168,3 +168,234 @@ features:
     badge: false
     valore: assente
     categorie: [barbecue]
+  modalita_raffresca:
+    label: "Raffresca"
+    icona: tabler:snowflake
+    priorita: 92
+    badge: false
+    valore: assente
+    categorie: [condizionatore_portatile, condizionatore]
+  modalita_deumidifica:
+    label: "Deumidifica"
+    icona: tabler:droplet
+    priorita: 90
+    badge: false
+    valore: assente
+    categorie: [condizionatore_portatile, deumidificatore, condizionatore]
+  modalita_ventila:
+    label: "Ventila"
+    icona: tabler:wind
+    priorita: 88
+    badge: false
+    valore: assente
+    categorie: [condizionatore_portatile, ventilatore, condizionatore]
+  potenza_btu:
+    label: "{valore} BTU"
+    icona: tabler:temperature-snow
+    priorita: 85
+    badge: true
+    valore: obbligatorio
+    categorie: [condizionatore_portatile, condizionatore]
+  capacita_deumidificazione:
+    label: "Assorbe {valore} L al giorno"
+    icona: tabler:droplet-half-2
+    priorita: 78
+    badge: false
+    valore: obbligatorio
+    categorie: [condizionatore_portatile, deumidificatore]
+  capacita_serbatoio:
+    label: "Serbatoio acqua {valore} L"
+    icona: tabler:bottle
+    priorita: 55
+    badge: false
+    valore: obbligatorio
+    categorie: [condizionatore_portatile, deumidificatore]
+  intervallo_temperatura:
+    label: "Intervallo {valore}"
+    icona: tabler:temperature
+    priorita: 65
+    badge: false
+    valore: obbligatorio
+    categorie: [condizionatore_portatile, condizionatore]
+  sbrinamento_automatico:
+    label: "Sbrinamento automatico"
+    icona: tabler:snowflake-off
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [condizionatore_portatile, condizionatore, deumidificatore]
+  ruote_pivotanti:
+    label: "{valore} ruote pivotanti"
+    icona: tabler:circle-dot
+    priorita: 50
+    badge: false
+    valore: obbligatorio
+    categorie: [condizionatore_portatile, deumidificatore]
+  kit_finestra:
+    label: "Kit installazione finestra incluso"
+    icona: tabler:window
+    priorita: 45
+    badge: false
+    valore: assente
+    categorie: [condizionatore_portatile]
+  oscillazione:
+    label: "Oscillazione"
+    icona: tabler:arrows-horizontal
+    priorita: 80
+    badge: false
+    valore: assente
+    categorie: [ventilatore]
+  pale_diametro:
+    label: "Pale Ø {valore} cm"
+    icona: tabler:propeller
+    priorita: 72
+    badge: false
+    valore: obbligatorio
+    categorie: [ventilatore]
+  testa_inclinabile:
+    label: "Testa inclinabile"
+    icona: tabler:angle
+    priorita: 70
+    badge: false
+    valore: assente
+    categorie: [ventilatore]
+  altezza_regolabile:
+    label: "Altezza regolabile"
+    icona: tabler:arrows-move-vertical
+    priorita: 68
+    badge: false
+    valore: assente
+    categorie: [ventilatore]
+  velocita_ventilazione:
+    label: "{valore} velocità"
+    icona: tabler:wind-electricity
+    priorita: 66
+    badge: false
+    valore: obbligatorio
+    categorie: [ventilatore, condizionatore_portatile]
+  griglia_protezione:
+    label: "Griglia di protezione"
+    icona: tabler:grid-dots
+    priorita: 55
+    badge: false
+    valore: assente
+    categorie: [ventilatore]
+  funzione_inverter:
+    label: "Funzione inverter"
+    icona: tabler:refresh
+    priorita: 75
+    badge: false
+    valore: assente
+    categorie: [condizionatore]
+  pompa_calore:
+    label: "Pompa di calore"
+    icona: tabler:flame
+    priorita: 74
+    badge: false
+    valore: assente
+    categorie: [condizionatore]
+  timer_ore:
+    label: "Timer {valore}H"
+    icona: tabler:clock
+    priorita: 62
+    badge: false
+    valore: obbligatorio
+    categorie: [condizionatore_portatile, ventilatore, deumidificatore, condizionatore]
+  connettivita_wifi:
+    label: "WiFi"
+    icona: tabler:wifi
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [condizionatore]
+  telecomando_incluso:
+    label: "Telecomando incluso"
+    icona: tabler:device-remote
+    priorita: 58
+    badge: false
+    valore: assente
+    categorie: [condizionatore_portatile, ventilatore, condizionatore]
+  struttura_ferro:
+    label: "Struttura in ferro"
+    icona: tabler:fence
+    priorita: 61
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno, arredo_interno]
+  struttura_alluminio:
+    label: "Struttura in alluminio"
+    icona: tabler:building
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno]
+  piedini_antiscivolo:
+    label: "Piedini antiscivolo"
+    icona: tabler:grip-horizontal
+    priorita: 52
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno, arredo_interno]
+  richiudibile:
+    label: "Richiudibile e salvaspazio"
+    icona: tabler:fold
+    priorita: 55
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno, arredo_interno]
+  copertura_poliestere:
+    label: "Copertura in poliestere"
+    icona: tabler:shirt
+    priorita: 45
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno]
+  top_ceramica:
+    label: "Top in ceramica"
+    icona: tabler:circle-square
+    priorita: 68
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno]
+  design_moderno:
+    label: "Design moderno"
+    icona: tabler:sparkles
+    priorita: 35
+    badge: false
+    valore: assente
+    categorie: [arredo_interno, arredo_esterno]
+  specchio_figura_intera:
+    label: "Specchio a figura intera"
+    icona: tabler:rectangle-vertical
+    priorita: 80
+    badge: false
+    valore: assente
+    categorie: [arredo_interno]
+  cornice_legno:
+    label: "Cornice in legno MDF"
+    icona: tabler:frame
+    priorita: 65
+    badge: false
+    valore: assente
+    categorie: [arredo_interno]
+  apertura_cavalletto:
+    label: "Apertura a cavalletto"
+    icona: tabler:triangle
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [arredo_interno]
+  vano_contenitore:
+    label: "Doppio vano interno"
+    icona: tabler:box
+    priorita: 55
+    badge: false
+    valore: assente
+    categorie: [arredo_interno]
+  portata_ripiano:
+    label: "Portata {valore} kg per ripiano"
+    icona: tabler:stack-2
+    priorita: 50
+    badge: false
+    valore: obbligatorio
+    categorie: [arredo_interno]

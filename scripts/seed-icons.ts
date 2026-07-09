@@ -8,10 +8,11 @@ async function main() {
   const { db } = await import('@/lib/db')
   const { loadDictionary } = await import('@/lib/dictionary/loader')
   const { fetchIconifySvg, searchIconify } = await import('@/lib/icons/iconify')
-  const { saveIcon, getIcon } = await import('@/lib/icons/repository')
+  const { saveIcon, getIcon, approveIcon } = await import('@/lib/icons/repository')
 
   const dict = loadDictionary()
   const keys = Object.keys(dict.features).sort()
+  const approva = process.argv.includes('--approve')
   let creati = 0
   let saltati = 0
 
@@ -30,6 +31,7 @@ async function main() {
       }
       const rawSvg = await fetchIconifySvg(id)
       await saveIcon({ key, rawSvg, source: `iconify:${id.split(':')[0]}`, license: 'iconify-permissive' })
+      if (approva) await approveIcon(key)
       creati++
       console.error(`✓ ${key} ← ${id}`)
     } catch (e) {
@@ -37,7 +39,7 @@ async function main() {
     }
   }
 
-  console.error(`\nSeeding completato: ${creati} create, ${saltati} già presenti.`)
+  console.error(`\nSeeding completato: ${creati} create${approva ? ' e approvate' : ''}, ${saltati} già presenti.`)
   await db.$disconnect()
 }
 
