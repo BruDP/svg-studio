@@ -138,3 +138,14 @@ Tutte con icone `tabler:*` verificate esistenti. `valore: obbligatorio` = l'etic
 - Espansione dizionario alle restanti categorie verso il target 100-150 chiavi.
 - Rifinitura estetica delle icone Tabler (alcune approssimative, es. `tabler:wheel`).
 - Titolo scheda: formattare o rimuovere la chiave categoria grezza.
+- Rivedere la licenza del set `solar` in `ICONIFY_SETS` (CC BY 4.0 → richiederebbe attribuzione, a differenza di Tabler/Lucide che sono attribution-free).
+
+### Decisione presa (2026-07-09): NON aggiungere fonti icone esterne
+
+Valutato e **scartato** l'aggiunta di fonti come Icons8, Tilda, The Noun Project, Flaticon, Freepik, Icon-icons. Motivi:
+- **Licenza**: Noun Project, Flaticon, Freepik, Icons8 nel piano free impongono **attribuzione** per icona — impraticabile e rischioso su schede prodotto commerciali. Icon-icons ha metadati di licenza inaffidabili.
+- **Coerenza visiva**: mescolare set diversi mette icone di stile/peso diverso sulla stessa scheda; un set coerente (Tabler) rispecchia meglio lo stile line-art delle reference.
+- **Renderer**: la pipeline vuole line-art a stroke (viewBox 24×24, `fill=none stroke`); molte icone di quelle fonti sono fill/multicolor → renderebbero vuote.
+- **Non è il collo di bottiglia**: il benchmark ha trovato 38/40 icone candidate in Tabler al primo colpo; il limite è il dizionario, non la disponibilità di icone.
+
+**Se in futuro servisse più copertura icone**, la mossa preferita è allargare `ICONIFY_SETS` a un altro set line-art permissivo **già dentro Iconify** (es. Lucide, Phosphor) — nessuna integrazione nuova, nessuna attribuzione, stile coerente. Il DB salva già `source`/`license` per icona, quindi l'architettura resta pronta a più fonti senza modifiche.
