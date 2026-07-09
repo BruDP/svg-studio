@@ -33,6 +33,7 @@ describe('composeColonnaSinistra', () => {
     expect(per('badge')).toHaveLength(1)
     expect(per('foto')).toHaveLength(1)
     expect(per('quota')).toHaveLength(3) // larghezza+profondita+altezza
+    expect(per('testo')).toHaveLength(0) // nessun titolo (rimosso: chiave categoria non adatta)
   })
 
   it('preserva l\'ordine del ranking nelle icone in colonna', () => {

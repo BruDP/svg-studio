@@ -94,9 +94,11 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       return linea + etichetta
     }
     case 'badge': {
-      const w = 8 * el.testo.length + 40
-      const h = 52
-      const rect = `<rect x="${el.x}" y="${el.y}" width="${w}" height="${h}" rx="10" fill="${theme.colors.badgeBg}"/>`
+      // Larghezza dal testo reale (ratio Poppins calibrato) + padding, così badge lunghi
+      // come "7000 BTU" non vengono tagliati dal box (il testo è centrato in x+w/2).
+      const w = Math.ceil(larghezzaStimata(el.testo, theme.testo.badge)) + theme.badge.paddingX * 2
+      const h = theme.badge.altezza
+      const rect = `<rect x="${el.x}" y="${el.y}" width="${w}" height="${h}" rx="${theme.badge.raggio}" fill="${theme.colors.badgeBg}"/>`
       const t = `<text x="${el.x + w / 2}" y="${el.y + h / 2 + theme.testo.badge / 3}" text-anchor="middle" font-family="${theme.fontFamily}" font-size="${theme.testo.badge}" font-weight="600" fill="${theme.colors.badgeTesto}">${esc(el.testo)}</text>`
       return rect + t
     }
