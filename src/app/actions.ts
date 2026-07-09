@@ -17,7 +17,7 @@ import { cacheImage, readCachedImage } from '@/lib/images/cache'
 import { extToMime } from '@/lib/ui/mime'
 import { db } from '@/lib/db'
 import { searchIconify, fetchIconifySvg, ICONIFY_SETS } from '@/lib/icons/iconify'
-import { saveIcon, approveIcon, getIcon } from '@/lib/icons/repository'
+import { saveIcon, approveIcon, getIcon, listIcons } from '@/lib/icons/repository'
 import { normalizeIconSvg } from '@/lib/icons/normalize'
 
 export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
@@ -157,6 +157,11 @@ export async function scegliIconaAction(chiave: string, iconifyId: string): Prom
 
 export async function approveIconAction(chiave: string): Promise<void> {
   await approveIcon(chiave)
+}
+
+export async function listIconeAction(): Promise<{ key: string; innerSvg: string; status: 'approvata' | 'in-revisione' }[]> {
+  const icone = await listIcons()
+  return icone.map((i) => ({ key: i.key, innerSvg: innerSvg(i.svg), status: i.status }))
 }
 
 export async function seedIconeAction(): Promise<{ create: number; salta: number }> {
