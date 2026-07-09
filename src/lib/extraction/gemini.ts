@@ -54,12 +54,14 @@ async function defaultGenerate(prompt: string, dict: Dictionary): Promise<string
   if (!apiKey) throw new Error('GEMINI_API_KEY non impostata (usa .env.local)')
   const ai = new GoogleGenAI({ apiKey })
   const res = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-2.5-pro',
     contents: prompt,
     config: {
       temperature: 0,
       seed: 1,
-      thinkingConfig: { thinkingBudget: 0 },
+      // 2.5 Pro non permette di disattivare il thinking (a differenza di Flash):
+      // budget dinamico, il modello decide quanto ragionare.
+      thinkingConfig: { thinkingBudget: -1 },
       responseMimeType: 'application/json',
       responseSchema: buildResponseSchema(dict),
     },
