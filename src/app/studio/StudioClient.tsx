@@ -7,6 +7,7 @@ import type { Scene } from '@/lib/scene/types'
 import { applyMutation } from '@/lib/scene/mutations'
 import { EditorPreview } from '@/lib/ui/EditorPreview'
 import { FeaturePanel } from './FeaturePanel'
+import { IconPicker } from './IconPicker'
 import { PhotoPicker } from './PhotoPicker'
 import { SkuSearch } from './SkuSearch'
 
@@ -15,6 +16,7 @@ type Bundle = {
   imageDataUri: string | null
   categoriaFeatures: ProposeResult['categoriaFeatures']
   immagini: string[]
+  iconeNonApprovate: string[]
 }
 
 export function StudioClient() {
@@ -30,6 +32,7 @@ export function StudioClient() {
   const [thumb, setThumb] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
+  const [pickerChiave, setPickerChiave] = useState<string | null>(null)
   const [inCorso, start] = useTransition()
 
   function proponiSku(skuArg: string = sku) {
@@ -38,7 +41,7 @@ export function StudioClient() {
       try {
         const r = await proposeSceneAction(skuArg)
         dispatch({ type: 'reset', scene: r.scene })
-        setBundle({ iconMap: r.iconMap, imageDataUri: r.imageDataUri, categoriaFeatures: r.categoriaFeatures, immagini: r.immagini })
+        setBundle({ iconMap: r.iconMap, imageDataUri: r.imageDataUri, categoriaFeatures: r.categoriaFeatures, immagini: r.immagini, iconeNonApprovate: r.iconeNonApprovate })
         setProdotto(r.prodotto)
         setSalvata(r.salvataDisponibile)
       } catch (e) { setBundle(null); setErrore(e instanceof Error ? e.message : 'Errore') }
@@ -52,7 +55,7 @@ export function StudioClient() {
         const r = await loadSceneAction(sku)
         if (!r) { setMsg('Nessuna scheda salvata per questo SKU'); return }
         dispatch({ type: 'reset', scene: r.scene })
-        setBundle((b) => (b ? { ...b, iconMap: r.iconMap, imageDataUri: r.imageDataUri } : b))
+        setBundle((b) => (b ? { ...b, iconMap: r.iconMap, imageDataUri: r.imageDataUri, iconeNonApprovate: r.iconeNonApprovate } : b))
       } catch (e) { setErrore(e instanceof Error ? e.message : 'Errore') }
     })
   }
@@ -111,7 +114,7 @@ export function StudioClient() {
               <p className="text-sm text-zinc-500">SKU {prodotto.sku}</p>
             </div>
             <PhotoPicker immagini={bundle.immagini} onScegli={cambiaFoto} />
-            <FeaturePanel scene={scene} categoriaFeatures={bundle.categoriaFeatures} dispatch={dispatch} />
+            <FeaturePanel scene={scene} categoriaFeatures={bundle.categoriaFeatures} dispatch={dispatch} onCambiaIcona={setPickerChiave} />
             <div className="flex gap-2">
               <button className="rounded bg-zinc-700 px-4 py-2 text-white disabled:opacity-50" onClick={salva} disabled={inCorso}>Salva</button>
               <button className="rounded bg-emerald-700 px-4 py-2 text-white disabled:opacity-50" onClick={esporta} disabled={inCorso}>Esporta JPEG</button>
@@ -127,6 +130,16 @@ export function StudioClient() {
             )}
           </aside>
         </div>
+      )}
+
+      {pickerChiave && (
+        <IconPicker
+          chiave={pickerChiave}
+          onChiudi={() => setPickerChiave(null)}
+          onScelta={(innerSvg) => {
+            setBundle((b) => (b ? { ...b, iconMap: { ...b.iconMap, [pickerChiave]: innerSvg }, iconeNonApprovate: [...new Set([...(b.iconeNonApprovate ?? []), pickerChiave])] } : b))
+          }}
+        />
       )}
     </div>
   )
