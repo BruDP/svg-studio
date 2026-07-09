@@ -1,5 +1,5 @@
 import type { Scene } from '@/lib/scene/types'
-import { getApprovedIcon } from '@/lib/icons/repository'
+import { getApprovedIcon, getIcon } from '@/lib/icons/repository'
 import { readCachedImage } from '@/lib/images/cache'
 import { renderScene } from '@/lib/render/svg'
 import { extToMime } from '@/lib/ui/mime'
@@ -15,7 +15,7 @@ type BundleDeps = {
 }
 
 /** Estrae il contenuto interno di un SVG normalizzato (rimuove il wrapper <svg>…</svg>). */
-function innerSvg(svg: string): string {
+export function innerSvg(svg: string): string {
   return svg.replace(/^[\s\S]*?<svg[^>]*>/i, '').replace(/<\/svg>\s*$/i, '')
 }
 
@@ -70,6 +70,26 @@ export async function resolveIconsForKeys(
     if (rec) out[k] = innerSvg(rec.svg)
   }
   return out
+}
+
+/** Bundle per l'EDITOR: include icone approvate E in-revisione (l'icona scelta è subito visibile),
+ *  e restituisce l'elenco delle chiavi non approvate (per la marcatura). L'export usa comunque
+ *  solo le approvate (getApprovedIcon in resolveRenderBundle) — regola d'oro §7. */
+export async function resolveEditorIcons(
+  chiavi: string[],
+  deps: { getIcon?: (k: string) => Promise<{ svg: string; status: 'approvata' | 'in-revisione' } | null> } = {},
+): Promise<{ iconMap: Record<string, string>; inRevisione: string[] }> {
+  const get = deps.getIcon ?? ((k: string) => getIcon(k))
+  const iconMap: Record<string, string> = {}
+  const inRevisione: string[] = []
+  for (const k of chiavi) {
+    if (k in iconMap) continue
+    const rec = await get(k)
+    if (!rec) continue
+    iconMap[k] = innerSvg(rec.svg)
+    if (rec.status === 'in-revisione') inRevisione.push(k)
+  }
+  return { iconMap, inRevisione }
 }
 
 /** Render canonico server-side: bundle + renderScene → stringa SVG. Usato da preview ed export. */
