@@ -8,10 +8,12 @@ export function FeaturePanel({
   scene,
   categoriaFeatures,
   dispatch,
+  onCambiaIcona,
 }: {
   scene: Scene
   categoriaFeatures: { chiave: string; etichetta: string }[]
   dispatch: (a: SceneAction) => void
+  onCambiaIcona: (chiave: string) => void
 }) {
   const [daAggiungere, setDaAggiungere] = useState('')
   const icone = scene.elements.filter((e): e is IconLabelElement => e.type === 'icona-label')
@@ -34,6 +36,7 @@ export function FeaturePanel({
               onClick={() => dispatch({ type: 'sposta-feature', id: el.id, direzione: 'su' })}>↑</button>
             <button aria-label={`Giù ${el.chiave}`} disabled={i === icone.length - 1} className="px-1 disabled:opacity-30"
               onClick={() => dispatch({ type: 'sposta-feature', id: el.id, direzione: 'giu' })}>↓</button>
+            <button aria-label={`Cambia icona ${el.chiave}`} className="px-1" onClick={() => onCambiaIcona(el.chiave)}>🎨</button>
             <button aria-label={`Rimuovi ${el.chiave}`} className="px-1 text-red-600"
               onClick={() => dispatch({ type: 'rimuovi', id: el.id })}>✕</button>
           </li>

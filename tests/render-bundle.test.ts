@@ -62,6 +62,31 @@ describe('resolveIconsForKeys', () => {
   })
 })
 
+describe('resolveEditorIcons', () => {
+  const getIcon = async (k: string) => {
+    if (k === 'appr') return { svg: '<svg viewBox="0 0 24 24"><path d="M1 1"/></svg>', status: 'approvata' as const }
+    if (k === 'rev') return { svg: '<svg viewBox="0 0 24 24"><path d="M2 2"/></svg>', status: 'in-revisione' as const }
+    return null
+  }
+
+  it('include approvate e in-revisione nella iconMap, elenca solo le in-revisione', async () => {
+    const { resolveEditorIcons } = await import('@/lib/render/bundle')
+    const r = await resolveEditorIcons(['appr', 'rev', 'assente'], { getIcon })
+    expect(Object.keys(r.iconMap).sort()).toEqual(['appr', 'rev'])
+    expect(r.iconMap.appr).toContain('M1 1')
+    expect(r.iconMap.rev).toContain('M2 2')
+    expect(r.iconMap.appr).not.toMatch(/<svg/i) // inner
+    expect(r.inRevisione).toEqual(['rev'])
+  })
+
+  it('chiave senza icona non entra né in map né in inRevisione', async () => {
+    const { resolveEditorIcons } = await import('@/lib/render/bundle')
+    const r = await resolveEditorIcons(['assente'], { getIcon })
+    expect(r.iconMap).toEqual({})
+    expect(r.inRevisione).toEqual([])
+  })
+})
+
 describe('isValidImageHash', () => {
   it('accetta un hash sha256 esadecimale minuscolo di 64 caratteri', () => {
     const validHash = 'a'.repeat(64)

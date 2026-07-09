@@ -8,4 +8,5 @@ export interface ProposeResult {
   categoriaFeatures: { chiave: string; etichetta: string }[]
   salvataDisponibile: boolean
   immagini: string[]
+  iconeNonApprovate: string[]
 }

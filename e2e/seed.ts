@@ -29,6 +29,12 @@ async function main() {
   // (sqlite persiste su disco tra esecuzioni di `npm run e2e`) e rende i run non ripetibili
   // in modo verificabile. Girando in global-setup, la pulizia avviene una sola volta per run.
   await db.scene.deleteMany({ where: { sku: '2137070' } })
+  // Pulizia db.icon: senza questa pulizia le icone marcate/approvate da un'esecuzione
+  // precedente restano nel DB (sqlite persiste su disco tra esecuzioni di `npm run e2e`),
+  // rendendo i test della libreria icone (e2e/icone.spec.ts) non ripetibili in modo
+  // verificabile. Ogni run parte quindi senza icone (segnaposto finché non se ne
+  // sceglie/approva una).
+  await db.icon.deleteMany()
   await db.$disconnect()
 }
 
