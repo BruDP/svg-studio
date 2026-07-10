@@ -1,4 +1,4 @@
-version: 2
+version: 3
 features:
   classe_energetica:
     label: "Classe {valore}"
@@ -399,3 +399,17 @@ features:
     badge: false
     valore: obbligatorio
     categorie: [arredo_interno]
+  top_cemento:
+    label: "Top in cemento"
+    icona: tabler:wall
+    priorita: 67
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno]
+  decoro_mosaico:
+    label: "Decoro a mosaico"
+    icona: tabler:grid-pattern
+    priorita: 64
+    badge: false
+    valore: assente
+    categorie: [arredo_esterno]
