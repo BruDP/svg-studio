@@ -413,3 +413,87 @@ features:
     badge: false
     valore: assente
     categorie: [arredo_esterno]
+  capacita_carico_kg:
+    label: "{valore} kg di carico"
+    icona: tabler:wash-machine
+    priorita: 88
+    badge: true
+    valore: obbligatorio
+    categorie: [lavatrice]
+  velocita_centrifuga:
+    label: "Centrifuga {valore} giri"
+    icona: tabler:rotate-clockwise-2
+    priorita: 75
+    badge: false
+    valore: obbligatorio
+    categorie: [lavatrice]
+  lavaggio_vapore:
+    label: "Lavaggio a vapore"
+    icona: tabler:steam
+    priorita: 70
+    badge: false
+    valore: assente
+    categorie: [lavatrice]
+  lavaggio_rapido:
+    label: "Lavaggio rapido"
+    icona: tabler:bolt
+    priorita: 68
+    badge: false
+    valore: assente
+    categorie: [lavatrice]
+  carico_frontale:
+    label: "Carico frontale"
+    icona: tabler:door
+    priorita: 55
+    badge: false
+    valore: assente
+    categorie: [lavatrice]
+  blocco_bambini:
+    label: "Blocco sicurezza bambini"
+    icona: tabler:lock
+    priorita: 50
+    badge: false
+    valore: assente
+    categorie: [lavatrice, forno]
+  avvio_ritardato:
+    label: "Avvio ritardato"
+    icona: tabler:clock-pause
+    priorita: 45
+    badge: false
+    valore: assente
+    categorie: [lavatrice]
+  termostato_regolabile:
+    label: "Termostato regolabile"
+    icona: tabler:temperature
+    priorita: 72
+    badge: false
+    valore: assente
+    categorie: [forno]
+  timer_cottura:
+    label: "Timer di cottura"
+    icona: tabler:clock
+    priorita: 65
+    badge: false
+    valore: assente
+    categorie: [forno]
+  vetro_temperato:
+    label: "Sportello in vetro temperato"
+    icona: tabler:window
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [forno]
+  pareti_antiaderenti:
+    label: "Pareti interne antiaderenti"
+    icona: tabler:droplet-off
+    priorita: 58
+    badge: false
+    valore: assente
+    categorie: [forno]
+  segnale_acustico:
+    label: "Segnale acustico di fine cottura"
+    icona: tabler:bell
+    priorita: 38
+    badge: false
+    valore: assente
+    categorie: [forno]
