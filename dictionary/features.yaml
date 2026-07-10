@@ -1,4 +1,4 @@
-version: 4
+version: 5
 features:
   classe_energetica:
     label: "Classe {valore}"
@@ -90,7 +90,7 @@ features:
     priorita: 20
     badge: false
     valore: assente
-    categorie: [sedia_ufficio_gaming, arredo_interno, arredo_esterno]
+    categorie: [sedia_ufficio_gaming, arredo_interno, arredo_esterno, ombrellone]
   led_rgb:
     label: "{valore} effetti LED RGB selezionabili"
     icona: tabler:bulb
@@ -104,7 +104,7 @@ features:
     priorita: 72
     badge: false
     valore: assente
-    categorie: [arredo_interno, arredo_esterno, barbecue]
+    categorie: [arredo_interno, arredo_esterno, barbecue, ombrellone]
   cuscino_sfoderabile:
     label: "Cuscino sfoderabile"
     icona: tabler:zip
@@ -342,14 +342,14 @@ features:
     priorita: 55
     badge: false
     valore: assente
-    categorie: [arredo_esterno, arredo_interno]
+    categorie: [arredo_esterno, arredo_interno, ombrellone]
   copertura_poliestere:
     label: "Copertura in poliestere"
     icona: tabler:shirt
     priorita: 45
     badge: false
     valore: assente
-    categorie: [arredo_esterno]
+    categorie: [arredo_esterno, ombrellone]
   top_ceramica:
     label: "Top in ceramica"
     icona: tabler:circle-square
@@ -560,3 +560,17 @@ features:
     badge: false
     valore: assente
     categorie: [aspirapolvere]
+  apertura_manovella:
+    label: "Apertura a manovella"
+    icona: tabler:rotate-clockwise
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [ombrellone]
+  chiusura_laccio:
+    label: "Laccio di chiusura"
+    icona: tabler:link
+    priorita: 45
+    badge: false
+    valore: assente
+    categorie: [ombrellone]
