@@ -1,4 +1,4 @@
-version: 3
+version: 4
 features:
   classe_energetica:
     label: "Classe {valore}"
@@ -20,7 +20,7 @@ features:
     priorita: 85
     badge: true
     valore: obbligatorio
-    categorie: [frigorifero, congelatore, valigie, aspirapolvere, piccoli_elettrodomestici]
+    categorie: [frigorifero, congelatore, valigie, aspirapolvere, piccoli_elettrodomestici, forno]
   display_touch:
     label: "Display touch"
     icona: tabler:hand-click
@@ -223,7 +223,7 @@ features:
     priorita: 60
     badge: false
     valore: assente
-    categorie: [condizionatore_portatile, condizionatore, deumidificatore]
+    categorie: [condizionatore_portatile, condizionatore, deumidificatore, frigorifero, congelatore]
   ruote_pivotanti:
     label: "{valore} ruote pivotanti"
     icona: tabler:circle-dot
@@ -335,7 +335,7 @@ features:
     priorita: 52
     badge: false
     valore: assente
-    categorie: [arredo_esterno, arredo_interno]
+    categorie: [arredo_esterno, arredo_interno, forno]
   richiudibile:
     label: "Richiudibile e salvaspazio"
     icona: tabler:fold
@@ -413,3 +413,150 @@ features:
     badge: false
     valore: assente
     categorie: [arredo_esterno]
+  capacita_carico_kg:
+    label: "{valore} kg di carico"
+    icona: tabler:wash-machine
+    priorita: 88
+    badge: true
+    valore: obbligatorio
+    categorie: [lavatrice]
+  velocita_centrifuga:
+    label: "Centrifuga {valore} giri"
+    icona: tabler:rotate-clockwise-2
+    priorita: 75
+    badge: false
+    valore: obbligatorio
+    categorie: [lavatrice]
+  lavaggio_vapore:
+    label: "Lavaggio a vapore"
+    icona: tabler:steam
+    priorita: 70
+    badge: false
+    valore: assente
+    categorie: [lavatrice]
+  lavaggio_rapido:
+    label: "Lavaggio rapido"
+    icona: tabler:bolt
+    priorita: 68
+    badge: false
+    valore: assente
+    categorie: [lavatrice]
+  carico_frontale:
+    label: "Carico frontale"
+    icona: tabler:door
+    priorita: 55
+    badge: false
+    valore: assente
+    categorie: [lavatrice]
+  blocco_bambini:
+    label: "Blocco sicurezza bambini"
+    icona: tabler:lock
+    priorita: 50
+    badge: false
+    valore: assente
+    categorie: [lavatrice, forno]
+  avvio_ritardato:
+    label: "Avvio ritardato"
+    icona: tabler:clock-pause
+    priorita: 45
+    badge: false
+    valore: assente
+    categorie: [lavatrice]
+  termostato_regolabile:
+    label: "Termostato regolabile"
+    icona: tabler:temperature
+    priorita: 72
+    badge: false
+    valore: assente
+    categorie: [forno]
+  timer_cottura:
+    label: "Timer di cottura"
+    icona: tabler:clock
+    priorita: 65
+    badge: false
+    valore: assente
+    categorie: [forno]
+  vetro_temperato:
+    label: "Sportello in vetro temperato"
+    icona: tabler:window
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [forno]
+  pareti_antiaderenti:
+    label: "Pareti interne antiaderenti"
+    icona: tabler:droplet-off
+    priorita: 58
+    badge: false
+    valore: assente
+    categorie: [forno]
+  segnale_acustico:
+    label: "Segnale acustico di fine cottura"
+    icona: tabler:bell
+    priorita: 38
+    badge: false
+    valore: assente
+    categorie: [forno]
+  efficienza_congelamento:
+    label: "Congelamento {valore} stelle"
+    icona: tabler:stars
+    priorita: 80
+    badge: false
+    valore: obbligatorio
+    categorie: [congelatore, frigorifero]
+  funzionamento_silenzioso:
+    label: "Silenzioso {valore} dB"
+    icona: tabler:volume-3
+    priorita: 76
+    badge: false
+    valore: obbligatorio
+    categorie: [frigorifero, congelatore, lavatrice]
+  piedini_regolabili:
+    label: "Piedini regolabili"
+    icona: tabler:adjustments
+    priorita: 48
+    badge: false
+    valore: assente
+    categorie: [frigorifero, congelatore]
+  illuminazione_interna:
+    label: "Luce interna"
+    icona: tabler:bulb
+    priorita: 42
+    badge: false
+    valore: assente
+    categorie: [forno, frigorifero, congelatore]
+  senza_fili:
+    label: "Senza fili, ricaricabile"
+    icona: tabler:battery-charging
+    priorita: 82
+    badge: false
+    valore: assente
+    categorie: [aspirapolvere]
+  autonomia_minuti:
+    label: "Autonomia {valore} minuti"
+    icona: tabler:clock-play
+    priorita: 80
+    badge: false
+    valore: obbligatorio
+    categorie: [aspirapolvere]
+  filtro_hepa:
+    label: "Filtro HEPA lavabile"
+    icona: tabler:filter
+    priorita: 78
+    badge: false
+    valore: assente
+    categorie: [aspirapolvere]
+  spazzola_motorizzata:
+    label: "Spazzola motorizzata"
+    icona: tabler:vacuum-cleaner
+    priorita: 70
+    badge: false
+    valore: assente
+    categorie: [aspirapolvere]
+  doppio_uso_aspira:
+    label: "Anche aspiratutto a mano"
+    icona: tabler:hand-stop
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [aspirapolvere]
