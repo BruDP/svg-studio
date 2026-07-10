@@ -1,4 +1,4 @@
-version: 3
+version: 4
 features:
   classe_energetica:
     label: "Classe {valore}"
@@ -20,7 +20,7 @@ features:
     priorita: 85
     badge: true
     valore: obbligatorio
-    categorie: [frigorifero, congelatore, valigie, aspirapolvere, piccoli_elettrodomestici]
+    categorie: [frigorifero, congelatore, valigie, aspirapolvere, piccoli_elettrodomestici, forno]
   display_touch:
     label: "Display touch"
     icona: tabler:hand-click
@@ -223,7 +223,7 @@ features:
     priorita: 60
     badge: false
     valore: assente
-    categorie: [condizionatore_portatile, condizionatore, deumidificatore]
+    categorie: [condizionatore_portatile, condizionatore, deumidificatore, frigorifero, congelatore]
   ruote_pivotanti:
     label: "{valore} ruote pivotanti"
     icona: tabler:circle-dot
@@ -335,7 +335,7 @@ features:
     priorita: 52
     badge: false
     valore: assente
-    categorie: [arredo_esterno, arredo_interno]
+    categorie: [arredo_esterno, arredo_interno, forno]
   richiudibile:
     label: "Richiudibile e salvaspazio"
     icona: tabler:fold

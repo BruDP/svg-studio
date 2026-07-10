@@ -3,12 +3,16 @@ import { loadDictionary } from '@/lib/dictionary/loader'
 
 test('il dizionario reale carica e valida', () => {
   const dict = loadDictionary()
-  expect(dict.version).toBe(3)
+  expect(dict.version).toBe(4)
   expect(Object.keys(dict.features).length).toBeGreaterThanOrEqual(20)
   expect(dict.categorie).toContain('frigorifero')
   expect(dict.categorie).toContain('condizionatore_portatile')
   expect(dict.categorie).toContain('ventilatore')
   expect(dict.categorie).toContain('deumidificatore')
+  expect(dict.features.capacita_litri.categorie).toContain('forno')
+  expect(dict.features.sbrinamento_automatico.categorie).toContain('frigorifero')
+  expect(dict.features.sbrinamento_automatico.categorie).toContain('congelatore')
+  expect(dict.features.piedini_antiscivolo.categorie).toContain('forno')
 })
 
 test('ogni feature con valore obbligatorio ha {valore} nella label, e viceversa', () => {
