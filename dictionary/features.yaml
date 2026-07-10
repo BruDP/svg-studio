@@ -497,3 +497,66 @@ features:
     badge: false
     valore: assente
     categorie: [forno]
+  efficienza_congelamento:
+    label: "Congelamento {valore} stelle"
+    icona: tabler:stars
+    priorita: 80
+    badge: false
+    valore: obbligatorio
+    categorie: [congelatore, frigorifero]
+  funzionamento_silenzioso:
+    label: "Silenzioso {valore} dB"
+    icona: tabler:volume-3
+    priorita: 76
+    badge: false
+    valore: obbligatorio
+    categorie: [frigorifero, congelatore, lavatrice]
+  piedini_regolabili:
+    label: "Piedini regolabili"
+    icona: tabler:adjustments
+    priorita: 48
+    badge: false
+    valore: assente
+    categorie: [frigorifero, congelatore]
+  illuminazione_interna:
+    label: "Luce interna"
+    icona: tabler:bulb
+    priorita: 42
+    badge: false
+    valore: assente
+    categorie: [forno, frigorifero, congelatore]
+  senza_fili:
+    label: "Senza fili, ricaricabile"
+    icona: tabler:battery-charging
+    priorita: 82
+    badge: false
+    valore: assente
+    categorie: [aspirapolvere]
+  autonomia_minuti:
+    label: "Autonomia {valore} minuti"
+    icona: tabler:clock-play
+    priorita: 80
+    badge: false
+    valore: obbligatorio
+    categorie: [aspirapolvere]
+  filtro_hepa:
+    label: "Filtro HEPA lavabile"
+    icona: tabler:filter
+    priorita: 78
+    badge: false
+    valore: assente
+    categorie: [aspirapolvere]
+  spazzola_motorizzata:
+    label: "Spazzola motorizzata"
+    icona: tabler:vacuum-cleaner
+    priorita: 70
+    badge: false
+    valore: assente
+    categorie: [aspirapolvere]
+  doppio_uso_aspira:
+    label: "Anche aspiratutto a mano"
+    icona: tabler:hand-stop
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [aspirapolvere]
