@@ -13,6 +13,18 @@ test('formato compatto "83,3x65,3x177,5 cm"', () => {
   })
 })
 
+test('formato tondo "Ø 70 x h. 75 cm" → diametro come larghezza, profondità assente', () => {
+  expect(parseDimensions(['Misure: Ø 70 x h. 75 cm'])).toEqual({
+    larghezza: 70, profondita: null, altezza: 75,
+  })
+})
+
+test('formato tondo senza "h." → "Ø 40 x 90 cm"', () => {
+  expect(parseDimensions(['Ø 40 x 90 cm'])).toEqual({
+    larghezza: 40, profondita: null, altezza: 90,
+  })
+})
+
 test('nessuna misura → null', () => {
   expect(parseDimensions(['Colore: rosso'])).toBeNull()
 })
