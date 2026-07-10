@@ -1,4 +1,4 @@
-version: 2
+version: 3
 categorie:
   - frigorifero
   - congelatore
@@ -13,6 +13,7 @@ categorie:
   - sedia_ufficio_gaming
   - arredo_interno
   - arredo_esterno
+  - ombrellone
   - barbecue
   - valigie
   - bagno_doccia
