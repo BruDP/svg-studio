@@ -29,6 +29,17 @@ describe('parseVisionBBox', () => {
     expect(parseVisionBBox('non-json', 100, 100)).toBeNull()
   })
 
+  it('JSON sintatticamente valido ma non-oggetto → null (non lancia)', () => {
+    // JSON.parse('null') restituisce il valore null, non un errore: senza guard su typeof
+    // l'accesso a r.trovato lancerebbe un TypeError.
+    expect(() => parseVisionBBox('null', 100, 100)).not.toThrow()
+    expect(parseVisionBBox('null', 100, 100)).toBeNull()
+    expect(parseVisionBBox('42', 100, 100)).toBeNull()
+    expect(parseVisionBBox('[]', 100, 100)).toBeNull()
+    expect(parseVisionBBox('"stringa"', 100, 100)).toBeNull()
+    expect(parseVisionBBox('true', 100, 100)).toBeNull()
+  })
+
   it('box implausibile (sliver / quasi-intero) → null', () => {
     expect(parseVisionBBox(JSON.stringify({ trovato: true, x: 0, y: 0, width: 1, height: 1 }), 1000, 1000)).toBeNull()
     expect(

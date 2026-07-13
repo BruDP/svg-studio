@@ -50,12 +50,16 @@ export async function askVisionDefault(imageBytes: Buffer, mime: string): Promis
  *  Ritorna null se: JSON vuoto/invalido, trovato=false, o box implausibile. Non lancia mai. */
 export function parseVisionBBox(jsonText: string, imgW: number, imgH: number): BBox | null {
   if (!jsonText.trim()) return null
-  let r: { trovato?: boolean; x?: number; y?: number; width?: number; height?: number }
+  let parsed: unknown
   try {
-    r = JSON.parse(jsonText)
+    parsed = JSON.parse(jsonText)
   } catch {
     return null
   }
+  // JSON.parse accetta anche valori non-oggetto sintatticamente validi (null, array, numeri,
+  // stringhe, boolean): senza questo guard r.trovato lancerebbe un TypeError su `null`.
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
+  const r = parsed as { trovato?: boolean; x?: number; y?: number; width?: number; height?: number }
   if (!r.trovato || r.x == null || r.y == null || r.width == null || r.height == null) return null
 
   let left = Math.round(r.x * imgW)
