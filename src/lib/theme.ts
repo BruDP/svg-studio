@@ -1,14 +1,18 @@
 /** Token di stile centralizzati della scheda. Nessun valore di stile va hard-coded altrove. */
+// Accento cromatico della scheda (icone, frecce-quota, badge). Testo/etichette restano neutri.
+const ACCENTO = '#1F6F78'
+
 export const theme = {
   fontFamily: 'Poppins',
   colors: {
     testo: '#4A4A4A',
-    cerchioStroke: '#4A4A4A',
-    freccia: '#4A4A4A',
-    badgeBg: '#4A4A4A',
+    cerchioStroke: ACCENTO,
+    freccia: ACCENTO,
+    badgeBg: ACCENTO,
     badgeTesto: '#FFFFFF',
     sfondo: '#FFFFFF',
     fotoPlaceholder: '#EEEEEE',
+    accento: ACCENTO,
   },
   icona: {
     raggio: 42,
@@ -16,8 +20,10 @@ export const theme = {
     iconaLato: 44, // lato del glifo 24×24 scalato dentro il cerchio
   },
   freccia: {
-    stroke: 2,
+    stroke: 2.5,
     testa: 12,
+    tick: 11, // semi-lunghezza dei trattini perpendicolari agli estremi della quota
+    labelGap: 14, // distanza etichetta misura dalla linea
   },
   badge: {
     altezza: 52,

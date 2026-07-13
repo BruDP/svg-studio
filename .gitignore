@@ -53,3 +53,7 @@ output/
 playwright-report/
 test-results/
 /e2e/.cache/
+
+# skill installate localmente (npx skills add)
+/.agents/
+skills-lock.json

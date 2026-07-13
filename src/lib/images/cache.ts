@@ -46,3 +46,13 @@ export async function cacheImage(
 export function readCachedImage(hash: string, ext: string, dir = DEFAULT_DIR): Buffer {
   return readFileSync(path.join(dir, `${hash}.${ext}`))
 }
+
+/** Cacha byte immagine già in memoria (es. una versione ritagliata), restituendo hash+ext. */
+export function writeImageBytes(buf: Buffer, dir = DEFAULT_DIR): CachedImage {
+  const hash = createHash('sha256').update(buf).digest('hex')
+  const ext = extFromBytes(buf)
+  mkdirSync(dir, { recursive: true })
+  const filePath = path.join(dir, `${hash}.${ext}`)
+  if (!existsSync(filePath)) writeFileSync(filePath, buf)
+  return { hash, path: filePath, ext }
+}

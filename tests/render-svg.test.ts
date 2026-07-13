@@ -70,6 +70,22 @@ describe('renderScene', () => {
     expect(svg).not.toContain('<tspan')
   })
 
+  it('quota "premium" produce i trattini perpendicolari agli estremi, oltre alla linea principale', () => {
+    const quotaScene = parseScene({
+      version: 1,
+      sku: 'TEST',
+      templateId: 'colonna-sinistra',
+      canvas: { width: 1000, height: 1000 },
+      elements: [
+        { type: 'quota', id: 'q1', orientamento: 'verticale', valore: '10 cm', x1: 100, y1: 100, x2: 100, y2: 200 },
+      ],
+    })
+    const svg = renderScene(quotaScene, deps)
+    const linee = [...svg.matchAll(/<line/g)]
+    // linea principale + 2 trattini (tick) agli estremi = 3
+    expect(linee.length).toBe(3)
+  })
+
   it('etichetta troppo lunga per la colonna va a capo su piu righe (tspan) invece di essere coperta dalla foto', () => {
     const sceneLunga = {
       ...scene,

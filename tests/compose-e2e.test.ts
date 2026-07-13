@@ -1,5 +1,6 @@
 import { describe, it, expect, afterAll } from 'vitest'
 import { rmSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import sharp from 'sharp'
 import { composeSceneForProduct } from '../scripts/compose-lib'
 import { parseScene } from '@/lib/scene/schema'
@@ -55,6 +56,26 @@ describe('composeSceneForProduct', () => {
     expect(() => parseScene(scene)).not.toThrow()
     expect(imageHash).toHaveLength(64)
     expect(scene.elements.some((e) => e.type === 'foto')).toBe(true)
+    expect(scene.elements.some((e) => e.type === 'quota')).toBe(true)
+  })
+
+  it('ritaglia la foto sul bbox del prodotto: l\'imageHash è quello dell\'immagine ritagliata, non quello originale', async () => {
+    const img = await sampleImage()
+    const origHash = createHash('sha256').update(img).digest('hex')
+    const croppedBytes = await sharp(img).extract({ left: 20, top: 20, width: 40, height: 40 }).png().toBuffer()
+    const croppedHash = createHash('sha256').update(croppedBytes).digest('hex')
+
+    const { scene, imageHash } = await composeSceneForProduct({
+      proposal,
+      product,
+      deps: { download: async () => img, dir: 'tests/tmp-compose' },
+    })
+
+    expect(imageHash).not.toBe(origHash)
+    expect(imageHash).toBe(croppedHash)
+    const foto = scene.elements.find((e) => e.type === 'foto')
+    expect(foto).toBeDefined()
+    expect((foto as { imageHash: string }).imageHash).toBe(croppedHash)
     expect(scene.elements.some((e) => e.type === 'quota')).toBe(true)
   })
 })
