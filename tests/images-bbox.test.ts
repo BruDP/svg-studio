@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import sharp from 'sharp'
-import { detectBBox } from '@/lib/images/bbox'
+import { detectBBox, analizzaBBox, bboxPlausibile, SOGLIA_ANGOLI } from '@/lib/images/bbox'
 
 /** Genera un PNG bianco 100×100 con un rettangolo nero da (20,30) a (70,80). */
 async function makeSample(): Promise<Buffer> {
@@ -15,6 +15,18 @@ async function makeSample(): Promise<Buffer> {
       px[i + 2] = 0
     }
   }
+  return sharp(px, { raw: { width: w, height: h, channels: 3 } }).png().toBuffer()
+}
+
+/** PNG con 4 angoli di colori molto diversi (sfondo non uniforme). */
+async function makeAngoliDiscordi(): Promise<Buffer> {
+  const w = 100, h = 100
+  const px = Buffer.alloc(w * h * 3, 128)
+  const setPx = (x: number, y: number, r: number, g: number, b: number) => {
+    const i = (y * w + x) * 3; px[i] = r; px[i + 1] = g; px[i + 2] = b
+  }
+  setPx(0, 0, 255, 0, 0); setPx(w - 1, 0, 0, 255, 0)
+  setPx(0, h - 1, 0, 0, 255); setPx(w - 1, h - 1, 0, 0, 0)
   return sharp(px, { raw: { width: w, height: h, channels: 3 } }).png().toBuffer()
 }
 
@@ -33,5 +45,21 @@ describe('detectBBox', () => {
       .png()
       .toBuffer()
     expect(await detectBBox(white)).toBeNull()
+  })
+})
+
+describe('analizzaBBox / bboxPlausibile', () => {
+  it('scartoAngoli è ~0 su sfondo uniforme e alto su angoli discordi', async () => {
+    const { scartoAngoli: uniforme } = await analizzaBBox(await makeSample())
+    expect(uniforme).toBeLessThanOrEqual(SOGLIA_ANGOLI)
+    const { scartoAngoli: discorde } = await analizzaBBox(await makeAngoliDiscordi())
+    expect(discorde).toBeGreaterThan(SOGLIA_ANGOLI)
+  })
+
+  it('bboxPlausibile scarta box degeneri (troppo piccoli o quasi-interi)', () => {
+    expect(bboxPlausibile({ left: 20, top: 30, width: 50, height: 50 }, 100, 100)).toBe(true)
+    expect(bboxPlausibile({ left: 0, top: 0, width: 2, height: 2 }, 100, 100)).toBe(false)       // troppo piccolo
+    expect(bboxPlausibile({ left: 0, top: 0, width: 100, height: 100 }, 100, 100)).toBe(false)   // quasi-intero
+    expect(bboxPlausibile({ left: 44, top: 0, width: 4, height: 100 }, 100, 100)).toBe(false)    // sliver (larghezza 4 < 5% di 100)
   })
 })
