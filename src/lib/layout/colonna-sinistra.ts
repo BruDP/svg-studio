@@ -66,14 +66,18 @@ export function composeColonnaSinistra(input: {
     })
   }
 
-  // Badge sotto la foto
+  // Badge sotto la foto. Deve restare sotto l'etichetta della quota orizzontale (se presente),
+  // che nello stile "premium" è staccata dalla linea di labelGap+fontSize (non più centrata
+  // sulla linea come nello stile precedente) — senza questo margine badge e quota si toccano.
+  const badgeStartY =
+    fitted.y + fitted.height + theme.freccia.testa + theme.freccia.labelGap + theme.testo.etichetta + 16
   proposal.badges.forEach((b, i) => {
     elements.push({
       type: 'badge',
       id: `bg${i}`,
       testo: b.etichetta,
       x: fitted.x,
-      y: fitted.y + fitted.height + theme.freccia.testa + 40 + i * 60,
+      y: badgeStartY + i * 60,
     })
   })
 

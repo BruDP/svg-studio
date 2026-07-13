@@ -1,4 +1,4 @@
-version: 5
+version: 6
 features:
   classe_energetica:
     label: "Classe {valore}"
@@ -15,7 +15,7 @@ features:
     valore: assente
     categorie: [frigorifero, congelatore]
   capacita_litri:
-    label: "{valore} L"
+    label: "Capienza {valore} L"
     icona: tabler:bucket
     priorita: 85
     badge: true
@@ -43,7 +43,7 @@ features:
     valore: obbligatorio
     categorie: [frigorifero, congelatore, lavatrice, forno, condizionatore, aspirapolvere, piccoli_elettrodomestici]
   portata_max_kg:
-    label: "{valore} KG"
+    label: "Portata {valore} kg"
     icona: tabler:weight
     priorita: 88
     badge: true
@@ -190,7 +190,7 @@ features:
     valore: assente
     categorie: [condizionatore_portatile, ventilatore, condizionatore]
   potenza_btu:
-    label: "{valore} BTU"
+    label: "Potenza {valore} BTU"
     icona: tabler:temperature-snow
     priorita: 85
     badge: true
@@ -414,7 +414,7 @@ features:
     valore: assente
     categorie: [arredo_esterno]
   capacita_carico_kg:
-    label: "{valore} kg di carico"
+    label: "Carico {valore} kg"
     icona: tabler:wash-machine
     priorita: 88
     badge: true
