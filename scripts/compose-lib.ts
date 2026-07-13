@@ -3,13 +3,17 @@ import type { SchedaProposal } from '@/lib/extraction/engine'
 import type { ProductRecord } from '@/lib/feed/types'
 import type { Scene } from '@/lib/scene/types'
 import { cacheImage, readCachedImage, writeImageBytes } from '@/lib/images/cache'
-import { detectBBox } from '@/lib/images/bbox'
+import { resolveBBox } from '@/lib/images/resolve-bbox'
 import { composeColonnaSinistra } from '@/lib/layout/colonna-sinistra'
 
 export async function composeSceneForProduct(input: {
   proposal: SchedaProposal
   product: ProductRecord
-  deps?: { download?: (url: string) => Promise<Buffer>; dir?: string }
+  deps?: {
+    download?: (url: string) => Promise<Buffer>
+    dir?: string
+    askVision?: (imageBytes: Buffer, mime: string) => Promise<string>
+  }
 }): Promise<{ scene: Scene; imageHash: string }> {
   const { proposal, product } = input
   const url = product.images[0]
@@ -17,7 +21,8 @@ export async function composeSceneForProduct(input: {
 
   const cached = await cacheImage(url, input.deps)
   const bytes = readCachedImage(cached.hash, cached.ext, input.deps?.dir)
-  const box = await detectBBox(bytes)
+  const mime = cached.ext === 'jpg' ? 'image/jpeg' : cached.ext === 'webp' ? 'image/webp' : 'image/png'
+  const box = await resolveBBox(bytes, cached.hash, { ...input.deps, mime })
 
   // Ritaglio sul bounding box del prodotto: il prodotto riempie il riquadro foto (più grande,
   // niente margini bianchi) e le frecce-quota, ancorate al riquadro, combaciano con la sua
