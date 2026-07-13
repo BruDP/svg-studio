@@ -87,11 +87,42 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       return `<image x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" href="${href}" preserveAspectRatio="xMidYMid meet"/>`
     }
     case 'quota': {
-      const linea = `<line x1="${el.x1}" y1="${el.y1}" x2="${el.x2}" y2="${el.y2}" stroke="${theme.colors.freccia}" stroke-width="${theme.freccia.stroke}"/>`
-      const mx = (el.x1 + el.x2) / 2
-      const my = (el.y1 + el.y2) / 2
-      const etichetta = `<text x="${mx}" y="${my}" font-family="${theme.fontFamily}" font-size="${theme.testo.etichetta}" fill="${theme.colors.freccia}">${esc(el.valore)}</text>`
-      return linea + etichetta
+      // Linea di quota "premium": stessa cromia accento delle icone, con trattini
+      // perpendicolari agli estremi (stile disegno tecnico) ed etichetta accostata alla
+      // linea (non sopra), così l'estensione comunica esattamente la misura del prodotto.
+      const { x1, y1, x2, y2 } = el
+      const col = theme.colors.freccia
+      const sw = theme.freccia.stroke
+      const t = theme.freccia.tick
+      const fs = theme.testo.etichetta
+      const gap = theme.freccia.labelGap
+      const len = Math.hypot(x2 - x1, y2 - y1) || 1
+      const px = (-(y2 - y1) / len) * t // perpendicolare unitaria × t
+      const py = ((x2 - x1) / len) * t
+      const linea = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"/>`
+      const tick = (x: number, y: number) =>
+        `<line x1="${x - px}" y1="${y - py}" x2="${x + px}" y2="${y + py}" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"/>`
+      const ticks = tick(x1, y1) + tick(x2, y2)
+      const mx = (x1 + x2) / 2
+      const my = (y1 + y2) / 2
+      let lx = mx
+      let ly = my
+      let anchor = 'middle'
+      if (el.orientamento === 'verticale') {
+        lx = Math.max(x1, x2) + gap
+        ly = my + fs / 3
+        anchor = 'start'
+      } else if (el.orientamento === 'orizzontale') {
+        lx = mx
+        ly = Math.max(y1, y2) + gap + fs
+        anchor = 'middle'
+      } else {
+        lx = x2 + gap
+        ly = y2 + fs / 3
+        anchor = 'start'
+      }
+      const etichetta = `<text x="${lx}" y="${ly}" text-anchor="${anchor}" font-family="${theme.fontFamily}" font-size="${fs}" font-weight="500" fill="${theme.colors.accento}">${esc(el.valore)}</text>`
+      return linea + ticks + etichetta
     }
     case 'badge': {
       // Larghezza dal testo reale (ratio Poppins calibrato) + padding, così badge lunghi
