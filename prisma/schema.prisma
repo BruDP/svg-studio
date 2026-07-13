@@ -43,3 +43,13 @@ model Scene {
   sceneJson String
   updatedAt DateTime @updatedAt
 }
+
+model VisionBBox {
+  imageHash String   @id
+  trovato   Boolean
+  left      Int?
+  top       Int?
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+}
