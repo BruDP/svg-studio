@@ -30,17 +30,32 @@ export async function resolveBBox(
   const save = deps.saveCachedBBox ?? saveCachedBBox
   const ask = deps.askVision ?? askVisionDefault
 
+  let cached: { trovato: boolean; box: BBox | null } | undefined
   try {
-    const cached = await load(imageHash)
-    if (cached) return cached.box // include "non trovato" → null, senza richiamare Vision
-
-    const json = await ask(imageBytes, deps.mime ?? 'image/png')
-    const visionBox = parseVisionBBox(json, width, height)
-    await save(imageHash, visionBox) // cacha anche il "non trovato" (visionBox null) → non ripete Vision
-    return visionBox
-  } catch {
-    // errore cache DB (lock/connessione) o errore Vision (rete/quota/chiave):
-    // degrada a immagine intera, NON cacha (riprovabile)
+    cached = await load(imageHash)
+  } catch (e) {
+    // errore cache DB (lock/connessione): degrada a immagine intera, NON cacha (riprovabile)
+    console.warn('[resolveBBox] lettura cache VisionBBox fallita, degrado a immagine intera:', e)
     return null
   }
+  if (cached) return cached.box // include "non trovato" → null, senza richiamare Vision
+
+  let visionBox: BBox | null
+  try {
+    const json = await ask(imageBytes, deps.mime ?? 'image/png')
+    visionBox = parseVisionBBox(json, width, height)
+  } catch (e) {
+    // errore Vision (rete/quota/chiave): degrada a immagine intera, NON cacha (riprovabile)
+    console.warn('[resolveBBox] chiamata Vision fallita, degrado a immagine intera:', e)
+    return null
+  }
+
+  try {
+    await save(imageHash, visionBox) // cacha anche il "non trovato" (visionBox null) → non ripete Vision
+  } catch (e) {
+    // errore di scrittura cache: il bbox ottenuto da Vision resta valido e va comunque usato,
+    // si tenterà di nuovo di cacharlo alla prossima chiamata.
+    console.warn('[resolveBBox] scrittura cache VisionBBox fallita, uso comunque il bbox ottenuto:', e)
+  }
+  return visionBox
 }

@@ -19,6 +19,22 @@ async function makeSample(): Promise<Buffer> {
   return sharp(px, { raw: { width: w, height: h, channels: 3 } }).png().toBuffer()
 }
 
+/** PNG bianco 100×100 con un puntino nero 2×2 (sfondo uniforme, bbox troppo piccolo per essere plausibile). */
+async function makeSampleImplausibile(): Promise<Buffer> {
+  const w = 100
+  const h = 100
+  const px = Buffer.alloc(w * h * 3, 255) // sfondo bianco
+  for (let y = 49; y < 51; y++) {
+    for (let x = 49; x < 51; x++) {
+      const i = (y * w + x) * 3
+      px[i] = 0
+      px[i + 1] = 0
+      px[i + 2] = 0
+    }
+  }
+  return sharp(px, { raw: { width: w, height: h, channels: 3 } }).png().toBuffer()
+}
+
 /** PNG con 4 angoli di colori molto diversi (sfondo non uniforme). */
 async function makeAngoliDiscordi(): Promise<Buffer> {
   const w = 100, h = 100
@@ -41,12 +57,30 @@ describe('resolveBBox', () => {
     expect(box).toEqual({ left: 20, top: 30, width: 50, height: 50 })
   })
 
+  it('sfondo uniforme ma bbox implausibile (troppo piccolo): immagine intera, NON chiama Vision', async () => {
+    let chiamateVision = 0
+    const box = await resolveBBox(await makeSampleImplausibile(), 'h7', {
+      askVision: async () => { chiamateVision++; return '' },
+    })
+    expect(chiamateVision).toBe(0)
+    expect(box).toBeNull()
+  })
+
   it('sfondo non uniforme: chiama Vision e usa il suo bbox plausibile', async () => {
     const store = new Map<string, { trovato: boolean; box: BBox | null }>()
     const box = await resolveBBox(await makeAngoliDiscordi(), 'h2', {
       askVision: async () => JSON.stringify({ trovato: true, x: 0.2, y: 0.2, width: 0.5, height: 0.5 }),
       loadCachedBBox: async (h) => store.get(h),
       saveCachedBBox: async (h, b) => { store.set(h, { trovato: !!b, box: b }) },
+    })
+    expect(box).toEqual({ left: 20, top: 20, width: 50, height: 50 })
+  })
+
+  it('errore scrittura cache (saveCachedBBox lancia): usa comunque il bbox valido ottenuto da Vision', async () => {
+    const box = await resolveBBox(await makeAngoliDiscordi(), 'h8', {
+      askVision: async () => JSON.stringify({ trovato: true, x: 0.2, y: 0.2, width: 0.5, height: 0.5 }),
+      loadCachedBBox: async () => undefined,
+      saveCachedBBox: async () => { throw new Error('SQLITE_BUSY: database is locked') },
     })
     expect(box).toEqual({ left: 20, top: 20, width: 50, height: 50 })
   })
