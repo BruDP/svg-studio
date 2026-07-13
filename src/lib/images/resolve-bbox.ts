@@ -30,16 +30,17 @@ export async function resolveBBox(
   const save = deps.saveCachedBBox ?? saveCachedBBox
   const ask = deps.askVision ?? askVisionDefault
 
-  const cached = await load(imageHash)
-  if (cached) return cached.box // include "non trovato" → null, senza richiamare Vision
-
   try {
+    const cached = await load(imageHash)
+    if (cached) return cached.box // include "non trovato" → null, senza richiamare Vision
+
     const json = await ask(imageBytes, deps.mime ?? 'image/png')
     const visionBox = parseVisionBBox(json, width, height)
     await save(imageHash, visionBox) // cacha anche il "non trovato" (visionBox null) → non ripete Vision
     return visionBox
   } catch {
-    // errore rete/quota/chiave: degrada a immagine intera, NON cacha (riprovabile)
+    // errore cache DB (lock/connessione) o errore Vision (rete/quota/chiave):
+    // degrada a immagine intera, NON cacha (riprovabile)
     return null
   }
 }

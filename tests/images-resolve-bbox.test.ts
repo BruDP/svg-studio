@@ -75,6 +75,19 @@ describe('resolveBBox', () => {
     expect(store.has('h4')).toBe(false) // errore non cachato → riprovabile
   })
 
+  it('errore lettura cache (loadCachedBBox lancia): degrada a immagine intera (null) e NON chiama Vision né cacha', async () => {
+    let chiamateVision = 0
+    let chiamateSave = 0
+    const box = await resolveBBox(await makeAngoliDiscordi(), 'h6', {
+      loadCachedBBox: async () => { throw new Error('SQLITE_BUSY: database is locked') },
+      askVision: async () => { chiamateVision++; return JSON.stringify({ trovato: true, x: 0.2, y: 0.2, width: 0.5, height: 0.5 }) },
+      saveCachedBBox: async () => { chiamateSave++ },
+    })
+    expect(box).toBeNull()
+    expect(chiamateVision).toBe(0) // errore cache non deve innescare una chiamata Vision
+    expect(chiamateSave).toBe(0) // errore transitorio non va cachato
+  })
+
   it('Vision trovato=false: null cachato, seconda chiamata non richiama Vision', async () => {
     const store = new Map<string, { trovato: boolean; box: BBox | null }>()
     let chiamate = 0
