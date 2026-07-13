@@ -5,9 +5,9 @@ export function buildVisionPrompt(): string {
   return [
     'Sei un servizio di ritaglio prodotto. Nella foto individua il SINGOLO prodotto principale in',
     'vendita e restituisci il suo bounding box più stretto possibile, come frazioni [0,1] della',
-    'larghezza e altezza dell immagine (origine in alto a sinistra).',
+    "larghezza e altezza dell'immagine (origine in alto a sinistra).",
     'Ignora sfondo, ambientazione, persone, oggetti di scena, ombre e riflessi.',
-    'Se non c è un unico prodotto dominante (collage, più prodotti, solo ambiente) imposta trovato=false.',
+    "Se non c'è un unico prodotto dominante (collage, più prodotti, solo ambiente) imposta trovato=false.",
   ].join('\n')
 }
 
