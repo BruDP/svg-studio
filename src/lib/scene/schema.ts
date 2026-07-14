@@ -9,6 +9,7 @@ const iconLabel = z.object({
   x: z.number(),
   y: z.number(),
   verificata: z.boolean(),
+  maxLarghezzaEtichetta: z.number().optional(),
 })
 
 const foto = z.object({

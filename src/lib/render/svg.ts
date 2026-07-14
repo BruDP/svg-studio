@@ -65,7 +65,8 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
         : ''
       const labelX = el.x + r * 2 + theme.margini.labelGap
       const fontSize = theme.testo.etichetta
-      const righe = spezzaEtichetta(el.etichetta, theme.margini.labelMaxLarghezza, fontSize)
+      const maxLarghezza = el.maxLarghezzaEtichetta ?? theme.margini.labelMaxLarghezza
+      const righe = spezzaEtichetta(el.etichetta, maxLarghezza, fontSize)
       const label =
         righe.length <= 1
           ? `<text x="${labelX}" y="${cy + fontSize / 3}" font-family="${theme.fontFamily}" font-size="${fontSize}" fill="${theme.colors.testo}">${esc(el.etichetta)}</text>`

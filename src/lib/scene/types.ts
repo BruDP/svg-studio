@@ -12,6 +12,13 @@ export interface IconLabelElement {
   x: number
   y: number
   verificata: boolean
+  /**
+   * Larghezza massima (px) di wrap dell'etichetta, se diversa dal default globale
+   * `theme.margini.labelMaxLarghezza` (calibrato per `colonna-sinistra`). Usata dal template
+   * `multi-prodotto`, dove la griglia condivisa ha meno spazio orizzontale per colonna.
+   * Opzionale, retrocompatibile.
+   */
+  maxLarghezzaEtichetta?: number
 }
 
 /** Foto prodotto, referenziata per hash nella cache immagini (mai URL remoto). */
