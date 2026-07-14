@@ -4,6 +4,14 @@ import type { Scene, IconLabelElement } from '@/lib/scene/types'
 import { theme } from '@/lib/theme'
 
 const CANVAS = 1000
+// Margine minimo (in % del canvas) dal bordo: il badge è centrato via translate(-50%,-50%),
+// senza clamp finirebbe parzialmente fuori dal contenitore (clippato o invisibile) per le
+// icone vicine al bordo destro/inferiore della scena.
+const MARGINE_PCT = 3
+
+function clampPct(pct: number): number {
+  return Math.min(100 - MARGINE_PCT, Math.max(MARGINE_PCT, pct))
+}
 
 export function IconMarkOverlay({ scene, inRevisione }: { scene: Scene; inRevisione: string[] }) {
   const marcate = scene.elements.filter(
@@ -17,7 +25,10 @@ export function IconMarkOverlay({ scene, inRevisione }: { scene: Scene; inRevisi
           data-testid={`icona-marcata-${el.chiave}`}
           title="Icona da approvare"
           className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500 px-1 text-[10px] font-bold text-white shadow"
-          style={{ left: `${((el.x + theme.icona.raggio * 2) / CANVAS) * 100}%`, top: `${(el.y / CANVAS) * 100}%` }}
+          style={{
+            left: `${clampPct(((el.x + theme.icona.raggio * 2) / CANVAS) * 100)}%`,
+            top: `${clampPct((el.y / CANVAS) * 100)}%`,
+          }}
         >
           !
         </span>

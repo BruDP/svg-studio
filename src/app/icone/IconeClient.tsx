@@ -7,30 +7,60 @@ type Icona = { key: string; innerSvg: string; status: 'approvata' | 'in-revision
 
 export function IconeClient() {
   const [icone, setIcone] = useState<Icona[]>([])
+  const [errore, setErrore] = useState<string | null>(null)
   const [inCorso, start] = useTransition()
 
   function ricarica() {
-    start(async () => setIcone(await listIconeAction()))
+    setErrore(null)
+    start(async () => {
+      try {
+        setIcone(await listIconeAction())
+      } catch (e) {
+        setErrore(e instanceof Error ? e.message : 'Errore nel caricamento delle icone')
+      }
+    })
   }
   useEffect(ricarica, [])
 
   function approva(key: string) {
-    start(async () => { await approveIconAction(key); setIcone(await listIconeAction()) })
+    setErrore(null)
+    start(async () => {
+      try {
+        await approveIconAction(key)
+        setIcone(await listIconeAction())
+      } catch (e) {
+        setErrore(e instanceof Error ? e.message : 'Errore durante l\'approvazione')
+      }
+    })
   }
   function approvaTutte() {
+    setErrore(null)
     start(async () => {
-      for (const i of icone.filter((x) => x.status === 'in-revisione')) await approveIconAction(i.key)
-      setIcone(await listIconeAction())
+      try {
+        for (const i of icone.filter((x) => x.status === 'in-revisione')) await approveIconAction(i.key)
+        setIcone(await listIconeAction())
+      } catch (e) {
+        setErrore(e instanceof Error ? e.message : 'Errore durante l\'approvazione massiva')
+      }
     })
   }
   function semina() {
-    start(async () => { await seedIconeAction(); setIcone(await listIconeAction()) })
+    setErrore(null)
+    start(async () => {
+      try {
+        await seedIconeAction()
+        setIcone(await listIconeAction())
+      } catch (e) {
+        setErrore(e instanceof Error ? e.message : 'Errore durante il seeding')
+      }
+    })
   }
 
   const daApprovare = icone.filter((i) => i.status === 'in-revisione').length
 
   return (
     <div className="flex flex-col gap-3">
+      {errore && <p role="alert" className="text-sm text-red-700">{errore}</p>}
       <div className="flex gap-2">
         <button className="rounded border border-zinc-300 px-3 py-1" onClick={semina} disabled={inCorso}>Semina dal dizionario</button>
         <button className="rounded bg-emerald-700 px-3 py-1 text-white disabled:opacity-50" onClick={approvaTutte} disabled={inCorso || daApprovare === 0}>Approva tutte ({daApprovare})</button>

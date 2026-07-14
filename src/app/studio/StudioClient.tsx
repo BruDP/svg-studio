@@ -154,7 +154,7 @@ export function StudioClient() {
               <div>
                 <p className="text-sm text-zinc-500">Esportata:</p>
                 <img alt="Anteprima esportata" src={thumb} className="mt-1 border border-zinc-200" width={240} height={240} />
-                {avvisoExport && <p className="mt-1 text-sm text-amber-700">{avvisoExport}</p>}
+                {avvisoExport && <p role="alert" className="mt-1 text-sm text-amber-700">{avvisoExport}</p>}
               </div>
             )}
           </aside>
