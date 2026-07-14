@@ -41,6 +41,10 @@ export interface CelleProdottiOpts {
  * Tutte le celle stanno dentro il canvas 1000×1000, hanno larghezza uguale, x crescente da
  * sinistra a destra, e sono separate da un gutter sufficiente per la quota verticale + etichetta
  * di una cella senza invadere la successiva (vedi costanti sopra).
+ *
+ * @throws {Error} se `n` è troppo grande per il canvas con i margini/gutter correnti (width
+ * risultante <= 0). Con le costanti di default (marginX=40, gutter=135) questo scatta a partire
+ * da n=8 (n=7 produce ancora width>0, circa 15px).
  */
 export function celleProdotti(
   n: number,

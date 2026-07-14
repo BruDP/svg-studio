@@ -98,6 +98,14 @@ describe('celleProdotti', () => {
     expect(celle[0].x).toBeGreaterThanOrEqual(0)
     expect(celle[0].x + celle[0].width).toBeLessThanOrEqual(1000)
   })
+
+  it('lancia se n è troppo grande per il canvas (width risultante <= 0)', () => {
+    // Con le costanti di default (marginX=40, gutter=135) n=7 produce ancora width>0 (~15px),
+    // mentre n=8 fa scendere la larghezza disponibile sotto zero: verificato empiricamente,
+    // non dedotto dalla formula, per evitare di codificare un numero sbagliato nel test.
+    expect(() => celleProdotti(7)).not.toThrow()
+    expect(() => celleProdotti(8)).toThrow()
+  })
 })
 
 describe('grigliaPositions', () => {
