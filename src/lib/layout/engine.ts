@@ -68,13 +68,19 @@ export function quoteFromBBox(
     })
   }
   if (dim.profondita !== null) {
+    const cornerX = fotoBox.x + fotoBox.width
+    const cornerY = fotoBox.y + fotoBox.height
+    // Come verticale/orizzontale, il punto di partenza è spostato di `testa` dal bordo/corner
+    // della foto (non il corner grezzo): altrimenti il trattino perpendicolare di questa quota
+    // si sovrappone a quello della quota orizzontale, che ancora il proprio estremo alla stessa
+    // X, solo `testa` px più sotto.
     out.push({
       orientamento: 'diagonale',
       valore: cm(dim.profondita),
-      x1: fotoBox.x + fotoBox.width,
-      y1: fotoBox.y + fotoBox.height,
-      x2: fotoBox.x + fotoBox.width + theme.freccia.testa * 3,
-      y2: fotoBox.y + fotoBox.height + theme.freccia.testa * 3,
+      x1: cornerX + theme.freccia.testa,
+      y1: cornerY + theme.freccia.testa,
+      x2: cornerX + theme.freccia.testa * 3,
+      y2: cornerY + theme.freccia.testa * 3,
     })
   }
   return out

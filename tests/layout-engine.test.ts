@@ -37,6 +37,23 @@ describe('quoteFromBBox', () => {
     expect(vert.x1).toBeGreaterThanOrEqual(box.x + box.width)
   })
 
+  it('la diagonale parte spostata di "testa" dal corner, come verticale/orizzontale (non sul corner grezzo)', () => {
+    const box = { x: 100, y: 100, width: 300, height: 300 }
+    const q = quoteFromBBox(box, { larghezza: 50, profondita: 40, altezza: 80 })
+    const diag = q.find((e) => e.orientamento === 'diagonale')!
+    const orizz = q.find((e) => e.orientamento === 'orizzontale')!
+    // il punto di partenza della diagonale non deve coincidere col corner grezzo della foto:
+    // deve essere spostato di "testa", come lo è l'ancoraggio della quota orizzontale — altrimenti
+    // i trattini perpendicolari delle due quote (distanti solo "testa" px) si sovrappongono.
+    const corner = { x: box.x + box.width, y: box.y + box.height }
+    expect(diag.x1).toBe(corner.x + theme.freccia.testa)
+    expect(diag.y1).toBe(corner.y + theme.freccia.testa)
+    // l'estremo della orizzontale è ancorato al bordo grezzo della foto sull'asse X (nessun
+    // offset su quell'asse): la diagonale, spostata di "testa" in X, non deve più coincidere
+    // con quel punto sull'asse X — altrimenti i trattini si accavallano orizzontalmente.
+    expect(diag.x1 - orizz.x2).toBe(theme.freccia.testa)
+  })
+
   it('salta le dimensioni null', () => {
     const q = quoteFromBBox({ x: 0, y: 0, width: 10, height: 10 }, { larghezza: null, profondita: null, altezza: 5 })
     expect(q).toHaveLength(1)
