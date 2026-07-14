@@ -25,6 +25,22 @@ test('formato tondo senza "h." → "Ø 40 x 90 cm"', () => {
   })
 })
 
+test('formato tondo senza simbolo Ø, con prefisso "Misure" → "Misure: 70 x h. 75 cm"', () => {
+  expect(parseDimensions(['Misure: 70 x h. 75 cm'])).toEqual({
+    larghezza: 70, profondita: null, altezza: 75,
+  })
+})
+
+test('formato tondo senza Ø, doppio spazio dopo i due punti → "Misure:  480 x h. 270 cm"', () => {
+  expect(parseDimensions(['Misure:  480 x h. 270 cm'])).toEqual({
+    larghezza: 480, profondita: null, altezza: 270,
+  })
+})
+
+test('linea "N x M cm" senza prefisso "Misure" → non riconosciuta (null)', () => {
+  expect(parseDimensions(['70 x h. 75 cm'])).toBeNull()
+})
+
 test('nessuna misura → null', () => {
   expect(parseDimensions(['Colore: rosso'])).toBeNull()
 })

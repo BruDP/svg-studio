@@ -10,8 +10,8 @@ export interface RawExtraction {
 }
 
 // Versione della pipeline di estrazione (entra in computeInputHash → invalida la cache
-// quando cambia la logica che determina la proposta). Bump a 3: il dizionario si amplia
-// con le 21 chiavi grandi elettrodomestici (spec 2026-07-10) e 3 chiavi esistenti estendono
-// le categorie applicabili, quindi le estrazioni cache dei prodotti frigo/lavatrice/forno/
-// congelatore/aspirapolvere vanno ricalcolate con il dizionario ampliato.
-export const PROMPT_VERSION = 4
+// quando cambia la logica che determina la proposta). Bump a 5: parseDimensions ora
+// riconosce anche "Misure: N x h. M cm" senza il simbolo Ø (18 prodotti reali nel feed,
+// scoperto confrontando le schede automatiche con schede manuali di riferimento) — prima
+// producevano scene senza alcuna quota.
+export const PROMPT_VERSION = 5
