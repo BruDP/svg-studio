@@ -19,6 +19,7 @@ const foto = z.object({
   y: z.number(),
   width: z.number(),
   height: z.number(),
+  gruppo: z.string().optional(),
 })
 
 const quota = z.object({
@@ -30,6 +31,7 @@ const quota = z.object({
   y1: z.number(),
   x2: z.number(),
   y2: z.number(),
+  gruppo: z.string().optional(),
 })
 
 const badge = z.object({
@@ -38,6 +40,7 @@ const badge = z.object({
   testo: z.string(),
   x: z.number(),
   y: z.number(),
+  gruppo: z.string().optional(),
 })
 
 const testo = z.object({

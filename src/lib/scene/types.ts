@@ -23,6 +23,8 @@ export interface FotoElement {
   y: number
   width: number
   height: number
+  /** Sotto-prodotto di appartenenza in una scheda "set" (es. 'g0'). Opzionale, retrocompatibile. */
+  gruppo?: string
 }
 
 /** Freccia di quotatura ancorata al bounding box della foto. */
@@ -35,6 +37,8 @@ export interface QuotaElement {
   y1: number
   x2: number
   y2: number
+  /** Sotto-prodotto di appartenenza in una scheda "set" (es. 'g0'). Opzionale, retrocompatibile. */
+  gruppo?: string
 }
 
 /** Badge speciale (es. "120 KG") posizionato vicino alla foto. */
@@ -44,6 +48,8 @@ export interface BadgeElement {
   testo: string
   x: number
   y: number
+  /** Sotto-prodotto di appartenenza in una scheda "set" (es. 'g0'). Opzionale, retrocompatibile. */
+  gruppo?: string
 }
 
 export interface TestoElement {
