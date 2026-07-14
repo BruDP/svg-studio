@@ -13,8 +13,12 @@ import { parseScene } from '@/lib/scene/schema'
 import type { Scene } from '@/lib/scene/types'
 import type { ProposeResult } from '@/lib/ui/types'
 import { isFake, fakeGenerate, fakeDownload, fakeSearchIconify, fakeFetchIconifySvg } from '@/lib/testing/fake'
-import { cacheImage, readCachedImage } from '@/lib/images/cache'
+import { cacheImage, readCachedImage, writeImageBytes } from '@/lib/images/cache'
 import { extToMime } from '@/lib/ui/mime'
+import { resolveBBox } from '@/lib/images/resolve-bbox'
+import { fitFoto, quoteFromBBox, type QuotaSpec } from '@/lib/layout/engine'
+import { FOTO_BOX } from '@/lib/layout/colonna-sinistra'
+import { parseDimensions } from '@/lib/extraction/dimensions'
 import { db } from '@/lib/db'
 import { searchIconify, fetchIconifySvg, ICONIFY_SETS } from '@/lib/icons/iconify'
 import { saveIcon, approveIcon, getIcon, listIcons } from '@/lib/icons/repository'
@@ -63,15 +67,49 @@ export async function cercaSkuAction(q: string): Promise<{ sku: string; descrizi
   return searchProducts(s)
 }
 
-export async function cambiaFotoAction(sku: string, url: string): Promise<{ imageHash: string; imageDataUri: string }> {
+export async function cambiaFotoAction(
+  sku: string,
+  url: string,
+  opts?: { forzaVision?: boolean },
+): Promise<{
+  imageHash: string
+  imageDataUri: string
+  foto: { x: number; y: number; width: number; height: number }
+  quote: QuotaSpec[]
+  ritagliata: boolean
+}> {
   const product = await getProduct((sku ?? '').trim())
   if (!product) throw new Error('Prodotto non trovato')
   if (!product.images.includes(url)) throw new Error('URL immagine non appartenente al prodotto')
-  const deps = isFake() ? { download: fakeDownload() } : undefined
+
+  const deps: { download?: (url: string) => Promise<Buffer>; dir?: string } | undefined = isFake()
+    ? { download: fakeDownload() }
+    : undefined
   const cached = await cacheImage(url, deps)
   const bytes = readCachedImage(cached.hash, cached.ext)
-  const imageDataUri = `data:${extToMime(cached.ext)};base64,${bytes.toString('base64')}`
-  return { imageHash: cached.hash, imageDataUri }
+  const mime = extToMime(cached.ext)
+  const box = await resolveBBox(bytes, cached.hash, { ...deps, mime, forzaVision: opts?.forzaVision })
+
+  let imageHash = cached.hash
+  let bytesUsati = bytes
+  let bbox: { width: number; height: number } | null = null
+  if (box) {
+    const cropped = await sharp(bytes)
+      .extract({ left: box.left, top: box.top, width: box.width, height: box.height })
+      .png()
+      .toBuffer()
+    imageHash = writeImageBytes(cropped, deps?.dir).hash
+    bytesUsati = cropped
+    bbox = { width: box.width, height: box.height }
+  }
+
+  const fitted = fitFoto(bbox ?? { width: FOTO_BOX.width, height: FOTO_BOX.height }, FOTO_BOX)
+  const dim = parseDimensions(product.notaTecnica)
+  const quote = dim ? quoteFromBBox(fitted, dim) : []
+  const extUsato = box ? 'png' : cached.ext
+  const imageDataUri = `data:${extToMime(extUsato)};base64,${bytesUsati.toString('base64')}`
+
+  return { imageHash, imageDataUri, foto: fitted, quote, ritagliata: box !== null }
 }
 
 export async function saveSceneAction(sceneJson: string): Promise<void> {
