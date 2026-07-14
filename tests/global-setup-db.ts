@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3'
-import { readFileSync, readdirSync, rmSync } from 'node:fs'
+import { mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import path from 'node:path'
 
 /**
@@ -14,6 +14,7 @@ import path from 'node:path'
  */
 export default function setup(): void {
   const dbPath = path.resolve(process.cwd(), 'data', 'test.db')
+  mkdirSync(path.dirname(dbPath), { recursive: true }) // su un checkout pulito 'data/' non esiste ancora
   for (const suffix of ['', '-journal', '-wal', '-shm']) {
     rmSync(dbPath + suffix, { force: true })
   }

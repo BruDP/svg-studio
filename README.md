@@ -7,7 +7,8 @@ Generatore di schede tecniche prodotto (satur.it) da feed Magento. Spec: `docs/s
 1. `npm install`
 2. Copia `.env.example` in `.env`
 3. `npx prisma migrate dev`
-4. Copia `.env.local.example` in `.env.local` e inserisci la chiave Gemini
+4. `npx prisma generate` (necessario: in questa versione di Prisma `migrate dev` non genera il client da solo)
+5. Copia `.env.local.example` in `.env.local` e inserisci la chiave Gemini
 
 ## Comandi
 
