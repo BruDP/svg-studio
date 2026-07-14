@@ -12,6 +12,12 @@ export type SceneAction =
       imageHash: string
       foto?: { x: number; y: number; width: number; height: number }
       quote?: { orientamento: 'verticale' | 'orizzontale' | 'diagonale'; valore: string; x1: number; y1: number; x2: number; y2: number }[]
+      /**
+       * Sotto-prodotto target (scheda "set"). Se presente, l'aggiornamento tocca SOLO la foto e le
+       * quote con `el.gruppo === gruppo`; il resto della scena (altri gruppi, icone, badge, testo)
+       * resta invariato. Senza `gruppo`: comportamento odierno (agisce su tutte le foto/quote).
+       */
+      gruppo?: string
     }
 
 function isIcona(el: SceneElement): el is IconLabelElement {
@@ -106,17 +112,23 @@ export function applyMutation(scene: Scene, action: SceneAction): Scene {
     }
     case 'imposta-foto': {
       const nuoveQuote = action.quote
+      const gruppo = action.gruppo
+      // senza `gruppo`: ogni foto/quota è "del gruppo giusto" (comportamento odierno invariato).
+      // con `gruppo`: solo gli elementi con el.gruppo === gruppo vengono toccati; gli altri
+      // (altri gruppi, icone, badge, testo) passano invariati nel ramo else.
+      const inTarget = (el: { gruppo?: string }) => gruppo === undefined || el.gruppo === gruppo
       let qi = 0
       const elements: SceneElement[] = []
       for (const el of scene.elements) {
-        if (el.type === 'foto') {
+        if (el.type === 'foto' && inTarget(el)) {
           elements.push(
             action.foto
               ? { ...el, imageHash: action.imageHash, x: action.foto.x, y: action.foto.y, width: action.foto.width, height: action.foto.height }
               : { ...el, imageHash: action.imageHash },
           )
-        } else if (el.type === 'quota' && nuoveQuote) {
-          // sostituzione posizionale: preserva id e ordine; scarta le quote in eccesso
+        } else if (el.type === 'quota' && nuoveQuote && inTarget(el)) {
+          // sostituzione posizionale (ristretta alle quote del gruppo target): preserva id e
+          // ordine; scarta le quote in eccesso
           if (qi < nuoveQuote.length) {
             elements.push({ ...el, ...nuoveQuote[qi] })
             qi++
@@ -126,10 +138,16 @@ export function applyMutation(scene: Scene, action: SceneAction): Scene {
           elements.push(el)
         }
       }
-      // quote nuove oltre quelle esistenti → append con id progressivi
+      // quote nuove oltre quelle esistenti (nel gruppo target) → append con id progressivi
+      // (`q-<gruppo>-<qi>` con gruppo, `q<qi>` senza — coerente con gli id generati da compose)
       if (nuoveQuote) {
         for (; qi < nuoveQuote.length; qi++) {
-          elements.push({ type: 'quota', id: `q${qi}`, ...nuoveQuote[qi] })
+          elements.push({
+            type: 'quota',
+            id: gruppo !== undefined ? `q-${gruppo}-${qi}` : `q${qi}`,
+            ...(gruppo !== undefined ? { gruppo } : {}),
+            ...nuoveQuote[qi],
+          })
         }
       }
       return { ...scene, elements }

@@ -113,6 +113,111 @@ describe('sposta-quota', () => {
   })
 })
 
+function scenaSet(): Scene {
+  return {
+    version: SCENE_VERSION,
+    sku: 'SET1',
+    templateId: 'multi-prodotto',
+    canvas: { width: 1000, height: 1000 },
+    elements: [
+      { type: 'testo', id: 'titolo', testo: 'set valigie', x: 60, y: 60, ruolo: 'titolo' },
+      { type: 'foto', id: 'ph-g0', imageHash: 'h0', x: 40, y: 120, width: 300, height: 300, gruppo: 'g0' },
+      { type: 'quota', id: 'q-g0-0', orientamento: 'verticale', valore: '55 cm', x1: 380, y1: 120, x2: 380, y2: 420, gruppo: 'g0' },
+      { type: 'quota', id: 'q-g0-1', orientamento: 'orizzontale', valore: '36 cm', x1: 40, y1: 460, x2: 340, y2: 460, gruppo: 'g0' },
+      { type: 'badge', id: 'bg-g0-0', testo: '30 L', x: 40, y: 90, gruppo: 'g0' },
+      { type: 'foto', id: 'ph-g1', imageHash: 'h1', x: 500, y: 120, width: 300, height: 300, gruppo: 'g1' },
+      { type: 'quota', id: 'q-g1-0', orientamento: 'verticale', valore: '65 cm', x1: 840, y1: 120, x2: 840, y2: 420, gruppo: 'g1' },
+      { type: 'badge', id: 'bg-g1-0', testo: '50 L', x: 500, y: 90, gruppo: 'g1' },
+      { type: 'icona-label', id: 'f0', chiave: 'a', etichetta: 'A', x: 40, y: 620, verificata: true },
+    ],
+  }
+}
+const fotoDiGruppo = (s: Scene, g: string) =>
+  s.elements.find((e): e is FotoElement => e.type === 'foto' && e.gruppo === g)!
+const quoteDiGruppo = (s: Scene, g: string) =>
+  s.elements.filter((e): e is QuotaElement => e.type === 'quota' && e.gruppo === g)
+
+describe('imposta-foto con gruppo (set multi-prodotto)', () => {
+  it('aggiorna SOLO la foto e le quote del gruppo indicato, lasciando g0/icone/badge/testo invariati', () => {
+    const orig = scenaSet()
+    const s = applyMutation(orig, {
+      type: 'imposta-foto',
+      imageHash: 'nuovo-hash-g1',
+      gruppo: 'g1',
+      foto: { x: 520, y: 130, width: 260, height: 260 },
+      quote: [{ orientamento: 'verticale', valore: '70 cm', x1: 800, y1: 130, x2: 800, y2: 390 }],
+    })
+
+    // g1: aggiornato
+    const f1 = fotoDiGruppo(s, 'g1')
+    expect(f1.imageHash).toBe('nuovo-hash-g1')
+    expect({ x: f1.x, y: f1.y, width: f1.width, height: f1.height }).toEqual({ x: 520, y: 130, width: 260, height: 260 })
+    const q1 = quoteDiGruppo(s, 'g1')
+    expect(q1.map((e) => e.id)).toEqual(['q-g1-0']) // id preservato
+    expect(q1[0].valore).toBe('70 cm')
+
+    // g0: invariato
+    const f0 = fotoDiGruppo(s, 'g0')
+    expect(f0).toEqual(fotoDiGruppo(orig, 'g0'))
+    const q0 = quoteDiGruppo(s, 'g0')
+    expect(q0).toEqual(quoteDiGruppo(orig, 'g0'))
+
+    // icone/badge/testo invariati
+    expect(s.elements.find((e) => e.id === 'bg-g0-0')).toEqual(orig.elements.find((e) => e.id === 'bg-g0-0'))
+    expect(s.elements.find((e) => e.id === 'bg-g1-0')).toEqual(orig.elements.find((e) => e.id === 'bg-g1-0'))
+    expect(s.elements.find((e) => e.id === 'f0')).toEqual(orig.elements.find((e) => e.id === 'f0'))
+    expect(s.elements.find((e) => e.id === 'titolo')).toEqual(orig.elements.find((e) => e.id === 'titolo'))
+  })
+
+  it('con più quote nuove che esistenti in quel gruppo: appende con id `q-<gruppo>-<qi>`, senza toccare le quote dell\'altro gruppo', () => {
+    const s = applyMutation(scenaSet(), {
+      type: 'imposta-foto',
+      imageHash: 'h0b',
+      gruppo: 'g0',
+      quote: [
+        { orientamento: 'verticale', valore: 'A', x1: 1, y1: 2, x2: 3, y2: 4 },
+        { orientamento: 'orizzontale', valore: 'B', x1: 5, y1: 6, x2: 7, y2: 8 },
+        { orientamento: 'diagonale', valore: 'C', x1: 9, y1: 10, x2: 11, y2: 12 },
+      ],
+    })
+    const q0 = quoteDiGruppo(s, 'g0')
+    expect(q0.map((e) => e.id)).toEqual(['q-g0-0', 'q-g0-1', 'q-g0-2'])
+    expect(q0[2].valore).toBe('C')
+    // g1 invariato (1 sola quota, non toccata)
+    expect(quoteDiGruppo(s, 'g1').map((e) => e.id)).toEqual(['q-g1-0'])
+  })
+
+  it('con meno quote nuove che esistenti in quel gruppo: rimuove solo le eccedenti di quel gruppo', () => {
+    const s = applyMutation(scenaSet(), {
+      type: 'imposta-foto',
+      imageHash: 'h0c',
+      gruppo: 'g0',
+      quote: [{ orientamento: 'verticale', valore: 'solo', x1: 1, y1: 1, x2: 1, y2: 2 }],
+    })
+    expect(quoteDiGruppo(s, 'g0').map((e) => e.id)).toEqual(['q-g0-0'])
+    expect(quoteDiGruppo(s, 'g1').map((e) => e.id)).toEqual(['q-g1-0']) // g1 intatto
+  })
+
+  it('senza gruppo su scena set: comportamento odierno (agisce su tutte le foto/quote, retrocompat)', () => {
+    const s = applyMutation(scenaSet(), { type: 'imposta-foto', imageHash: 'tutte' })
+    expect(fotoDiGruppo(s, 'g0').imageHash).toBe('tutte')
+    expect(fotoDiGruppo(s, 'g1').imageHash).toBe('tutte')
+  })
+
+  it('è pura: non muta la scena in ingresso', () => {
+    const orig = scenaSet()
+    const copia = JSON.parse(JSON.stringify(orig))
+    applyMutation(orig, {
+      type: 'imposta-foto',
+      imageHash: 'x',
+      gruppo: 'g1',
+      foto: { x: 1, y: 1, width: 1, height: 1 },
+      quote: [{ orientamento: 'verticale', valore: 'x', x1: 1, y1: 1, x2: 1, y2: 1 }],
+    })
+    expect(orig).toEqual(copia)
+  })
+})
+
 describe('imposta-foto', () => {
   it('cambia l\'imageHash della foto', () => {
     const s = applyMutation(scenaBase(), { type: 'imposta-foto', imageHash: 'nuovo-hash' })
