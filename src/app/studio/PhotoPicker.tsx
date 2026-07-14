@@ -6,16 +6,22 @@ export function PhotoPicker({
   onScegli,
   onRicalcola,
   inCorso = false,
+  pezzoAttivo = null,
 }: {
   immagini: string[]
   urlCorrente: string
   onScegli: (url: string) => void
   onRicalcola: () => void
   inCorso?: boolean
+  /** Etichetta del sotto-prodotto (set) su cui agiranno la scelta foto e il ricalcolo. Assente per prodotto singolo. */
+  pezzoAttivo?: string | null
 }) {
   if (immagini.length < 1) return null
   return (
     <div>
+      {pezzoAttivo && (
+        <p className="text-xs font-medium text-emerald-700">Sto modificando: {pezzoAttivo}</p>
+      )}
       {immagini.length > 1 && (
         <>
           <h3 className="font-medium text-zinc-700">Foto</h3>
