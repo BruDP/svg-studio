@@ -6,8 +6,15 @@ import type { ProductRecord } from '@/lib/feed/types'
 import { extractRaw } from './gemini'
 import { validateExtraction } from './validator'
 import { rankFeatures, type ProposedFeature } from './ranking'
-import { parseDimensions, type Dimensioni } from './dimensions'
+import { parseDimensions, parseSetDimensions, type Dimensioni } from './dimensions'
 import { PROMPT_VERSION } from './types'
+
+export interface SottoProdotto {
+  gruppo: string
+  etichetta: string
+  dimensioni: Dimensioni
+  badges: ProposedFeature[]
+}
 
 export interface SchedaProposal {
   sku: string
@@ -15,6 +22,7 @@ export interface SchedaProposal {
   features: ProposedFeature[]
   badges: ProposedFeature[]
   dimensioni: Dimensioni | null
+  sottoProdotti?: SottoProdotto[]
 }
 
 export function computeInputHash(product: ProductRecord, dict: Dictionary): string {
@@ -42,6 +50,7 @@ export async function extractProposal(
   const raw = await extractRaw(product, dict, generate)
   const validated = validateExtraction(raw, product)
   const { features, badges } = rankFeatures(validated, raw.categoria, dict)
+  const sotto = parseSetDimensions(product.notaTecnica)
 
   const proposal: SchedaProposal = {
     sku: product.sku,
@@ -49,6 +58,7 @@ export async function extractProposal(
     features,
     badges,
     dimensioni: parseDimensions(product.notaTecnica),
+    sottoProdotti: sotto.length >= 2 ? sotto : undefined,
   }
 
   await db.extraction.create({
