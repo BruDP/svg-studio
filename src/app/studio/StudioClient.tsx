@@ -34,6 +34,7 @@ export function StudioClient() {
   const [msg, setMsg] = useState<string | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
   const [pickerChiave, setPickerChiave] = useState<string | null>(null)
+  const [fotoUrlCorrente, setFotoUrlCorrente] = useState<string>('')
   const [inCorso, start] = useTransition()
 
   function proponiSku(skuArg: string = sku) {
@@ -45,6 +46,7 @@ export function StudioClient() {
         setBundle({ iconMap: r.iconMap, imageDataUri: r.imageDataUri, categoriaFeatures: r.categoriaFeatures, immagini: r.immagini, iconeNonApprovate: r.iconeNonApprovate })
         setProdotto(r.prodotto)
         setSalvata(r.salvataDisponibile)
+        setFotoUrlCorrente(r.immagini?.[0] ?? '')
       } catch (e) { setBundle(null); setErrore(e instanceof Error ? e.message : 'Errore') }
     })
   }
@@ -57,6 +59,7 @@ export function StudioClient() {
         if (!r) { setMsg('Nessuna scheda salvata per questo SKU'); return }
         dispatch({ type: 'reset', scene: r.scene })
         setBundle((b) => (b ? { ...b, iconMap: r.iconMap, imageDataUri: r.imageDataUri, iconeNonApprovate: r.iconeNonApprovate } : b))
+        setFotoUrlCorrente(bundle?.immagini?.[0] ?? '')
       } catch (e) { setErrore(e instanceof Error ? e.message : 'Errore') }
     })
   }
@@ -71,13 +74,31 @@ export function StudioClient() {
 
   function cambiaFoto(url: string) {
     if (!prodotto) return
+    setErrore(null); setMsg(null)
     start(async () => {
       try {
-        const { imageHash, imageDataUri } = await cambiaFotoAction(prodotto.sku, url)
-        dispatch({ type: 'imposta-foto', imageHash })
-        setBundle((b) => (b ? { ...b, imageDataUri } : b))
+        const r = await cambiaFotoAction(prodotto.sku, url)
+        dispatch({ type: 'imposta-foto', imageHash: r.imageHash, foto: r.foto, quote: r.quote })
+        setBundle((b) => (b ? { ...b, imageDataUri: r.imageDataUri } : b))
+        setFotoUrlCorrente(url)
+        if (!r.ritagliata) setMsg("Bbox non rilevato: uso l'immagine intera (quote da sistemare a mano).")
       } catch (e) {
         setErrore(e instanceof Error ? e.message : 'Errore cambio foto')
+      }
+    })
+  }
+
+  function ricalcolaConVision() {
+    if (!prodotto || !fotoUrlCorrente) return
+    setErrore(null); setMsg(null)
+    start(async () => {
+      try {
+        const r = await cambiaFotoAction(prodotto.sku, fotoUrlCorrente, { forzaVision: true })
+        dispatch({ type: 'imposta-foto', imageHash: r.imageHash, foto: r.foto, quote: r.quote })
+        setBundle((b) => (b ? { ...b, imageDataUri: r.imageDataUri } : b))
+        setMsg(r.ritagliata ? 'Ritaglio ricalcolato con Vision.' : "Vision non ha rilevato un prodotto: uso l'immagine intera.")
+      } catch (e) {
+        setErrore(e instanceof Error ? e.message : 'Errore Vision')
       }
     })
   }
@@ -120,7 +141,7 @@ export function StudioClient() {
               <h2 className="font-medium text-zinc-700">{prodotto.descrizioneBreve}</h2>
               <p className="text-sm text-zinc-500">SKU {prodotto.sku}</p>
             </div>
-            <PhotoPicker immagini={bundle.immagini} onScegli={cambiaFoto} />
+            <PhotoPicker immagini={bundle.immagini} urlCorrente={fotoUrlCorrente} onScegli={cambiaFoto} onRicalcola={ricalcolaConVision} inCorso={inCorso} />
             <FeaturePanel scene={scene} categoriaFeatures={bundle.categoriaFeatures} dispatch={dispatch} onCambiaIcona={setPickerChiave} />
             <div className="flex gap-2">
               <button className="rounded bg-zinc-700 px-4 py-2 text-white disabled:opacity-50" onClick={salva} disabled={inCorso}>Salva</button>

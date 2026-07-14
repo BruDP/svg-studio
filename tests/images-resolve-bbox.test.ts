@@ -134,4 +134,37 @@ describe('resolveBBox', () => {
     expect(await resolveBBox(await makeAngoliDiscordi(), 'h5', deps)).toBeNull()
     expect(chiamate).toBe(1)
   })
+
+  it('forzaVision: chiama Vision anche su sfondo uniforme', async () => {
+    let chiamate = 0
+    const box = await resolveBBox(await makeSample(), 'hf1', {
+      forzaVision: true,
+      askVision: async () => { chiamate++; return JSON.stringify({ trovato: true, x: 0.1, y: 0.1, width: 0.5, height: 0.5 }) },
+      loadCachedBBox: async () => undefined,
+      saveCachedBBox: async () => {},
+    })
+    expect(chiamate).toBe(1)
+    expect(box).toEqual({ left: 10, top: 10, width: 50, height: 50 })
+  })
+
+  it('forzaVision: bypassa la cache in lettura (ignora un vecchio "non trovato")', async () => {
+    let chiamate = 0
+    const salvati: Array<{ trovato: boolean; box: BBox | null }> = []
+    const box = await resolveBBox(await makeAngoliDiscordi(), 'hf2', {
+      forzaVision: true,
+      loadCachedBBox: async () => ({ trovato: false, box: null }), // cache "non trovato" preesistente
+      askVision: async () => { chiamate++; return JSON.stringify({ trovato: true, x: 0.2, y: 0.2, width: 0.5, height: 0.5 }) },
+      saveCachedBBox: async (_h, b) => { salvati.push({ trovato: !!b, box: b }) },
+    })
+    expect(chiamate).toBe(1)                 // ha chiamato Vision nonostante la cache
+    expect(box).toEqual({ left: 20, top: 20, width: 50, height: 50 })
+    expect(salvati).toHaveLength(1)          // e ha scritto il nuovo risultato in cache
+    expect(salvati[0].trovato).toBe(true)
+  })
+
+  it('forzaVision assente: comportamento invariato (sfondo uniforme → nessuna Vision)', async () => {
+    let chiamate = 0
+    await resolveBBox(await makeSample(), 'hf3', { askVision: async () => { chiamate++; return '' } })
+    expect(chiamate).toBe(0)
+  })
 })

@@ -15,7 +15,7 @@ export const CANVAS = { width: 1000, height: 1000 }
  * freccia-quota verticale e alla sua etichetta accostata (es. "84,5 cm"); l'altezza è ampia
  * (il guadagno di dimensione viene soprattutto dal riempimento del ritaglio).
  */
-const FOTO_BOX = {
+export const FOTO_BOX = {
   x: 460,
   y: 95,
   width: 400,

@@ -8,6 +8,9 @@ export interface ResolveBBoxDeps {
   saveCachedBBox?: (imageHash: string, box: BBox | null) => Promise<void>
   sogliaAngoli?: number
   mime?: string
+  /** Se true, salta il gate "sfondo uniforme" (va sempre al ramo Vision) e bypassa la LETTURA
+   *  della cache (nuovo tentativo), ma continua a SCRIVERE il risultato in cache (upsert). */
+  forzaVision?: boolean
 }
 
 /** Orchestratore bbox: scansione pixel → (se sfondo non uniforme) Vision con cache → immagine intera.
@@ -18,27 +21,31 @@ export async function resolveBBox(
   deps: ResolveBBoxDeps = {},
 ): Promise<BBox | null> {
   const sogliaAngoli = deps.sogliaAngoli ?? SOGLIA_ANGOLI
+  const forza = deps.forzaVision ?? false
   const { box, scartoAngoli, width, height } = await analizzaBBox(imageBytes)
 
   // Ramo sfondo UNIFORME: comportamento identico a oggi, nessuna Vision, nessun DB.
-  if (scartoAngoli <= sogliaAngoli) {
+  // Saltato se forzaVision: si vuole comunque passare dal ramo Vision.
+  if (!forza && scartoAngoli <= sogliaAngoli) {
     return box && bboxPlausibile(box, width, height) ? box : null
   }
 
-  // Ramo sfondo NON UNIFORME: fallback Vision, con cache per hash immagine.
+  // Ramo sfondo NON UNIFORME (o forzaVision): fallback Vision, con cache per hash immagine.
   const load = deps.loadCachedBBox ?? loadCachedBBox
   const save = deps.saveCachedBBox ?? saveCachedBBox
   const ask = deps.askVision ?? askVisionDefault
 
   let cached: { trovato: boolean; box: BBox | null } | undefined
-  try {
-    cached = await load(imageHash)
-  } catch (e) {
-    // errore cache DB (lock/connessione): degrada a immagine intera, NON cacha (riprovabile)
-    console.warn('[resolveBBox] lettura cache VisionBBox fallita, degrado a immagine intera:', e)
-    return null
+  if (!forza) {
+    try {
+      cached = await load(imageHash)
+    } catch (e) {
+      // errore cache DB (lock/connessione): degrada a immagine intera, NON cacha (riprovabile)
+      console.warn('[resolveBBox] lettura cache VisionBBox fallita, degrado a immagine intera:', e)
+      return null
+    }
+    if (cached) return cached.box // include "non trovato" → null, senza richiamare Vision
   }
-  if (cached) return cached.box // include "non trovato" → null, senza richiamare Vision
 
   let visionBox: BBox | null
   try {

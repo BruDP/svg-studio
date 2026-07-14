@@ -7,7 +7,12 @@ export type SceneAction =
   | { type: 'aggiungi-feature'; chiave: string; etichetta: string }
   | { type: 'modifica-etichetta'; id: string; etichetta: string }
   | { type: 'sposta-quota'; id: string; estremo: 'inizio' | 'fine'; x: number; y: number }
-  | { type: 'imposta-foto'; imageHash: string }
+  | {
+      type: 'imposta-foto'
+      imageHash: string
+      foto?: { x: number; y: number; width: number; height: number }
+      quote?: { orientamento: 'verticale' | 'orizzontale' | 'diagonale'; valore: string; x1: number; y1: number; x2: number; y2: number }[]
+    }
 
 function isIcona(el: SceneElement): el is IconLabelElement {
   return el.type === 'icona-label'
@@ -100,12 +105,34 @@ export function applyMutation(scene: Scene, action: SceneAction): Scene {
       }
     }
     case 'imposta-foto': {
-      return {
-        ...scene,
-        elements: scene.elements.map((el) =>
-          el.type === 'foto' ? { ...el, imageHash: action.imageHash } : el,
-        ),
+      const nuoveQuote = action.quote
+      let qi = 0
+      const elements: SceneElement[] = []
+      for (const el of scene.elements) {
+        if (el.type === 'foto') {
+          elements.push(
+            action.foto
+              ? { ...el, imageHash: action.imageHash, x: action.foto.x, y: action.foto.y, width: action.foto.width, height: action.foto.height }
+              : { ...el, imageHash: action.imageHash },
+          )
+        } else if (el.type === 'quota' && nuoveQuote) {
+          // sostituzione posizionale: preserva id e ordine; scarta le quote in eccesso
+          if (qi < nuoveQuote.length) {
+            elements.push({ ...el, ...nuoveQuote[qi] })
+            qi++
+          }
+          // se qi >= nuoveQuote.length: quota in eccesso → non ripushata (rimossa)
+        } else {
+          elements.push(el)
+        }
       }
+      // quote nuove oltre quelle esistenti → append con id progressivi
+      if (nuoveQuote) {
+        for (; qi < nuoveQuote.length; qi++) {
+          elements.push({ type: 'quota', id: `q${qi}`, ...nuoveQuote[qi] })
+        }
+      }
+      return { ...scene, elements }
     }
   }
 }

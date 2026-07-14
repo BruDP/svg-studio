@@ -122,4 +122,60 @@ describe('imposta-foto', () => {
     const senzaFoto: Scene = { ...scenaBase(), elements: scenaBase().elements.filter((e) => e.type !== 'foto') }
     expect(() => applyMutation(senzaFoto, { type: 'imposta-foto', imageHash: 'x' })).not.toThrow()
   })
+
+  it('con foto+quote: aggiorna geometria foto e sostituisce le quote (id e ordine preservati)', () => {
+    const s = applyMutation(scenaConQuota(), {
+      type: 'imposta-foto',
+      imageHash: 'crop-hash',
+      foto: { x: 500, y: 120, width: 300, height: 700 },
+      quote: [{ orientamento: 'verticale', valore: '90 cm', x1: 810, y1: 120, x2: 810, y2: 820 }],
+    })
+    const f = foto(s)
+    expect(f.imageHash).toBe('crop-hash')
+    expect({ x: f.x, y: f.y, width: f.width, height: f.height }).toEqual({ x: 500, y: 120, width: 300, height: 700 })
+    const q = quota(s)
+    expect(q.id).toBe('q0')            // id preservato
+    expect(q.valore).toBe('90 cm')
+    expect(q.x1).toBe(810)
+  })
+
+  it('con più quote nuove che esistenti: appende con id progressivi', () => {
+    const s = applyMutation(scenaConQuota(), {
+      type: 'imposta-foto', imageHash: 'h',
+      quote: [
+        { orientamento: 'verticale', valore: 'A', x1: 1, y1: 2, x2: 3, y2: 4 },
+        { orientamento: 'orizzontale', valore: 'B', x1: 5, y1: 6, x2: 7, y2: 8 },
+      ],
+    })
+    const q = s.elements.filter((e) => e.type === 'quota')
+    expect(q.map((e) => e.id)).toEqual(['q0', 'q1'])
+    expect(q[1].valore).toBe('B')
+  })
+
+  it('con meno quote nuove che esistenti: rimuove quelle in eccesso', () => {
+    const due = scenaConQuota()
+    due.elements.push({ type: 'quota', id: 'q1', orientamento: 'orizzontale', valore: 'x', x1: 0, y1: 0, x2: 1, y2: 1 })
+    const s = applyMutation(due, { type: 'imposta-foto', imageHash: 'h', quote: [
+      { orientamento: 'verticale', valore: 'solo', x1: 1, y1: 1, x2: 1, y2: 2 },
+    ] })
+    expect(s.elements.filter((e) => e.type === 'quota').map((e) => e.id)).toEqual(['q0'])
+  })
+
+  it('non tocca icone/badge/testo', () => {
+    const base = scenaConQuota()
+    base.elements.push({ type: 'badge', id: 'bg0', testo: '120 KG', x: 500, y: 900 })
+    const s = applyMutation(base, {
+      type: 'imposta-foto', imageHash: 'h',
+      foto: { x: 1, y: 1, width: 1, height: 1 }, quote: [],
+    })
+    expect(s.elements.filter((e) => e.type === 'icona-label').map((e) => e.id)).toEqual(['f0', 'f1'])
+    expect(s.elements.find((e) => e.id === 'bg0')).toBeTruthy()
+  })
+
+  it('è pura: non muta la scena in ingresso', () => {
+    const orig = scenaConQuota()
+    const copia = JSON.parse(JSON.stringify(orig))
+    applyMutation(orig, { type: 'imposta-foto', imageHash: 'h', foto: { x: 1, y: 1, width: 1, height: 1 }, quote: [] })
+    expect(orig).toEqual(copia)
+  })
 })
