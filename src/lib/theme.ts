@@ -24,6 +24,19 @@ export const theme = {
     testa: 12,
     tick: 11, // semi-lunghezza dei trattini perpendicolari agli estremi della quota
     labelGap: 14, // distanza etichetta misura dalla linea
+    // Inclinazione fissa e uniforme (non rilevata dalla foto — servirebbe visione artificiale
+    // per stimare la prospettiva reale di ogni immagine, non fattibile in automatico su tutto
+    // il feed) per un accenno di prospettiva isometrica, come nelle schede di riferimento fatte
+    // a mano: la larghezza non è perfettamente orizzontale e la profondità continua con un
+    // angolo più dolce del 45° fisso precedente. Stesso valore su ogni scheda, da tarare
+    // visivamente (non un calcolo deterministico da un dato osservabile).
+    inclinazioneLarghezzaDeg: 8,
+    inclinazioneProfonditaDeg: 32,
+    // Distanza (lungo l'angolo di profondità) tra l'estremo destro della larghezza e l'inizio
+    // della quota diagonale. Deve superare `tick` (altrimenti i trattini perpendicolari delle
+    // due quote si sovrappongono a farfalla) — nelle schede di riferimento fatte a mano le due
+    // frecce sono nettamente separate, mai a contatto.
+    distanzaDiagonale: 32,
   },
   badge: {
     altezza: 52,

@@ -109,15 +109,17 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       let lx = mx
       let ly = my
       let anchor = 'middle'
-      let ruota = '' // solo la diagonale (profondità) ruota l'etichetta lungo la linea, come nelle schede di riferimento
+      let ruota = '' // verticale resta orizzontale (come nelle schede di riferimento); orizzontale e diagonale seguono l'inclinazione della linea
       if (el.orientamento === 'verticale') {
         lx = Math.max(x1, x2) + gap
         ly = my + fs / 3
         anchor = 'start'
       } else if (el.orientamento === 'orizzontale') {
         lx = mx
-        ly = Math.max(y1, y2) + gap + fs
+        ly = my + gap + fs
         anchor = 'middle'
+        const angoloOrizz = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI
+        ruota = ` transform="rotate(${angoloOrizz} ${lx} ${ly})"`
       } else {
         lx = x2 + gap
         ly = y2 + fs / 3

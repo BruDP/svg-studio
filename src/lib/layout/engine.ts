@@ -145,7 +145,15 @@ export function quoteFromBBox(
 ): QuotaSpec[] {
   const out: QuotaSpec[] = []
   const destraX = fotoBox.x + fotoBox.width + theme.freccia.testa
-  const sottoY = fotoBox.y + fotoBox.height + theme.freccia.testa
+  const cornerX = fotoBox.x + fotoBox.width
+  const cornerY = fotoBox.y + fotoBox.height
+  const sottoY = cornerY + theme.freccia.testa
+  // Estensione verticale della linea larghezza dovuta all'inclinazione: l'estremo sinistro sale,
+  // quello destro scende, centrati su sottoY (la spaziatura del layout attorno a sottoY non cambia).
+  const dyLarghezza = fotoBox.width * Math.tan((theme.freccia.inclinazioneLarghezzaDeg * Math.PI) / 180)
+  // Punto da cui continua la profondità: l'estremo destro (più basso) della larghezza, per dare
+  // l'impressione di un'unica linea di base che piega verso la profondità, non due segmenti scollegati.
+  const baseProfonditaY = sottoY + dyLarghezza / 2
 
   if (dim.altezza !== null) {
     out.push({
@@ -162,25 +170,25 @@ export function quoteFromBBox(
       orientamento: 'orizzontale',
       valore: cm(dim.larghezza),
       x1: fotoBox.x,
-      y1: sottoY,
-      x2: fotoBox.x + fotoBox.width,
-      y2: sottoY,
+      y1: sottoY - dyLarghezza / 2,
+      x2: cornerX,
+      y2: sottoY + dyLarghezza / 2,
     })
   }
   if (dim.profondita !== null) {
-    const cornerX = fotoBox.x + fotoBox.width
-    const cornerY = fotoBox.y + fotoBox.height
-    // Come verticale/orizzontale, il punto di partenza è spostato di `testa` dal bordo/corner
-    // della foto (non il corner grezzo): altrimenti il trattino perpendicolare di questa quota
-    // si sovrappone a quello della quota orizzontale, che ancora il proprio estremo alla stessa
-    // X, solo `testa` px più sotto.
+    const ang = (theme.freccia.inclinazioneProfonditaDeg * Math.PI) / 180
+    const lunghezza = theme.freccia.testa * 2
+    // Il punto di partenza è spostato di `distanzaDiagonale` (lungo l'angolo di profondità)
+    // dal corner/estremo larghezza: uno stacco visibile, non un punto di continuità, come nelle
+    // schede di riferimento dove le due frecce sono disegnate separate.
+    const distanza = theme.freccia.distanzaDiagonale
     out.push({
       orientamento: 'diagonale',
       valore: cm(dim.profondita),
-      x1: cornerX + theme.freccia.testa,
-      y1: cornerY + theme.freccia.testa,
-      x2: cornerX + theme.freccia.testa * 3,
-      y2: cornerY + theme.freccia.testa * 3,
+      x1: cornerX + distanza * Math.cos(ang),
+      y1: baseProfonditaY + distanza * Math.sin(ang),
+      x2: cornerX + (distanza + lunghezza) * Math.cos(ang),
+      y2: baseProfonditaY + (distanza + lunghezza) * Math.sin(ang),
     })
   }
   return out

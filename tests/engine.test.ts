@@ -40,3 +40,25 @@ test('input diverso → nuovo inputHash → Gemini richiamato', async () => {
   await extractProposal(modificato, dict, fakeGenerate)
   expect(fakeGenerate.mock.calls.length).toBe(calls + 1)
 })
+
+test('specchio: la profondità viene rimossa dalla proposta (nessuna categoria dedicata, rilevato dal testo)', async () => {
+  const specchio = {
+    ...barbecue,
+    sku: `${barbecue.sku}-specchio-test`,
+    descrizioneBreve: 'Specchio arredo da terra 170x70 cm, rosa cipria, More Amor',
+    notaTecnica: ['Misure: l. 70 x p. 34 x h. 170 cm'],
+  }
+  const proposal = await extractProposal(specchio, dict, fakeGenerate)
+  expect(proposal.dimensioni).toEqual({ larghezza: 70, profondita: null, altezza: 170 })
+})
+
+test('prodotto non-specchio con le stesse misure: la profondità resta', async () => {
+  const nonSpecchio = {
+    ...barbecue,
+    sku: `${barbecue.sku}-non-specchio-test`,
+    descrizioneBreve: 'Comodino da terra 170x70 cm, rosa cipria',
+    notaTecnica: ['Misure: l. 70 x p. 34 x h. 170 cm'],
+  }
+  const proposal = await extractProposal(nonSpecchio, dict, fakeGenerate)
+  expect(proposal.dimensioni).toEqual({ larghezza: 70, profondita: 34, altezza: 170 })
+})

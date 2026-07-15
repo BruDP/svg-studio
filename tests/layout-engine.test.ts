@@ -37,21 +37,34 @@ describe('quoteFromBBox', () => {
     expect(vert.x1).toBeGreaterThanOrEqual(box.x + box.width)
   })
 
-  it('la diagonale parte spostata di "testa" dal corner, come verticale/orizzontale (non sul corner grezzo)', () => {
+  it('la diagonale è staccata dall\'estremo destro della larghezza di "distanzaDiagonale" lungo il proprio angolo (non un punto di continuità)', () => {
     const box = { x: 100, y: 100, width: 300, height: 300 }
     const q = quoteFromBBox(box, { larghezza: 50, profondita: 40, altezza: 80 })
     const diag = q.find((e) => e.orientamento === 'diagonale')!
     const orizz = q.find((e) => e.orientamento === 'orizzontale')!
-    // il punto di partenza della diagonale non deve coincidere col corner grezzo della foto:
-    // deve essere spostato di "testa", come lo è l'ancoraggio della quota orizzontale — altrimenti
-    // i trattini perpendicolari delle due quote (distanti solo "testa" px) si sovrappongono.
-    const corner = { x: box.x + box.width, y: box.y + box.height }
-    expect(diag.x1).toBe(corner.x + theme.freccia.testa)
-    expect(diag.y1).toBe(corner.y + theme.freccia.testa)
-    // l'estremo della orizzontale è ancorato al bordo grezzo della foto sull'asse X (nessun
-    // offset su quell'asse): la diagonale, spostata di "testa" in X, non deve più coincidere
-    // con quel punto sull'asse X — altrimenti i trattini si accavallano orizzontalmente.
-    expect(diag.x1 - orizz.x2).toBe(theme.freccia.testa)
+    // il punto di partenza della diagonale è esattamente "distanzaDiagonale" px lungo il proprio
+    // angolo dall'estremo destro della larghezza: uno stacco visibile (> tick), non un punto di
+    // continuità — altrimenti i trattini perpendicolari delle due quote si accavallano a farfalla,
+    // come nelle schede di riferimento dove le due frecce sono nettamente separate.
+    const distanza = Math.hypot(diag.x1 - orizz.x2, diag.y1 - orizz.y2)
+    expect(distanza).toBeCloseTo(theme.freccia.distanzaDiagonale, 5)
+    expect(theme.freccia.distanzaDiagonale).toBeGreaterThan(theme.freccia.tick)
+    // entrambe le coordinate si spostano nella direzione attesa (destra e in basso)
+    expect(diag.x1).toBeGreaterThan(orizz.x2 - 1)
+    expect(diag.y1).toBeGreaterThan(orizz.y2)
+  })
+
+  it('la linea orizzontale (larghezza) e la diagonale (profondità) hanno un\'inclinazione fissa, non sono più flat/45°', () => {
+    const box = { x: 100, y: 100, width: 300, height: 300 }
+    const q = quoteFromBBox(box, { larghezza: 50, profondita: 40, altezza: 80 })
+    const orizz = q.find((e) => e.orientamento === 'orizzontale')!
+    const diag = q.find((e) => e.orientamento === 'diagonale')!
+    // la larghezza non è più perfettamente orizzontale (y1 !== y2)
+    expect(orizz.y1).not.toBe(orizz.y2)
+    const angoloOrizz = (Math.atan2(orizz.y2 - orizz.y1, orizz.x2 - orizz.x1) * 180) / Math.PI
+    expect(angoloOrizz).toBeCloseTo(theme.freccia.inclinazioneLarghezzaDeg, 5)
+    const angoloDiag = (Math.atan2(diag.y2 - diag.y1, diag.x2 - diag.x1) * 180) / Math.PI
+    expect(angoloDiag).toBeCloseTo(theme.freccia.inclinazioneProfonditaDeg, 5)
   })
 
   it('salta le dimensioni null', () => {
