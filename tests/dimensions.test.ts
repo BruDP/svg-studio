@@ -92,18 +92,85 @@ describe('parseSetDimensions', () => {
     expect(parseSetDimensions(['l. 51 x p. 63 x h. 84,5 cm'])).toEqual([])
   })
 
-  test('set giardino sporco (Portata...Kg, non Capacità...L) → [] (gate capacità, Piano B non nostro)', () => {
-    const giardino = [
+  // notaTecnica REALE del set giardino (SKU 2188908, "Set giardino 4 posti, in alluminio, Ibiza
+  // Est…"), interrogata dal feed. Caso sporco: badge di "Portata massima ... Kg" (non "Capacità
+  // ... L"), separatore mancante nel tavolinetto, righe-accessorio (seduta/cuscini/schienale) con
+  // la stessa forma "Misure <etichetta>" dei pezzi veri ma senza badge corrispondente.
+  const giardino = [
+    'Set giardino Ibiza Est…',
+    '4 posti a sedere',
+    'In alluminio',
+    'Design moderno ideale per giardini e terrazzi',
+    'Il set si compone di:',
+    '2 poltroncine singole in alluminio con cuscini:',
+    'Portata massima poltroncine: 150 Kg',
+    'Misure seduta: l. 65 x p. 64 cm',
+    'Altezza seduta da terra: 31,5 cm (senza cuscini)',
+    'Misure poltroncine: l. 75 x p. 85 x h. 86 cm',
+    '1 divanetto in alluminio con cuscini:',
+    '2 posti a sedere',
+    'Portata massima divanetto: 300 Kg',
+    'Misure seduta: 130 x 64 cm',
+    'Altezza seduta da terra: 31,5 cm (senza cuscini)',
+    'Misure divanetto: l. 140 x p. 85 x h. 86 cm',
+    '1 tavolinetto',
+    'Portata massima tavolinetto: 50 Kg',
+    'Misure tavolinetto: l. 110 x p. 64,5 h. 40,5 cm',
+    'Cuscini in poliestere sfoderabili con cerniera e lavabili a mano',
+    'Imbottitura in spugna di poliuretano e fibra di poliestere',
+    'Misura cuscino divano: l. 130 x p. 67,5 x h. 11 cm',
+    'Misura cuscini poltroncine: l. 65 x 67,5 x h. 11 cm',
+    'Misure cuscini schienale: l. 65 x 50 x h. 9 cm',
+    'Semplice da assemblare',
+    'Istruzioni di montaggio incluse',
+  ]
+
+  test('set giardino sporco (2188908): 3 pezzi (poltroncine, divanetto, tavolinetto), ordine di apparizione', () => {
+    const risultato = parseSetDimensions(giardino)
+    expect(risultato).toHaveLength(3)
+    expect(risultato.map((s) => s.gruppo)).toEqual(['g0', 'g1', 'g2'])
+    expect(risultato.map((s) => s.etichetta)).toEqual(['poltroncine', 'divanetto', 'tavolinetto'])
+  })
+
+  test('tavolinetto: separatore "x" mancante prima di "h." tollerato', () => {
+    const [, , tavolinetto] = parseSetDimensions(giardino)
+    expect(tavolinetto.dimensioni).toEqual({ larghezza: 110, profondita: 64.5, altezza: 40.5 })
+  })
+
+  test('ogni pezzo del giardino ha un badge di portata (Kg), non capacità', () => {
+    const risultato = parseSetDimensions(giardino)
+    expect(risultato.every((s) => s.badges.length === 1 && s.badges[0].chiave === 'portata')).toBe(true)
+    const divanetto = risultato.find((s) => s.etichetta === 'divanetto')!
+    expect(divanetto.badges[0]).toMatchObject({
+      chiave: 'portata', etichetta: '300 Kg', valore: '300', verificata: true, priorita: 0, badge: true,
+    })
+  })
+
+  test('nessun pezzo per le righe-accessorio (seduta/cuscini/schienale)', () => {
+    const etichette = parseSetDimensions(giardino).map((s) => s.etichetta)
+    expect(etichette).not.toContain('seduta')
+    expect(etichette.some((e) => e.includes('cuscino'))).toBe(false)
+    expect(etichette.some((e) => e.includes('schienale'))).toBe(false)
+  })
+
+  // Difesa in profondità: nei dati reali del giardino le righe-accessorio vengono già scartate per
+  // FORMA (manca "h.", oppure "Misura" singolare) — quindi il caso sopra NON esercita davvero la
+  // blacklist ETICHETTE_ACCESSORIO. Questo caso ipotetico ma plausibile (feed sporco futuro) mette
+  // un accessorio "seduta" in formato COMPLETO l./p./h. e perfino con un badge di portata
+  // corrispondente: il gate badge da solo lo accetterebbe (il badge c'è), è la blacklist a
+  // escluderlo. Senza `eAccessorio` questo test fallirebbe (3 pezzi invece di 2).
+  test('difesa in profondità: accessorio in formato completo E con badge viene comunque escluso dalla blacklist', () => {
+    const conAccessorioCorroborato = [
       'Misure poltroncine: l. 75 x p. 85 x h. 86 cm',
       'Portata massima poltroncine: 150 Kg',
-      'Misure divanetto:   l. 140 x p. 85 x h. 86 cm',
+      'Misure divanetto: l. 140 x p. 85 x h. 86 cm',
       'Portata massima divanetto: 300 Kg',
-      'Misure tavolinetto: l. 110 x p. 64,5 h. 40,5 cm',
-      'Portata massima tavolinetto: 50 Kg',
-      'Misure seduta: l. 65 x p. 64 cm',
-      'Misure cuscino divano: l. 130 x p. 67,5 x h. 11 cm',
+      'Misure seduta: l. 65 x p. 64 x h. 40 cm', // accessorio in formato COMPLETO...
+      'Portata massima seduta: 120 Kg', // ...e perfino con badge corrispondente
     ]
-    expect(parseSetDimensions(giardino)).toEqual([])
+    const etichette = parseSetDimensions(conAccessorioCorroborato).map((s) => s.etichetta)
+    expect(etichette).toEqual(['poltroncine', 'divanetto'])
+    expect(etichette).not.toContain('seduta')
   })
 
   test('un solo blocco Misure con Capacità corrispondente (sotto soglia 2) → []', () => {
