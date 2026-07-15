@@ -13,7 +13,7 @@ import { SkuSearch } from './SkuSearch'
 
 type Bundle = {
   iconMap: Record<string, string>
-  imageDataUri: string | null
+  imageMap: Record<string, string>
   categoriaFeatures: ProposeResult['categoriaFeatures']
   immagini: string[]
   iconeNonApprovate: string[]
@@ -61,7 +61,7 @@ export function StudioClient() {
       try {
         const r = await proposeSceneAction(skuArg)
         dispatch({ type: 'reset', scene: r.scene })
-        setBundle({ iconMap: r.iconMap, imageDataUri: r.imageDataUri, categoriaFeatures: r.categoriaFeatures, immagini: r.immagini, iconeNonApprovate: r.iconeNonApprovate })
+        setBundle({ iconMap: r.iconMap, imageMap: r.imageMap, categoriaFeatures: r.categoriaFeatures, immagini: r.immagini, iconeNonApprovate: r.iconeNonApprovate })
         setProdotto(r.prodotto)
         setSalvata(r.salvataDisponibile)
         setFotoUrlCorrente(r.immagini?.[0] ?? '')
@@ -77,7 +77,7 @@ export function StudioClient() {
         const r = await loadSceneAction(sku)
         if (!r) { setMsg('Nessuna scheda salvata per questo SKU'); return }
         dispatch({ type: 'reset', scene: r.scene })
-        setBundle((b) => (b ? { ...b, iconMap: r.iconMap, imageDataUri: r.imageDataUri, iconeNonApprovate: r.iconeNonApprovate } : b))
+        setBundle((b) => (b ? { ...b, iconMap: r.iconMap, imageMap: r.imageMap, iconeNonApprovate: r.iconeNonApprovate } : b))
         setFotoUrlCorrente(bundle?.immagini?.[0] ?? '')
         setGruppoAttivo(gruppiDiScena(r.scene)[0] ?? null)
       } catch (e) { setErrore(e instanceof Error ? e.message : 'Errore') }
@@ -99,7 +99,7 @@ export function StudioClient() {
       try {
         const r = await cambiaFotoAction(prodotto.sku, url, gruppoAttivo ? { gruppo: gruppoAttivo } : undefined)
         dispatch({ type: 'imposta-foto', imageHash: r.imageHash, foto: r.foto, quote: r.quote, ...(r.gruppo ? { gruppo: r.gruppo } : {}) })
-        setBundle((b) => (b ? { ...b, imageDataUri: r.imageDataUri } : b))
+        setBundle((b) => (b ? { ...b, imageMap: { ...b.imageMap, [r.imageHash]: r.imageDataUri } } : b))
         setFotoUrlCorrente(url)
         if (!r.ritagliata) setMsg("Bbox non rilevato: uso l'immagine intera (quote da sistemare a mano).")
       } catch (e) {
@@ -115,7 +115,7 @@ export function StudioClient() {
       try {
         const r = await cambiaFotoAction(prodotto.sku, fotoUrlCorrente, { forzaVision: true, ...(gruppoAttivo ? { gruppo: gruppoAttivo } : {}) })
         dispatch({ type: 'imposta-foto', imageHash: r.imageHash, foto: r.foto, quote: r.quote, ...(r.gruppo ? { gruppo: r.gruppo } : {}) })
-        setBundle((b) => (b ? { ...b, imageDataUri: r.imageDataUri } : b))
+        setBundle((b) => (b ? { ...b, imageMap: { ...b.imageMap, [r.imageHash]: r.imageDataUri } } : b))
         setMsg(r.ritagliata ? 'Ritaglio ricalcolato con Vision.' : "Vision non ha rilevato un prodotto: uso l'immagine intera.")
       } catch (e) {
         setErrore(e instanceof Error ? e.message : 'Errore Vision')
@@ -155,7 +155,7 @@ export function StudioClient() {
 
       {scene && bundle && prodotto && (
         <div className="flex flex-col gap-4 md:flex-row">
-          <div className="flex-1"><EditorPreview scene={scene} iconMap={bundle.iconMap} imageDataUri={bundle.imageDataUri} dispatch={dispatch} inRevisione={bundle.iconeNonApprovate} /></div>
+          <div className="flex-1"><EditorPreview scene={scene} iconMap={bundle.iconMap} imageMap={bundle.imageMap} dispatch={dispatch} inRevisione={bundle.iconeNonApprovate} /></div>
           <aside className="w-full md:w-80 space-y-3">
             <div>
               <h2 className="font-medium text-zinc-700">{prodotto.descrizioneBreve}</h2>

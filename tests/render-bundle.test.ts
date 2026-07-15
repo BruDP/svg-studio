@@ -22,6 +22,29 @@ const deps = {
   readImage: (h: string) => (h === 'abc' ? { bytes: Buffer.from([0x89, 0x50, 0x4e, 0x47]), ext: 'png' } : null),
 }
 
+// Scena "set": due elementi foto con imageHash DIVERSI in due gruppi diversi (Task 6-7:
+// l'operatore assegna una foto diversa a un singolo pezzo). Regressione per il bug Task 9:
+// il bundle deve produrre una mappa hash→dataURI con ENTRAMBE le entry, non collassare
+// sulla prima foto trovata.
+const sceneMultiFoto: Scene = {
+  version: SCENE_VERSION,
+  sku: 'X2',
+  templateId: 'multi-prodotto',
+  canvas: { width: 1000, height: 1000 },
+  elements: [
+    { type: 'foto', id: 'ph0', imageHash: 'abc', x: 0, y: 0, width: 200, height: 200, gruppo: 'g0' },
+    { type: 'foto', id: 'ph1', imageHash: 'def', x: 200, y: 0, width: 200, height: 200, gruppo: 'g1' },
+  ],
+}
+
+const depsMultiFoto = {
+  readImage: (h: string) => {
+    if (h === 'abc') return { bytes: Buffer.from([0x89, 0x50, 0x4e, 0x47]), ext: 'png' as const }
+    if (h === 'def') return { bytes: Buffer.from([0xff, 0xd8, 0xff, 0xdb]), ext: 'jpg' as const }
+    return null
+  },
+}
+
 describe('resolveRenderBundle', () => {
   it('mappa solo le icone approvate, estraendone l\'inner SVG', async () => {
     const b = await resolveRenderBundle(scene, deps)
@@ -30,14 +53,14 @@ describe('resolveRenderBundle', () => {
     expect(b.iconMap.k_ok).not.toMatch(/<svg/i) // solo inner
   })
 
-  it('costruisce il data URI della foto dai byte in cache', async () => {
+  it('costruisce imageMap[hash] = data URI dai byte in cache', async () => {
     const b = await resolveRenderBundle(scene, deps)
-    expect(b.imageDataUri).toMatch(/^data:image\/png;base64,/)
+    expect(b.imageMap.abc).toMatch(/^data:image\/png;base64,/)
   })
 
-  it('imageDataUri null se la foto non è in cache', async () => {
+  it('hash assente da imageMap se la foto non è in cache', async () => {
     const b = await resolveRenderBundle(scene, { ...deps, readImage: () => null })
-    expect(b.imageDataUri).toBeNull()
+    expect(b.imageMap.abc).toBeUndefined()
   })
 
   it('renderSceneServer produce l\'SVG canonico usando il bundle', async () => {
@@ -47,6 +70,23 @@ describe('resolveRenderBundle', () => {
     expect(svg.trim().endsWith('</svg>')).toBe(true)
     expect(svg).toContain('M1 1') // icona approvata inserita
     expect(svg).toContain('data:image/png;base64,') // foto incorporata
+  })
+
+  it('REGRESSIONE: due foto con hash diversi producono un imageMap con ENTRAMBE le entry', async () => {
+    const b = await resolveRenderBundle(sceneMultiFoto, depsMultiFoto)
+    expect(Object.keys(b.imageMap).sort()).toEqual(['abc', 'def'])
+    expect(b.imageMap.abc).toMatch(/^data:image\/png;base64,/)
+    expect(b.imageMap.def).toMatch(/^data:image\/jpeg;base64,/)
+    expect(b.imageMap.abc).not.toEqual(b.imageMap.def)
+  })
+
+  it('REGRESSIONE: renderSceneServer incorpora CIASCUNA foto con il proprio data URI corretto (non la stessa per entrambe)', async () => {
+    const { renderSceneServer } = await import('@/lib/render/bundle')
+    const svg = await renderSceneServer(parseScene(sceneMultiFoto), depsMultiFoto)
+    const b64Abc = Buffer.from([0x89, 0x50, 0x4e, 0x47]).toString('base64')
+    const b64Def = Buffer.from([0xff, 0xd8, 0xff, 0xdb]).toString('base64')
+    expect(svg).toContain(`data:image/png;base64,${b64Abc}`)
+    expect(svg).toContain(`data:image/jpeg;base64,${b64Def}`)
   })
 })
 

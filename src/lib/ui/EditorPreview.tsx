@@ -10,20 +10,20 @@ import { IconMarkOverlay } from '@/lib/ui/IconMarkOverlay'
 export function EditorPreview({
   scene,
   iconMap,
-  imageDataUri,
+  imageMap,
   dispatch,
   inRevisione,
 }: {
   scene: Scene
   iconMap: Record<string, string>
-  imageDataUri: string | null
+  imageMap: Record<string, string>
   dispatch: (a: SceneAction) => void
   inRevisione: string[]
 }) {
   const ref = useRef<HTMLDivElement>(null)
   return (
     <div ref={ref} className="relative w-full max-w-[1000px] aspect-square">
-      <ScenePreview scene={scene} iconMap={iconMap} imageDataUri={imageDataUri} />
+      <ScenePreview scene={scene} iconMap={iconMap} imageMap={imageMap} />
       <QuotaOverlay scene={scene} containerRef={ref} dispatch={dispatch} />
       <IconMarkOverlay scene={scene} inRevisione={inRevisione} />
     </div>

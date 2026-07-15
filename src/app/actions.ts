@@ -43,7 +43,7 @@ export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
   const applicabili = Object.entries(dict.features)
     .filter(([, def]) => def.categorie.includes(proposal.categoria))
     .map(([chiave, def]) => ({ chiave, etichetta: def.label.replace('{valore}', '').trim() }))
-  const bundle = await resolveRenderBundle(scene) // resta per imageDataUri
+  const bundle = await resolveRenderBundle(scene) // resta per imageMap
   const chiaviScena = scene.elements.filter((e) => e.type === 'icona-label').map((e) => e.chiave)
   const editor = await resolveEditorIcons(applicabili.map((f) => f.chiave).concat(chiaviScena))
   const iconMap = editor.iconMap
@@ -52,7 +52,7 @@ export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
   return {
     scene,
     iconMap,
-    imageDataUri: bundle.imageDataUri,
+    imageMap: bundle.imageMap,
     prodotto: { sku: product.sku, descrizioneBreve: product.descrizioneBreve },
     categoriaFeatures: applicabili,
     salvataDisponibile: salvata !== null,
@@ -147,7 +147,7 @@ export async function saveSceneAction(sceneJson: string): Promise<void> {
 export async function loadSceneAction(sku: string): Promise<{
   scene: Scene
   iconMap: Record<string, string>
-  imageDataUri: string | null
+  imageMap: Record<string, string>
   iconeNonApprovate: string[]
 } | null> {
   const s = (sku ?? '').trim()
@@ -161,7 +161,7 @@ export async function loadSceneAction(sku: string): Promise<{
   return {
     scene,
     iconMap: editor.iconMap,
-    imageDataUri: bundle.imageDataUri,
+    imageMap: bundle.imageMap,
     iconeNonApprovate: editor.inRevisione,
   }
 }

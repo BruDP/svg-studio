@@ -6,7 +6,7 @@ import { extToMime } from '@/lib/ui/mime'
 
 export interface RenderBundle {
   iconMap: Record<string, string>
-  imageDataUri: string | null
+  imageMap: Record<string, string>
 }
 
 type BundleDeps = {
@@ -41,20 +41,20 @@ export async function resolveRenderBundle(scene: Scene, deps: BundleDeps = {}): 
     })
 
   const iconMap: Record<string, string> = {}
-  let imageDataUri: string | null = null
+  const imageMap: Record<string, string> = {}
 
   for (const el of scene.elements) {
     if (el.type === 'icona-label' && !(el.chiave in iconMap)) {
       const rec = await getIcon(el.chiave)
       if (rec) iconMap[el.chiave] = innerSvg(rec.svg)
     }
-    if (el.type === 'foto' && imageDataUri === null) {
+    if (el.type === 'foto' && !(el.imageHash in imageMap)) {
       const img = readImage(el.imageHash)
-      if (img) imageDataUri = `data:${extToMime(img.ext)};base64,${img.bytes.toString('base64')}`
+      if (img) imageMap[el.imageHash] = `data:${extToMime(img.ext)};base64,${img.bytes.toString('base64')}`
     }
   }
 
-  return { iconMap, imageDataUri }
+  return { iconMap, imageMap }
 }
 
 /** Mappa chiave→inner-SVG per le chiavi con icona approvata (le altre assenti). */
@@ -97,6 +97,6 @@ export async function renderSceneServer(scene: Scene, deps: BundleDeps = {}): Pr
   const bundle = await resolveRenderBundle(scene, deps)
   return renderScene(scene, {
     icon: (k) => bundle.iconMap[k] ?? null,
-    image: () => bundle.imageDataUri,
+    image: (hash) => bundle.imageMap[hash] ?? null,
   })
 }
