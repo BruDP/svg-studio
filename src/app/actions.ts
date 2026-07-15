@@ -16,9 +16,9 @@ import { isFake, fakeGenerate, fakeDownload, fakeSearchIconify, fakeFetchIconify
 import { cacheImage, readCachedImage, writeImageBytes } from '@/lib/images/cache'
 import { extToMime } from '@/lib/ui/mime'
 import { resolveBBox } from '@/lib/images/resolve-bbox'
-import { fitFoto, quoteFromBBox, type QuotaSpec } from '@/lib/layout/engine'
+import { fitFoto, quoteFromBBox, celleProdotti, type QuotaSpec } from '@/lib/layout/engine'
 import { FOTO_BOX } from '@/lib/layout/colonna-sinistra'
-import { parseDimensions } from '@/lib/extraction/dimensions'
+import { parseDimensions, parseSetDimensions, type Dimensioni } from '@/lib/extraction/dimensions'
 import { db } from '@/lib/db'
 import { searchIconify, fetchIconifySvg, ICONIFY_SETS } from '@/lib/icons/iconify'
 import { saveIcon, approveIcon, getIcon, listIcons } from '@/lib/icons/repository'
@@ -43,7 +43,7 @@ export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
   const applicabili = Object.entries(dict.features)
     .filter(([, def]) => def.categorie.includes(proposal.categoria))
     .map(([chiave, def]) => ({ chiave, etichetta: def.label.replace('{valore}', '').trim() }))
-  const bundle = await resolveRenderBundle(scene) // resta per imageDataUri
+  const bundle = await resolveRenderBundle(scene) // resta per imageMap
   const chiaviScena = scene.elements.filter((e) => e.type === 'icona-label').map((e) => e.chiave)
   const editor = await resolveEditorIcons(applicabili.map((f) => f.chiave).concat(chiaviScena))
   const iconMap = editor.iconMap
@@ -52,7 +52,7 @@ export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
   return {
     scene,
     iconMap,
-    imageDataUri: bundle.imageDataUri,
+    imageMap: bundle.imageMap,
     prodotto: { sku: product.sku, descrizioneBreve: product.descrizioneBreve },
     categoriaFeatures: applicabili,
     salvataDisponibile: salvata !== null,
@@ -70,13 +70,14 @@ export async function cercaSkuAction(q: string): Promise<{ sku: string; descrizi
 export async function cambiaFotoAction(
   sku: string,
   url: string,
-  opts?: { forzaVision?: boolean },
+  opts?: { forzaVision?: boolean; gruppo?: string },
 ): Promise<{
   imageHash: string
   imageDataUri: string
   foto: { x: number; y: number; width: number; height: number }
   quote: QuotaSpec[]
   ritagliata: boolean
+  gruppo?: string
 }> {
   const product = await getProduct((sku ?? '').trim())
   if (!product) throw new Error('Prodotto non trovato')
@@ -103,13 +104,34 @@ export async function cambiaFotoAction(
     bbox = { width: box.width, height: box.height }
   }
 
-  const fitted = fitFoto(bbox ?? { width: FOTO_BOX.width, height: FOTO_BOX.height }, FOTO_BOX)
-  const dim = parseDimensions(product.notaTecnica)
+  // Con `gruppo`: la scheda è un template "set" — dimensioni e cella-foto vanno ri-derivate dal
+  // sotto-prodotto giusto (non dal prodotto-singolo). Senza `gruppo`: comportamento odierno
+  // (colonna-sinistra, FOTO_BOX, parseDimensions).
+  let cella: { x: number; y: number; width: number; height: number } = FOTO_BOX
+  let dim: Dimensioni | null
+  if (opts?.gruppo) {
+    const sottoProdotti = parseSetDimensions(product.notaTecnica)
+    const indice = sottoProdotti.findIndex((sp) => sp.gruppo === opts.gruppo)
+    if (indice < 0) throw new Error(`Gruppo ${opts.gruppo} non trovato nel prodotto ${sku}`)
+    cella = celleProdotti(sottoProdotti.length)[indice]
+    dim = sottoProdotti[indice].dimensioni
+  } else {
+    dim = parseDimensions(product.notaTecnica)
+  }
+
+  const fitted = fitFoto(bbox ?? { width: cella.width, height: cella.height }, cella)
   const quote = dim ? quoteFromBBox(fitted, dim) : []
   const extUsato = box ? 'png' : cached.ext
   const imageDataUri = `data:${extToMime(extUsato)};base64,${bytesUsati.toString('base64')}`
 
-  return { imageHash, imageDataUri, foto: fitted, quote, ritagliata: box !== null }
+  return {
+    imageHash,
+    imageDataUri,
+    foto: fitted,
+    quote,
+    ritagliata: box !== null,
+    ...(opts?.gruppo ? { gruppo: opts.gruppo } : {}),
+  }
 }
 
 export async function saveSceneAction(sceneJson: string): Promise<void> {
@@ -125,7 +147,7 @@ export async function saveSceneAction(sceneJson: string): Promise<void> {
 export async function loadSceneAction(sku: string): Promise<{
   scene: Scene
   iconMap: Record<string, string>
-  imageDataUri: string | null
+  imageMap: Record<string, string>
   iconeNonApprovate: string[]
 } | null> {
   const s = (sku ?? '').trim()
@@ -139,7 +161,7 @@ export async function loadSceneAction(sku: string): Promise<{
   return {
     scene,
     iconMap: editor.iconMap,
-    imageDataUri: bundle.imageDataUri,
+    imageMap: bundle.imageMap,
     iconeNonApprovate: editor.inRevisione,
   }
 }

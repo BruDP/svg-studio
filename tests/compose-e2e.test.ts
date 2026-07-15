@@ -45,7 +45,52 @@ async function sampleImage(): Promise<Buffer> {
   return sharp(px, { raw: { width: w, height: h, channels: 3 } }).png().toBuffer()
 }
 
+const setProposal: SchedaProposal = {
+  sku: '2137071',
+  categoria: 'barbecue',
+  features: [{ chiave: 'materiale_acciaio', etichetta: 'Acciaio', valore: null, verificata: true, priorita: 80, badge: false }],
+  badges: [],
+  dimensioni: null,
+  sottoProdotti: [
+    { gruppo: 'g0', etichetta: 'Base', dimensioni: { larghezza: 51, profondita: 63, altezza: 84.5 }, badges: [] },
+    { gruppo: 'g1', etichetta: 'Coperchio', dimensioni: { larghezza: 51, profondita: 63, altezza: 10 }, badges: [] },
+    { gruppo: 'g2', etichetta: 'Carrello', dimensioni: { larghezza: 51, profondita: 63, altezza: 90 }, badges: [] },
+  ],
+}
+
+const setProduct: ProductRecord = { ...product, sku: '2137071' }
+
 describe('composeSceneForProduct', () => {
+  it('con sottoProdotti (>= 2) sceglie il template multi-prodotto e ritaglia una foto per gruppo', async () => {
+    const img = await sampleImage()
+    const { scene, imageHash } = await composeSceneForProduct({
+      proposal: setProposal,
+      product: setProduct,
+      deps: { download: async () => img, dir: 'tests/tmp-compose' },
+    })
+    expect(() => parseScene(scene)).not.toThrow()
+    expect(scene.templateId).toBe('multi-prodotto')
+    expect(imageHash).toHaveLength(64)
+
+    const foto = scene.elements.filter((e) => e.type === 'foto')
+    expect(foto).toHaveLength(3)
+    const gruppi = foto.map((f) => (f as { gruppo?: string }).gruppo).sort()
+    expect(gruppi).toEqual(['g0', 'g1', 'g2'])
+    foto.forEach((f) => {
+      expect((f as { imageHash: string }).imageHash).toHaveLength(64)
+    })
+  })
+
+  it('prodotto singolo (nessun sottoProdotti) sceglie il template colonna-sinistra: nessuna regressione', async () => {
+    const img = await sampleImage()
+    const { scene } = await composeSceneForProduct({
+      proposal,
+      product,
+      deps: { download: async () => img, dir: 'tests/tmp-compose' },
+    })
+    expect(scene.templateId).toBe('colonna-sinistra')
+  })
+
   it('mette in cache la foto, rileva il bbox e compone una scena valida', async () => {
     const img = await sampleImage()
     const { scene, imageHash } = await composeSceneForProduct({

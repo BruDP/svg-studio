@@ -1,3 +1,5 @@
+import type { SottoProdotto } from './engine'
+
 export interface Dimensioni {
   larghezza: number | null
   profondita: number | null
@@ -30,4 +32,59 @@ export function parseDimensions(notaTecnica: string[]): Dimensioni | null {
     if (tondo) return { larghezza: toNum(tondo[1]), profondita: null, altezza: toNum(tondo[2]) }
   }
   return null
+}
+
+// "Misure <etichetta>: l. N x p. N x h. N cm" — blocco misure di un pezzo del set (caso pulito,
+// es. "Misure valigia piccola: l. 36 x p. 22 x h. 55 cm"). Cattura etichetta + i tre numeri.
+const MISURE_ETICHETTATE = new RegExp(
+  String.raw`Misure\s+(.+?)\s*:\s*(l\.?\s*${NUM}\s*x\s*p\.?\s*${NUM}\s*x\s*h\.?\s*${NUM}\s*cm)`,
+  'i',
+)
+// "Capacità <etichetta>: N L" — corrobora un blocco Misure con la stessa etichetta (match esatto,
+// trim/lowercase). Solo il caso pulito (set valigie); il giardino usa "Portata ... Kg", non gestito qui.
+const CAPACITA = new RegExp(String.raw`Capacità\s+(.+?)\s*:\s*${NUM}\s*L`, 'i')
+
+// Riconosce un "set" nel testo prodotto SOLO nel caso pulito: righe "Misure <etichetta>" accoppiate a
+// righe "Capacità <etichetta>" per la STESSA etichetta. Conservativo: ritorna [] (non è un set) se
+// trova meno di 2 blocchi corroborati, per non "sparare" su prodotti singoli o su set sporchi
+// (badge di portata, righe-accessorio) — quel caso è di un piano futuro, non gestito qui.
+export function parseSetDimensions(notaTecnica: string[]): SottoProdotto[] {
+  const blocchi: { etichetta: string; dimensioni: Dimensioni }[] = []
+  for (const line of notaTecnica) {
+    const m = MISURE_ETICHETTATE.exec(line)
+    if (m) {
+      blocchi.push({
+        etichetta: m[1].trim().toLowerCase(),
+        dimensioni: { larghezza: toNum(m[3]), profondita: toNum(m[4]), altezza: toNum(m[5]) },
+      })
+    }
+  }
+
+  const capacitaPerEtichetta = new Map<string, string>()
+  for (const line of notaTecnica) {
+    const m = CAPACITA.exec(line)
+    if (m) capacitaPerEtichetta.set(m[1].trim().toLowerCase(), m[2])
+  }
+
+  const corroborati = blocchi.filter((b) => capacitaPerEtichetta.has(b.etichetta))
+  if (corroborati.length < 2) return []
+
+  return corroborati.map((b, i) => {
+    const litri = capacitaPerEtichetta.get(b.etichetta)!
+    return {
+      gruppo: `g${i}`,
+      etichetta: b.etichetta,
+      dimensioni: b.dimensioni,
+      badges: [
+        {
+          chiave: 'capacita',
+          etichetta: `${litri} L`,
+          valore: litri,
+          verificata: true,
+          priorita: 0,
+          badge: true,
+        },
+      ],
+    }
+  })
 }

@@ -14,6 +14,106 @@ export interface QuotaSpec {
   y2: number
 }
 
+// --- celleProdotti -----------------------------------------------------------------------
+// Costanti locali per la riga di N celle-foto di una scheda "set" (più sotto-prodotti).
+// Valori scelti ragionevolmente ora, da tarare nel Task 4 sul confronto con il render reale/golden.
+const CELLE_MARGIN_X = 40 // margine sinistro/destro dal bordo canvas (analogo a theme.margini.canvas=60, leggermente più stretto per lasciare più spazio alle celle)
+const CELLE_Y = 120 // inizio della zona-foto (sotto un eventuale titolo/header)
+const CELLE_HEIGHT = 420 // altezza cella → zona-foto ~120..540
+// Gutter minimo tra una cella e la successiva: deve contenere la quota verticale ancorata al
+// bordo destro della cella (theme.freccia.testa) + lo spacing prima dell'etichetta
+// (theme.freccia.labelGap) + la larghezza dell'etichetta stessa (stimata su un valore tipo
+// "999,9 cm", 8 caratteri, con il rapporto em/carattere calibrato in theme.testo.larghezzaCarattereEm
+// alla dimensione font theme.testo.etichetta) — altrimenti l'etichetta invade la cella successiva.
+const CELLE_LABEL_WIDTH_STIMATA = Math.ceil(8 * theme.testo.larghezzaCarattereEm * theme.testo.etichetta)
+const CELLE_GUTTER = theme.freccia.testa + theme.freccia.labelGap + CELLE_LABEL_WIDTH_STIMATA
+
+export interface CelleProdottiOpts {
+  marginX?: number
+  y?: number
+  height?: number
+  gutter?: number
+}
+
+/**
+ * Calcola N rettangoli (box-foto) disposti in riga per la parte alta di una scheda "set".
+ * Pura e deterministica: nessuna dipendenza da DB/rete, stesso input → stesso output.
+ * Tutte le celle stanno dentro il canvas 1000×1000, hanno larghezza uguale, x crescente da
+ * sinistra a destra, e sono separate da un gutter sufficiente per la quota verticale + etichetta
+ * di una cella senza invadere la successiva (vedi costanti sopra).
+ *
+ * @throws {Error} se `n` è troppo grande per il canvas con i margini/gutter correnti (width
+ * risultante <= 0). Con le costanti di default (marginX=40, gutter=135) questo scatta a partire
+ * da n=8 (n=7 produce ancora width>0, circa 15px).
+ */
+export function celleProdotti(
+  n: number,
+  opts?: CelleProdottiOpts,
+): { x: number; y: number; width: number; height: number }[] {
+  if (n <= 0) return []
+  const marginX = opts?.marginX ?? CELLE_MARGIN_X
+  const y = opts?.y ?? CELLE_Y
+  const height = opts?.height ?? CELLE_HEIGHT
+  const gutter = opts?.gutter ?? CELLE_GUTTER
+  const canvasWidth = 1000
+  const larghezzaDisponibile = canvasWidth - marginX * 2 - gutter * (n - 1)
+  const width = Math.floor(larghezzaDisponibile / n)
+  if (width <= 0) {
+    throw new Error(`celleProdotti: n=${n} troppo grande per il canvas con i margini/gutter correnti`)
+  }
+  const out: { x: number; y: number; width: number; height: number }[] = []
+  for (let i = 0; i < n; i++) {
+    out.push({ x: marginX + i * (width + gutter), y, width, height })
+  }
+  return out
+}
+
+// --- grigliaPositions --------------------------------------------------------------------
+// Costanti locali per la griglia di icone-feature nella parte bassa di una scheda "set".
+// Riusa lo stile dell'elemento 'icona-label' (cerchio + etichetta a destra, vedi svg.ts) ma
+// disposto su più colonne invece che in colonna verticale come colonnaPositions.
+// Valori scelti ragionevolmente ora, da tarare nel Task 4 sul confronto con il render reale/golden.
+const GRIGLIA_COLS = 3
+const GRIGLIA_MARGIN_X = 40 // coerente con CELLE_MARGIN_X, per allineamento verticale dei bordi tra le due zone
+// Passo orizzontale tra i bordi-sinistri (x) di due colonne: deve contenere il cerchio
+// (diametro = theme.icona.raggio*2) + theme.margini.labelGap + una etichetta breve.
+// Con 3 colonne su 1000px questo lascia ~190-260px di etichetta per colonna (sufficiente per
+// etichette brevi come quelle del dizionario feature; etichette lunghe vanno a capo via
+// spezzaEtichetta, già gestito dal renderer).
+const GRIGLIA_COL_GAP = 300
+const GRIGLIA_ROW_GAP = theme.margini.colonnaGap // stesso passo verticale usato in colonnaPositions
+const GRIGLIA_START_Y = 620 // sotto la zona-foto di celleProdotti (default y=120, height=420 → bottom 540) + margine
+
+export interface GrigliaPositionsOpts {
+  cols?: number
+  marginX?: number
+  startY?: number
+  colGap?: number
+  rowGap?: number
+}
+
+/**
+ * Calcola le posizioni (Punto[]) di n icone-feature disposte in griglia a `cols` colonne
+ * (righe = ⌈n/cols⌉), per la parte bassa di una scheda "set", sotto la riga di foto.
+ * Pura e deterministica. Ogni Punto è l'ancora x,y dell'elemento 'icona-label' (bordo
+ * sinistro del cerchio), stessa semantica di colonnaPositions.
+ */
+export function grigliaPositions(n: number, opts?: GrigliaPositionsOpts): Punto[] {
+  if (n <= 0) return []
+  const cols = opts?.cols ?? GRIGLIA_COLS
+  const marginX = opts?.marginX ?? GRIGLIA_MARGIN_X
+  const startY = opts?.startY ?? GRIGLIA_START_Y
+  const colGap = opts?.colGap ?? GRIGLIA_COL_GAP
+  const rowGap = opts?.rowGap ?? GRIGLIA_ROW_GAP
+  const out: Punto[] = []
+  for (let i = 0; i < n; i++) {
+    const col = i % cols
+    const row = Math.floor(i / cols)
+    out.push({ x: marginX + col * colGap, y: startY + row * rowGap })
+  }
+  return out
+}
+
 export function colonnaPositions(n: number, startY: number): Punto[] {
   const out: Punto[] = []
   for (let i = 0; i < n; i++) {

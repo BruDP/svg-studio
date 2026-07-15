@@ -65,7 +65,8 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
         : ''
       const labelX = el.x + r * 2 + theme.margini.labelGap
       const fontSize = theme.testo.etichetta
-      const righe = spezzaEtichetta(el.etichetta, theme.margini.labelMaxLarghezza, fontSize)
+      const maxLarghezza = el.maxLarghezzaEtichetta ?? theme.margini.labelMaxLarghezza
+      const righe = spezzaEtichetta(el.etichetta, maxLarghezza, fontSize)
       const label =
         righe.length <= 1
           ? `<text x="${labelX}" y="${cy + fontSize / 3}" font-family="${theme.fontFamily}" font-size="${fontSize}" fill="${theme.colors.testo}">${esc(el.etichetta)}</text>`
@@ -108,6 +109,7 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       let lx = mx
       let ly = my
       let anchor = 'middle'
+      let ruota = '' // solo la diagonale (profondità) ruota l'etichetta lungo la linea, come nelle schede di riferimento
       if (el.orientamento === 'verticale') {
         lx = Math.max(x1, x2) + gap
         ly = my + fs / 3
@@ -120,8 +122,10 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
         lx = x2 + gap
         ly = y2 + fs / 3
         anchor = 'start'
+        const angolo = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI
+        ruota = ` transform="rotate(${angolo} ${lx} ${ly})"`
       }
-      const etichetta = `<text x="${lx}" y="${ly}" text-anchor="${anchor}" font-family="${theme.fontFamily}" font-size="${fs}" font-weight="500" fill="${theme.colors.accento}">${esc(el.valore)}</text>`
+      const etichetta = `<text x="${lx}" y="${ly}" text-anchor="${anchor}"${ruota} font-family="${theme.fontFamily}" font-size="${fs}" font-weight="500" fill="${theme.colors.accento}">${esc(el.valore)}</text>`
       return linea + ticks + etichetta
     }
     case 'badge': {

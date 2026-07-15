@@ -7,15 +7,15 @@ import type { Scene } from '@/lib/scene/types'
 export function ScenePreview({
   scene,
   iconMap,
-  imageDataUri,
+  imageMap,
 }: {
   scene: Scene
   iconMap: Record<string, string>
-  imageDataUri: string | null
+  imageMap: Record<string, string>
 }) {
   const svg = useMemo(
-    () => renderScene(scene, { icon: (k) => iconMap[k] ?? null, image: () => imageDataUri }),
-    [scene, iconMap, imageDataUri],
+    () => renderScene(scene, { icon: (k) => iconMap[k] ?? null, image: (h) => imageMap[h] ?? null }),
+    [scene, iconMap, imageMap],
   )
   return (
     <div

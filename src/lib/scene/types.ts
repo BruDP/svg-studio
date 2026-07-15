@@ -12,6 +12,13 @@ export interface IconLabelElement {
   x: number
   y: number
   verificata: boolean
+  /**
+   * Larghezza massima (px) di wrap dell'etichetta, se diversa dal default globale
+   * `theme.margini.labelMaxLarghezza` (calibrato per `colonna-sinistra`). Usata dal template
+   * `multi-prodotto`, dove la griglia condivisa ha meno spazio orizzontale per colonna.
+   * Opzionale, retrocompatibile.
+   */
+  maxLarghezzaEtichetta?: number
 }
 
 /** Foto prodotto, referenziata per hash nella cache immagini (mai URL remoto). */
@@ -23,6 +30,8 @@ export interface FotoElement {
   y: number
   width: number
   height: number
+  /** Sotto-prodotto di appartenenza in una scheda "set" (es. 'g0'). Opzionale, retrocompatibile. */
+  gruppo?: string
 }
 
 /** Freccia di quotatura ancorata al bounding box della foto. */
@@ -35,6 +44,8 @@ export interface QuotaElement {
   y1: number
   x2: number
   y2: number
+  /** Sotto-prodotto di appartenenza in una scheda "set" (es. 'g0'). Opzionale, retrocompatibile. */
+  gruppo?: string
 }
 
 /** Badge speciale (es. "120 KG") posizionato vicino alla foto. */
@@ -44,6 +55,8 @@ export interface BadgeElement {
   testo: string
   x: number
   y: number
+  /** Sotto-prodotto di appartenenza in una scheda "set" (es. 'g0'). Opzionale, retrocompatibile. */
+  gruppo?: string
 }
 
 export interface TestoElement {

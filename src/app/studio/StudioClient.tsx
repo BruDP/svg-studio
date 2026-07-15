@@ -13,10 +13,25 @@ import { SkuSearch } from './SkuSearch'
 
 type Bundle = {
   iconMap: Record<string, string>
-  imageDataUri: string | null
+  imageMap: Record<string, string>
   categoriaFeatures: ProposeResult['categoriaFeatures']
   immagini: string[]
   iconeNonApprovate: string[]
+}
+
+/**
+ * Gruppi (sotto-prodotti) presenti nella scena, in ordine di prima comparsa. Scena a prodotto
+ * singolo → []. Solo `foto`/`quota`/`badge` portano `gruppo`; gli altri tipi ne sono privi.
+ */
+function gruppiDiScena(scene: Scene | null): string[] {
+  if (!scene) return []
+  return [
+    ...new Set(
+      scene.elements
+        .map((e) => ('gruppo' in e ? e.gruppo : undefined))
+        .filter((g): g is string => Boolean(g)),
+    ),
+  ]
 }
 
 export function StudioClient() {
@@ -35,7 +50,10 @@ export function StudioClient() {
   const [errore, setErrore] = useState<string | null>(null)
   const [pickerChiave, setPickerChiave] = useState<string | null>(null)
   const [fotoUrlCorrente, setFotoUrlCorrente] = useState<string>('')
+  const [gruppoAttivo, setGruppoAttivo] = useState<string | null>(null)
   const [inCorso, start] = useTransition()
+
+  const gruppi = gruppiDiScena(scene)
 
   function proponiSku(skuArg: string = sku) {
     setErrore(null); setThumb(null); setMsg(null)
@@ -43,10 +61,11 @@ export function StudioClient() {
       try {
         const r = await proposeSceneAction(skuArg)
         dispatch({ type: 'reset', scene: r.scene })
-        setBundle({ iconMap: r.iconMap, imageDataUri: r.imageDataUri, categoriaFeatures: r.categoriaFeatures, immagini: r.immagini, iconeNonApprovate: r.iconeNonApprovate })
+        setBundle({ iconMap: r.iconMap, imageMap: r.imageMap, categoriaFeatures: r.categoriaFeatures, immagini: r.immagini, iconeNonApprovate: r.iconeNonApprovate })
         setProdotto(r.prodotto)
         setSalvata(r.salvataDisponibile)
         setFotoUrlCorrente(r.immagini?.[0] ?? '')
+        setGruppoAttivo(gruppiDiScena(r.scene)[0] ?? null)
       } catch (e) { setBundle(null); setErrore(e instanceof Error ? e.message : 'Errore') }
     })
   }
@@ -58,8 +77,9 @@ export function StudioClient() {
         const r = await loadSceneAction(sku)
         if (!r) { setMsg('Nessuna scheda salvata per questo SKU'); return }
         dispatch({ type: 'reset', scene: r.scene })
-        setBundle((b) => (b ? { ...b, iconMap: r.iconMap, imageDataUri: r.imageDataUri, iconeNonApprovate: r.iconeNonApprovate } : b))
+        setBundle((b) => (b ? { ...b, iconMap: r.iconMap, imageMap: r.imageMap, iconeNonApprovate: r.iconeNonApprovate } : b))
         setFotoUrlCorrente(bundle?.immagini?.[0] ?? '')
+        setGruppoAttivo(gruppiDiScena(r.scene)[0] ?? null)
       } catch (e) { setErrore(e instanceof Error ? e.message : 'Errore') }
     })
   }
@@ -77,9 +97,9 @@ export function StudioClient() {
     setErrore(null); setMsg(null)
     start(async () => {
       try {
-        const r = await cambiaFotoAction(prodotto.sku, url)
-        dispatch({ type: 'imposta-foto', imageHash: r.imageHash, foto: r.foto, quote: r.quote })
-        setBundle((b) => (b ? { ...b, imageDataUri: r.imageDataUri } : b))
+        const r = await cambiaFotoAction(prodotto.sku, url, gruppoAttivo ? { gruppo: gruppoAttivo } : undefined)
+        dispatch({ type: 'imposta-foto', imageHash: r.imageHash, foto: r.foto, quote: r.quote, ...(r.gruppo ? { gruppo: r.gruppo } : {}) })
+        setBundle((b) => (b ? { ...b, imageMap: { ...b.imageMap, [r.imageHash]: r.imageDataUri } } : b))
         setFotoUrlCorrente(url)
         if (!r.ritagliata) setMsg("Bbox non rilevato: uso l'immagine intera (quote da sistemare a mano).")
       } catch (e) {
@@ -93,9 +113,9 @@ export function StudioClient() {
     setErrore(null); setMsg(null)
     start(async () => {
       try {
-        const r = await cambiaFotoAction(prodotto.sku, fotoUrlCorrente, { forzaVision: true })
-        dispatch({ type: 'imposta-foto', imageHash: r.imageHash, foto: r.foto, quote: r.quote })
-        setBundle((b) => (b ? { ...b, imageDataUri: r.imageDataUri } : b))
+        const r = await cambiaFotoAction(prodotto.sku, fotoUrlCorrente, { forzaVision: true, ...(gruppoAttivo ? { gruppo: gruppoAttivo } : {}) })
+        dispatch({ type: 'imposta-foto', imageHash: r.imageHash, foto: r.foto, quote: r.quote, ...(r.gruppo ? { gruppo: r.gruppo } : {}) })
+        setBundle((b) => (b ? { ...b, imageMap: { ...b.imageMap, [r.imageHash]: r.imageDataUri } } : b))
         setMsg(r.ritagliata ? 'Ritaglio ricalcolato con Vision.' : "Vision non ha rilevato un prodotto: uso l'immagine intera.")
       } catch (e) {
         setErrore(e instanceof Error ? e.message : 'Errore Vision')
@@ -135,13 +155,38 @@ export function StudioClient() {
 
       {scene && bundle && prodotto && (
         <div className="flex flex-col gap-4 md:flex-row">
-          <div className="flex-1"><EditorPreview scene={scene} iconMap={bundle.iconMap} imageDataUri={bundle.imageDataUri} dispatch={dispatch} inRevisione={bundle.iconeNonApprovate} /></div>
+          <div className="flex-1"><EditorPreview scene={scene} iconMap={bundle.iconMap} imageMap={bundle.imageMap} dispatch={dispatch} inRevisione={bundle.iconeNonApprovate} /></div>
           <aside className="w-full md:w-80 space-y-3">
             <div>
               <h2 className="font-medium text-zinc-700">{prodotto.descrizioneBreve}</h2>
               <p className="text-sm text-zinc-500">SKU {prodotto.sku}</p>
             </div>
-            <PhotoPicker immagini={bundle.immagini} urlCorrente={fotoUrlCorrente} onScegli={cambiaFoto} onRicalcola={ricalcolaConVision} inCorso={inCorso} />
+            {gruppi.length > 0 && (
+              <div>
+                <label htmlFor="gruppo-attivo" className="block text-sm font-medium text-zinc-700">
+                  Pezzo da modificare
+                </label>
+                <select
+                  id="gruppo-attivo"
+                  className="mt-1 w-full rounded border border-zinc-300 px-2 py-1.5 text-sm"
+                  value={gruppoAttivo ?? gruppi[0]}
+                  onChange={(e) => setGruppoAttivo(e.target.value)}
+                  disabled={inCorso}
+                >
+                  {gruppi.map((g, i) => (
+                    <option key={g} value={g}>{`Pezzo ${i + 1}`}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <PhotoPicker
+              immagini={bundle.immagini}
+              urlCorrente={fotoUrlCorrente}
+              onScegli={cambiaFoto}
+              onRicalcola={ricalcolaConVision}
+              inCorso={inCorso}
+              pezzoAttivo={gruppi.length > 0 ? `Pezzo ${gruppi.indexOf(gruppoAttivo ?? gruppi[0]) + 1}` : null}
+            />
             <FeaturePanel scene={scene} categoriaFeatures={bundle.categoriaFeatures} dispatch={dispatch} onCambiaIcona={setPickerChiave} />
             <div className="flex gap-2">
               <button className="rounded bg-zinc-700 px-4 py-2 text-white disabled:opacity-50" onClick={salva} disabled={inCorso}>Salva</button>

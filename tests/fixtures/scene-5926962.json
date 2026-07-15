@@ -1,0 +1,234 @@
+{
+  "version": 1,
+  "sku": "5926962",
+  "templateId": "multi-prodotto",
+  "canvas": {
+    "width": 1000,
+    "height": 1000
+  },
+  "elements": [
+    {
+      "type": "foto",
+      "id": "ph-g0",
+      "imageHash": "hash-g0",
+      "x": 40,
+      "y": 165,
+      "width": 216,
+      "height": 330,
+      "gruppo": "g0"
+    },
+    {
+      "type": "quota",
+      "id": "q-g0-0",
+      "gruppo": "g0",
+      "orientamento": "verticale",
+      "valore": "55 cm",
+      "x1": 268,
+      "y1": 165,
+      "x2": 268,
+      "y2": 495
+    },
+    {
+      "type": "quota",
+      "id": "q-g0-1",
+      "gruppo": "g0",
+      "orientamento": "orizzontale",
+      "valore": "36 cm",
+      "x1": 40,
+      "y1": 507,
+      "x2": 256,
+      "y2": 507
+    },
+    {
+      "type": "quota",
+      "id": "q-g0-2",
+      "gruppo": "g0",
+      "orientamento": "diagonale",
+      "valore": "22 cm",
+      "x1": 268,
+      "y1": 507,
+      "x2": 292,
+      "y2": 531
+    },
+    {
+      "type": "badge",
+      "id": "bg-g0-0",
+      "gruppo": "g0",
+      "testo": "38 L",
+      "x": 40,
+      "y": 85
+    },
+    {
+      "type": "foto",
+      "id": "ph-g1",
+      "imageHash": "hash-g1",
+      "x": 391,
+      "y": 166,
+      "width": 216,
+      "height": 329,
+      "gruppo": "g1"
+    },
+    {
+      "type": "quota",
+      "id": "q-g1-0",
+      "gruppo": "g1",
+      "orientamento": "verticale",
+      "valore": "64 cm",
+      "x1": 619,
+      "y1": 166,
+      "x2": 619,
+      "y2": 495
+    },
+    {
+      "type": "quota",
+      "id": "q-g1-1",
+      "gruppo": "g1",
+      "orientamento": "orizzontale",
+      "valore": "42 cm",
+      "x1": 391,
+      "y1": 507,
+      "x2": 607,
+      "y2": 507
+    },
+    {
+      "type": "quota",
+      "id": "q-g1-2",
+      "gruppo": "g1",
+      "orientamento": "diagonale",
+      "valore": "26 cm",
+      "x1": 619,
+      "y1": 507,
+      "x2": 643,
+      "y2": 531
+    },
+    {
+      "type": "badge",
+      "id": "bg-g1-0",
+      "gruppo": "g1",
+      "testo": "60 L",
+      "x": 391,
+      "y": 86
+    },
+    {
+      "type": "foto",
+      "id": "ph-g2",
+      "imageHash": "hash-g2",
+      "x": 742,
+      "y": 158,
+      "width": 216,
+      "height": 345,
+      "gruppo": "g2"
+    },
+    {
+      "type": "quota",
+      "id": "q-g2-0",
+      "gruppo": "g2",
+      "orientamento": "verticale",
+      "valore": "75 cm",
+      "x1": 970,
+      "y1": 158,
+      "x2": 970,
+      "y2": 503
+    },
+    {
+      "type": "quota",
+      "id": "q-g2-1",
+      "gruppo": "g2",
+      "orientamento": "orizzontale",
+      "valore": "47 cm",
+      "x1": 742,
+      "y1": 515,
+      "x2": 958,
+      "y2": 515
+    },
+    {
+      "type": "quota",
+      "id": "q-g2-2",
+      "gruppo": "g2",
+      "orientamento": "diagonale",
+      "valore": "28 cm",
+      "x1": 970,
+      "y1": 515,
+      "x2": 994,
+      "y2": 539
+    },
+    {
+      "type": "badge",
+      "id": "bg-g2-0",
+      "gruppo": "g2",
+      "testo": "99 L",
+      "x": 742,
+      "y": 78
+    },
+    {
+      "type": "icona-label",
+      "id": "f0",
+      "chiave": "materiale_policarbonato",
+      "etichetta": "Policarbonato",
+      "x": 40,
+      "y": 620,
+      "verificata": true,
+      "maxLarghezzaEtichetta": 190
+    },
+    {
+      "type": "icona-label",
+      "id": "f1",
+      "chiave": "ruote_4",
+      "etichetta": "4 ruote girevoli",
+      "x": 340,
+      "y": 620,
+      "verificata": true,
+      "maxLarghezzaEtichetta": 190
+    },
+    {
+      "type": "icona-label",
+      "id": "f2",
+      "chiave": "lucchetto_tsa",
+      "etichetta": "Lucchetto TSA",
+      "x": 640,
+      "y": 620,
+      "verificata": true,
+      "maxLarghezzaEtichetta": 190
+    },
+    {
+      "type": "icona-label",
+      "id": "f3",
+      "chiave": "manico_telescopico",
+      "etichetta": "Manico telescopico",
+      "x": 40,
+      "y": 716,
+      "verificata": false,
+      "maxLarghezzaEtichetta": 190
+    },
+    {
+      "type": "icona-label",
+      "id": "f4",
+      "chiave": "espandibile",
+      "etichetta": "Espandibile",
+      "x": 340,
+      "y": 716,
+      "verificata": false,
+      "maxLarghezzaEtichetta": 190
+    },
+    {
+      "type": "icona-label",
+      "id": "f5",
+      "chiave": "interno_foderato",
+      "etichetta": "Interno foderato",
+      "x": 640,
+      "y": 716,
+      "verificata": false,
+      "maxLarghezzaEtichetta": 190
+    },
+    {
+      "type": "icona-label",
+      "id": "f6",
+      "chiave": "divisorio_interno",
+      "etichetta": "Divisorio interno",
+      "x": 40,
+      "y": 812,
+      "verificata": false,
+      "maxLarghezzaEtichetta": 190
+    }
+  ]
+}

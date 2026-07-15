@@ -41,4 +41,30 @@ describe('parseScene', () => {
     }
     expect(() => parseScene(bad)).toThrow()
   })
+
+  it('accetta e conserva il campo gruppo su foto/quota/badge (per i set multi-prodotto)', () => {
+    const withGruppo: Scene = {
+      ...validScene,
+      elements: [
+        { type: 'icona-label', id: 'f1', chiave: 'materiale_acciaio', etichetta: 'Acciaio', x: 60, y: 120, verificata: true },
+        { type: 'foto', id: 'ph', imageHash: 'abc123', x: 400, y: 100, width: 520, height: 520, gruppo: 'g0' },
+        { type: 'quota', id: 'q1', orientamento: 'verticale', valore: '84,5 cm', x1: 940, y1: 100, x2: 940, y2: 620, gruppo: 'g0' },
+        { type: 'badge', id: 'b1', testo: '120 KG', x: 420, y: 640, gruppo: 'g0' },
+        { type: 'testo', id: 't1', testo: 'Barbecue a carbone', x: 60, y: 60, ruolo: 'titolo' },
+      ],
+    }
+    expect(parseScene(withGruppo)).toEqual(withGruppo)
+  })
+
+  it('accetta una scena esistente senza gruppo (retrocompatibilita)', () => {
+    expect(parseScene(validScene)).toEqual(validScene)
+  })
+
+  it('rifiuta un gruppo di tipo errato (numero anziche stringa)', () => {
+    const bad = {
+      ...validScene,
+      elements: [{ type: 'foto', id: 'ph', imageHash: 'abc123', x: 400, y: 100, width: 520, height: 520, gruppo: 42 }],
+    }
+    expect(() => parseScene(bad)).toThrow()
+  })
 })
