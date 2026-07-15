@@ -117,3 +117,85 @@ describe('composeMultiProdotto', () => {
     expect(JSON.stringify(scene, null, 2) + '\n').toBe(readFileSync(goldenPath, 'utf8'))
   })
 })
+
+// notaTecnica reale del set giardino (SKU 2188908, caso sporco: badge "Portata massima ... Kg",
+// non "Capacità ... L"; vedi tests/dimensions.test.ts) già passata per parseSetDimensions: qui
+// costruiamo direttamente la SchedaProposal risultante (Piano B — solo estrazione cambia, il
+// template multi-prodotto di Piano A resta invariato e non sa da dove arrivano i sottoProdotti).
+const proposalGiardino: SchedaProposal = {
+  sku: '2188908',
+  categoria: 'giardino',
+  features: [
+    { chiave: 'materiale_alluminio', etichetta: 'Alluminio', valore: null, verificata: true, priorita: 90, badge: false },
+    { chiave: 'cuscini_sfoderabili', etichetta: 'Cuscini sfoderabili', valore: null, verificata: true, priorita: 80, badge: false },
+    { chiave: 'lavabile_a_mano', etichetta: 'Lavabile a mano', valore: null, verificata: false, priorita: 70, badge: false },
+    { chiave: 'facile_assemblaggio', etichetta: 'Facile da assemblare', valore: null, verificata: false, priorita: 60, badge: false },
+  ],
+  badges: [],
+  dimensioni: null,
+  sottoProdotti: [
+    {
+      gruppo: 'g0',
+      etichetta: 'poltroncine',
+      dimensioni: { larghezza: 75, profondita: 85, altezza: 86 },
+      badges: [{ chiave: 'portata', etichetta: '150 Kg', valore: '150', verificata: true, priorita: 0, badge: true }],
+    },
+    {
+      gruppo: 'g1',
+      etichetta: 'divanetto',
+      dimensioni: { larghezza: 140, profondita: 85, altezza: 86 },
+      badges: [{ chiave: 'portata', etichetta: '300 Kg', valore: '300', verificata: true, priorita: 0, badge: true }],
+    },
+    {
+      gruppo: 'g2',
+      etichetta: 'tavolinetto',
+      dimensioni: { larghezza: 110, profondita: 64.5, altezza: 40.5 },
+      badges: [{ chiave: 'portata', etichetta: '50 Kg', valore: '50', verificata: true, priorita: 0, badge: true }],
+    },
+  ],
+}
+
+const fotoPerGruppoGiardino = [
+  { gruppo: 'g0', imageHash: 'hash-g0', bbox: { width: 75, height: 86 } },
+  { gruppo: 'g1', imageHash: 'hash-g1', bbox: { width: 140, height: 86 } },
+  { gruppo: 'g2', imageHash: 'hash-g2', bbox: { width: 110, height: 40.5 } },
+]
+
+describe('composeMultiProdotto — set giardino 2188908 (caso sporco, badge portata)', () => {
+  it('produce una scena valida con canvas 1000×1000 e templateId corretto', () => {
+    const scene = composeMultiProdotto({ proposal: proposalGiardino, fotoPerGruppo: fotoPerGruppoGiardino })
+    expect(() => parseScene(scene)).not.toThrow()
+    expect(scene.templateId).toBe(TEMPLATE_ID)
+    expect(scene.canvas).toEqual(CANVAS)
+    expect(scene.sku).toBe('2188908')
+  })
+
+  it('crea 3 celle (foto/quote/badge di portata) per gruppo', () => {
+    const scene = composeMultiProdotto({ proposal: proposalGiardino, fotoPerGruppo: fotoPerGruppoGiardino })
+    const per = (t: string) => scene.elements.filter((e) => e.type === t)
+
+    const foto = per('foto')
+    expect(foto).toHaveLength(3)
+    expect(foto.map((f) => (f as { gruppo?: string }).gruppo)).toEqual(['g0', 'g1', 'g2'])
+
+    const quote = per('quota')
+    expect(quote).toHaveLength(9) // 3 dimensioni × 3 gruppi
+
+    const badge = per('badge')
+    expect(badge).toHaveLength(3) // una portata per pezzo
+    expect(badge.map((b) => (b as { testo?: string }).testo)).toEqual(['150 Kg', '300 Kg', '50 Kg'])
+  })
+
+  it('è deterministico: due chiamate producono scene identiche', () => {
+    const a = composeMultiProdotto({ proposal: proposalGiardino, fotoPerGruppo: fotoPerGruppoGiardino })
+    const b = composeMultiProdotto({ proposal: proposalGiardino, fotoPerGruppo: fotoPerGruppoGiardino })
+    expect(JSON.stringify(a)).toBe(JSON.stringify(b))
+  })
+
+  it('corrisponde al golden committato', () => {
+    const scene = composeMultiProdotto({ proposal: proposalGiardino, fotoPerGruppo: fotoPerGruppoGiardino })
+    const goldenPath = 'tests/fixtures/scene-2188908.json'
+    if (!existsSync(goldenPath)) return // il golden viene generato allo Step 1/3 del Task 2
+    expect(JSON.stringify(scene, null, 2) + '\n').toBe(readFileSync(goldenPath, 'utf8'))
+  })
+})

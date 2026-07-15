@@ -1,0 +1,204 @@
+{
+  "version": 1,
+  "sku": "2188908",
+  "templateId": "multi-prodotto",
+  "canvas": {
+    "width": 1000,
+    "height": 1000
+  },
+  "elements": [
+    {
+      "type": "foto",
+      "id": "ph-g0",
+      "imageHash": "hash-g0",
+      "x": 40,
+      "y": 206,
+      "width": 216,
+      "height": 248,
+      "gruppo": "g0"
+    },
+    {
+      "type": "quota",
+      "id": "q-g0-0",
+      "gruppo": "g0",
+      "orientamento": "verticale",
+      "valore": "86 cm",
+      "x1": 268,
+      "y1": 206,
+      "x2": 268,
+      "y2": 454
+    },
+    {
+      "type": "quota",
+      "id": "q-g0-1",
+      "gruppo": "g0",
+      "orientamento": "orizzontale",
+      "valore": "75 cm",
+      "x1": 40,
+      "y1": 450.8215898521417,
+      "x2": 256,
+      "y2": 481.1784101478583
+    },
+    {
+      "type": "quota",
+      "id": "q-g0-2",
+      "gruppo": "g0",
+      "orientamento": "diagonale",
+      "valore": "85 cm",
+      "x1": 283.1375390770056,
+      "y1": 498.1358266033209,
+      "x2": 303.4906933847599,
+      "y2": 510.8538889449178
+    },
+    {
+      "type": "badge",
+      "id": "bg-g0-0",
+      "gruppo": "g0",
+      "testo": "150 Kg",
+      "x": 40,
+      "y": 126
+    },
+    {
+      "type": "foto",
+      "id": "ph-g1",
+      "imageHash": "hash-g1",
+      "x": 391,
+      "y": 264,
+      "width": 216,
+      "height": 133,
+      "gruppo": "g1"
+    },
+    {
+      "type": "quota",
+      "id": "q-g1-0",
+      "gruppo": "g1",
+      "orientamento": "verticale",
+      "valore": "86 cm",
+      "x1": 619,
+      "y1": 264,
+      "x2": 619,
+      "y2": 397
+    },
+    {
+      "type": "quota",
+      "id": "q-g1-1",
+      "gruppo": "g1",
+      "orientamento": "orizzontale",
+      "valore": "140 cm",
+      "x1": 391,
+      "y1": 393.8215898521417,
+      "x2": 607,
+      "y2": 424.1784101478583
+    },
+    {
+      "type": "quota",
+      "id": "q-g1-2",
+      "gruppo": "g1",
+      "orientamento": "diagonale",
+      "valore": "85 cm",
+      "x1": 634.1375390770056,
+      "y1": 441.1358266033209,
+      "x2": 654.4906933847599,
+      "y2": 453.8538889449178
+    },
+    {
+      "type": "badge",
+      "id": "bg-g1-0",
+      "gruppo": "g1",
+      "testo": "300 Kg",
+      "x": 391,
+      "y": 184
+    },
+    {
+      "type": "foto",
+      "id": "ph-g2",
+      "imageHash": "hash-g2",
+      "x": 742,
+      "y": 290,
+      "width": 216,
+      "height": 80,
+      "gruppo": "g2"
+    },
+    {
+      "type": "quota",
+      "id": "q-g2-0",
+      "gruppo": "g2",
+      "orientamento": "verticale",
+      "valore": "40,5 cm",
+      "x1": 970,
+      "y1": 290,
+      "x2": 970,
+      "y2": 370
+    },
+    {
+      "type": "quota",
+      "id": "q-g2-1",
+      "gruppo": "g2",
+      "orientamento": "orizzontale",
+      "valore": "110 cm",
+      "x1": 742,
+      "y1": 366.8215898521417,
+      "x2": 958,
+      "y2": 397.1784101478583
+    },
+    {
+      "type": "quota",
+      "id": "q-g2-2",
+      "gruppo": "g2",
+      "orientamento": "diagonale",
+      "valore": "64,5 cm",
+      "x1": 985.1375390770056,
+      "y1": 414.1358266033209,
+      "x2": 1005.4906933847599,
+      "y2": 426.8538889449178
+    },
+    {
+      "type": "badge",
+      "id": "bg-g2-0",
+      "gruppo": "g2",
+      "testo": "50 Kg",
+      "x": 742,
+      "y": 210
+    },
+    {
+      "type": "icona-label",
+      "id": "f0",
+      "chiave": "materiale_alluminio",
+      "etichetta": "Alluminio",
+      "x": 40,
+      "y": 620,
+      "verificata": true,
+      "maxLarghezzaEtichetta": 190
+    },
+    {
+      "type": "icona-label",
+      "id": "f1",
+      "chiave": "cuscini_sfoderabili",
+      "etichetta": "Cuscini sfoderabili",
+      "x": 340,
+      "y": 620,
+      "verificata": true,
+      "maxLarghezzaEtichetta": 190
+    },
+    {
+      "type": "icona-label",
+      "id": "f2",
+      "chiave": "lavabile_a_mano",
+      "etichetta": "Lavabile a mano",
+      "x": 640,
+      "y": 620,
+      "verificata": false,
+      "maxLarghezzaEtichetta": 190
+    },
+    {
+      "type": "icona-label",
+      "id": "f3",
+      "chiave": "facile_assemblaggio",
+      "etichetta": "Facile da assemblare",
+      "x": 40,
+      "y": 716,
+      "verificata": false,
+      "maxLarghezzaEtichetta": 190
+    }
+  ]
+}
