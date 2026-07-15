@@ -10,8 +10,9 @@ export interface RawExtraction {
 }
 
 // Versione della pipeline di estrazione (entra in computeInputHash → invalida la cache
-// quando cambia la logica che determina la proposta). Bump a 5: parseDimensions ora
-// riconosce anche "Misure: N x h. M cm" senza il simbolo Ø (18 prodotti reali nel feed,
-// scoperto confrontando le schede automatiche con schede manuali di riferimento) — prima
-// producevano scene senza alcuna quota.
-export const PROMPT_VERSION = 5
+// quando cambia la logica che determina la proposta). Bump a 6: parseSetDimensions ora
+// riconosce i set corroborati anche via "Portata massima ... Kg" (set giardino/mobili, oltre
+// a "Capacità ... L"), tollera il separatore x mancante e filtra le righe-accessorio. Senza
+// questo bump i set già in cache resterebbero senza sottoProdotti (es. 5905391, che il Piano A
+// aveva mancato di invalidare) → renderizzati col template singolo invece del multi-prodotto.
+export const PROMPT_VERSION = 6
