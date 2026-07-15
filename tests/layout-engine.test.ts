@@ -113,11 +113,13 @@ describe('celleProdotti', () => {
   })
 
   it('lancia se n è troppo grande per il canvas (width risultante <= 0)', () => {
-    // Con le costanti di default (marginX=40, gutter=135) n=7 produce ancora width>0 (~15px),
-    // mentre n=8 fa scendere la larghezza disponibile sotto zero: verificato empiricamente,
-    // non dedotto dalla formula, per evitare di codificare un numero sbagliato nel test.
-    expect(() => celleProdotti(7)).not.toThrow()
-    expect(() => celleProdotti(8)).toThrow()
+    // Con le costanti di default (marginX=40, gutter=135, rightReserve=171 — quest'ultima
+    // introdotta per riservare spazio alla quota diagonale dell'ultima cella) n=6 produce
+    // ancora width>0 (~19px), mentre n=7 fa scendere la larghezza disponibile sotto zero:
+    // verificato empiricamente, non dedotto dalla formula, per evitare di codificare un
+    // numero sbagliato nel test.
+    expect(() => celleProdotti(6)).not.toThrow()
+    expect(() => celleProdotti(7)).toThrow()
   })
 })
 

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { existsSync, readFileSync } from 'node:fs'
 import { composeMultiProdotto, TEMPLATE_ID, CANVAS } from '@/lib/layout/multi-prodotto'
 import { parseScene } from '@/lib/scene/schema'
+import { theme } from '@/lib/theme'
 import type { SchedaProposal } from '@/lib/extraction/engine'
 
 // notaTecnica reale del set valigie (SKU 5926962, vedi tests/dimensions.test.ts) già passata
@@ -197,5 +198,46 @@ describe('composeMultiProdotto — set giardino 2188908 (caso sporco, badge port
     const goldenPath = 'tests/fixtures/scene-2188908.json'
     if (!existsSync(goldenPath)) return // il golden viene generato allo Step 1/3 del Task 2
     expect(JSON.stringify(scene, null, 2) + '\n').toBe(readFileSync(goldenPath, 'utf8'))
+  })
+
+  // Test di guardia (finding #5): il confronto col golden byte-identico NON cattura un overflow
+  // dal canvas — se un bug di layout facesse uscire un elemento, rigenerare il golden lo
+  // "congelerebbe" semplicemente come atteso. Qui verifichiamo esplicitamente che ogni elemento,
+  // INCLUSA l'estensione delle etichette delle quote (non solo la linea — è la label che usciva
+  // dal canvas per l'ultima cella del set, vedi bug su 5926962/2188908), resti dentro 1000×1000.
+  it('nessun elemento (incluse le etichette delle quote) esce dal canvas 1000×1000', () => {
+    const scene = composeMultiProdotto({ proposal: proposalGiardino, fotoPerGruppo: fotoPerGruppoGiardino })
+    const { width: canvasW, height: canvasH } = scene.canvas
+
+    const larghezzaStimata = (v: string) => v.length * theme.testo.larghezzaCarattereEm * theme.testo.etichetta
+
+    for (const el of scene.elements) {
+      if (el.type === 'quota') {
+        expect(el.x1).toBeGreaterThanOrEqual(0)
+        expect(el.x2).toBeGreaterThanOrEqual(0)
+        expect(el.y1).toBeGreaterThanOrEqual(0)
+        expect(el.y1).toBeLessThanOrEqual(canvasH)
+        expect(el.y2).toBeGreaterThanOrEqual(0)
+        expect(el.y2).toBeLessThanOrEqual(canvasH)
+
+        // Replica l'ancoraggio dell'etichetta in svg.ts per orientamento.
+        let labelRight: number
+        if (el.orientamento === 'verticale') {
+          labelRight = Math.max(el.x1, el.x2) + theme.freccia.labelGap + larghezzaStimata(el.valore)
+        } else if (el.orientamento === 'orizzontale') {
+          labelRight = (el.x1 + el.x2) / 2 + larghezzaStimata(el.valore) / 2
+        } else {
+          labelRight = el.x2 + theme.freccia.labelGap + larghezzaStimata(el.valore)
+        }
+        expect(labelRight).toBeLessThanOrEqual(canvasW)
+      }
+      if (el.type === 'foto') {
+        expect(el.x + el.width).toBeLessThanOrEqual(canvasW)
+        expect(el.y + el.height).toBeLessThanOrEqual(canvasH)
+      }
+      if (el.type === 'badge') {
+        expect(el.x).toBeGreaterThanOrEqual(0)
+      }
+    }
   })
 })
