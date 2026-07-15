@@ -153,6 +153,26 @@ describe('parseSetDimensions', () => {
     expect(etichette.some((e) => e.includes('schienale'))).toBe(false)
   })
 
+  // Difesa in profondità: nei dati reali del giardino le righe-accessorio vengono già scartate per
+  // FORMA (manca "h.", oppure "Misura" singolare) — quindi il caso sopra NON esercita davvero la
+  // blacklist ETICHETTE_ACCESSORIO. Questo caso ipotetico ma plausibile (feed sporco futuro) mette
+  // un accessorio "seduta" in formato COMPLETO l./p./h. e perfino con un badge di portata
+  // corrispondente: il gate badge da solo lo accetterebbe (il badge c'è), è la blacklist a
+  // escluderlo. Senza `eAccessorio` questo test fallirebbe (3 pezzi invece di 2).
+  test('difesa in profondità: accessorio in formato completo E con badge viene comunque escluso dalla blacklist', () => {
+    const conAccessorioCorroborato = [
+      'Misure poltroncine: l. 75 x p. 85 x h. 86 cm',
+      'Portata massima poltroncine: 150 Kg',
+      'Misure divanetto: l. 140 x p. 85 x h. 86 cm',
+      'Portata massima divanetto: 300 Kg',
+      'Misure seduta: l. 65 x p. 64 x h. 40 cm', // accessorio in formato COMPLETO...
+      'Portata massima seduta: 120 Kg', // ...e perfino con badge corrispondente
+    ]
+    const etichette = parseSetDimensions(conAccessorioCorroborato).map((s) => s.etichetta)
+    expect(etichette).toEqual(['poltroncine', 'divanetto'])
+    expect(etichette).not.toContain('seduta')
+  })
+
   test('un solo blocco Misure con Capacità corrispondente (sotto soglia 2) → []', () => {
     const uno = [
       'Misure valigia piccola: l. 36 x p. 22 x h. 55 cm',
