@@ -2,7 +2,7 @@ import type { SchedaProposal } from '@/lib/extraction/engine'
 import type { Scene, SceneElement } from '@/lib/scene/types'
 import { SCENE_VERSION } from '@/lib/scene/types'
 import { theme } from '@/lib/theme'
-import { celleProdotti, fitFoto, grigliaPositions, quoteFromBBox } from './engine'
+import { celleProdotti, fitFoto, grigliaPositions } from './engine'
 
 export const TEMPLATE_ID = 'multi-prodotto'
 export const CANVAS = { width: 1000, height: 1000 }
@@ -43,10 +43,6 @@ export function composeMultiProdotto(input: {
       width: fitted.width,
       height: fitted.height,
       gruppo: pezzo.gruppo,
-    })
-
-    quoteFromBBox(fitted, pezzo.dimensioni).forEach((q, j) => {
-      elements.push({ type: 'quota', id: `q-g${i}-${j}`, gruppo: pezzo.gruppo, ...q })
     })
 
     // Badge del pezzo (es. capacità), impilati sopra la foto (stack verso l'alto per j

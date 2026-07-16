@@ -27,27 +27,12 @@ const CELLE_HEIGHT = 420 // altezza cella → zona-foto ~120..540
 // alla dimensione font theme.testo.etichetta) — altrimenti l'etichetta invade la cella successiva.
 const CELLE_LABEL_WIDTH_STIMATA = Math.ceil(8 * theme.testo.larghezzaCarattereEm * theme.testo.etichetta)
 const CELLE_GUTTER = theme.freccia.testa + theme.freccia.labelGap + CELLE_LABEL_WIDTH_STIMATA
-// Lunghezza fissa del segmento diagonale (deve restare allineata a `lunghezza` in quoteFromBBox).
-const CELLE_DIAG_LUNGHEZZA = theme.freccia.testa * 2
-// Spazio riservato a DESTRA dell'ultima cella. A differenza dei gutter interni (che contengono la
-// sola etichetta della quota verticale della cella successiva, ancorata a bordo+testa), qui
-// l'elemento più a destra è l'etichetta della quota DIAGONALE (profondità): parte più a destra
-// della verticale, a (distanzaDiagonale + lunghezza)·cos(inclinazioneProfonditaDeg) oltre il bordo
-// cella, poi labelGap + larghezza etichetta stimata. Senza questa riserva la profondità (e la sua
-// etichetta) dell'ultimo pezzo di un set uscivano dal canvas — bug reale su 5926962/2188908.
-const CELLE_RIGHT_RESERVE = Math.ceil(
-  (theme.freccia.distanzaDiagonale + CELLE_DIAG_LUNGHEZZA) *
-    Math.cos((theme.freccia.inclinazioneProfonditaDeg * Math.PI) / 180) +
-    theme.freccia.labelGap +
-    CELLE_LABEL_WIDTH_STIMATA,
-)
 
 export interface CelleProdottiOpts {
   marginX?: number
   y?: number
   height?: number
   gutter?: number
-  rightReserve?: number
 }
 
 /**
@@ -57,10 +42,9 @@ export interface CelleProdottiOpts {
  * sinistra a destra, e sono separate da un gutter sufficiente per la quota verticale + etichetta
  * di una cella senza invadere la successiva (vedi costanti sopra).
  *
- * @throws {Error} se `n` è troppo grande per il canvas con i margini/gutter/rightReserve correnti
- * (width risultante <= 0). Con le costanti di default (marginX=40, gutter=135,
- * rightReserve=171) questo scatta a partire da n=7 (n=6 produce ancora width>0, circa 19px);
- * non è un problema per i set reali, che hanno al più 3-4 pezzi.
+ * @throws {Error} se `n` è troppo grande per il canvas con i margini/gutter correnti (width
+ * risultante <= 0). Con le costanti di default (marginX=40, gutter=135) questo scatta a partire
+ * da n=8 (n=7 produce ancora width>0, circa 15px).
  */
 export function celleProdotti(
   n: number,
@@ -71,9 +55,8 @@ export function celleProdotti(
   const y = opts?.y ?? CELLE_Y
   const height = opts?.height ?? CELLE_HEIGHT
   const gutter = opts?.gutter ?? CELLE_GUTTER
-  const rightReserve = opts?.rightReserve ?? CELLE_RIGHT_RESERVE
   const canvasWidth = 1000
-  const larghezzaDisponibile = canvasWidth - marginX - rightReserve - gutter * (n - 1)
+  const larghezzaDisponibile = canvasWidth - marginX * 2 - gutter * (n - 1)
   const width = Math.floor(larghezzaDisponibile / n)
   if (width <= 0) {
     throw new Error(`celleProdotti: n=${n} troppo grande per il canvas con i margini/gutter correnti`)

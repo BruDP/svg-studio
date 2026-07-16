@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 import { existsSync, readFileSync } from 'node:fs'
 import { composeMultiProdotto, TEMPLATE_ID, CANVAS } from '@/lib/layout/multi-prodotto'
 import { parseScene } from '@/lib/scene/schema'
-import { theme } from '@/lib/theme'
 import type { SchedaProposal } from '@/lib/extraction/engine'
 
 // notaTecnica reale del set valigie (SKU 5926962, vedi tests/dimensions.test.ts) già passata
@@ -66,10 +65,9 @@ describe('composeMultiProdotto', () => {
     expect(foto).toHaveLength(3)
     expect(foto.map((f) => (f as { gruppo?: string }).gruppo)).toEqual(['g0', 'g1', 'g2'])
 
+    // Le schede multi-prodotto (set) non emettono più quote di misura: solo foto/icone/badge.
     const quote = per('quota')
-    // 3 dimensioni (larghezza+profondita+altezza) per gruppo × 3 gruppi
-    expect(quote).toHaveLength(9)
-    expect(quote.every((q) => typeof (q as { gruppo?: string }).gruppo === 'string')).toBe(true)
+    expect(quote).toHaveLength(0)
 
     const badge = per('badge')
     expect(badge).toHaveLength(3) // una capacità per pezzo
@@ -86,11 +84,6 @@ describe('composeMultiProdotto', () => {
 
     expect(idsOf('foto')).toEqual(['ph-g0', 'ph-g1', 'ph-g2'])
     expect(idsOf('badge')).toEqual(['bg-g0-0', 'bg-g1-0', 'bg-g2-0'])
-    expect(idsOf('quota')).toEqual([
-      'q-g0-0', 'q-g0-1', 'q-g0-2',
-      'q-g1-0', 'q-g1-1', 'q-g1-2',
-      'q-g2-0', 'q-g2-1', 'q-g2-2',
-    ])
     expect(idsOf('icona-label')).toEqual(['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6'])
   })
 
@@ -180,7 +173,7 @@ describe('composeMultiProdotto — set giardino 2188908 (caso sporco, badge port
     expect(foto.map((f) => (f as { gruppo?: string }).gruppo)).toEqual(['g0', 'g1', 'g2'])
 
     const quote = per('quota')
-    expect(quote).toHaveLength(9) // 3 dimensioni × 3 gruppi
+    expect(quote).toHaveLength(0) // niente quote di misura sulle schede set
 
     const badge = per('badge')
     expect(badge).toHaveLength(3) // una portata per pezzo
@@ -198,46 +191,5 @@ describe('composeMultiProdotto — set giardino 2188908 (caso sporco, badge port
     const goldenPath = 'tests/fixtures/scene-2188908.json'
     if (!existsSync(goldenPath)) return // il golden viene generato allo Step 1/3 del Task 2
     expect(JSON.stringify(scene, null, 2) + '\n').toBe(readFileSync(goldenPath, 'utf8'))
-  })
-
-  // Test di guardia (finding #5): il confronto col golden byte-identico NON cattura un overflow
-  // dal canvas — se un bug di layout facesse uscire un elemento, rigenerare il golden lo
-  // "congelerebbe" semplicemente come atteso. Qui verifichiamo esplicitamente che ogni elemento,
-  // INCLUSA l'estensione delle etichette delle quote (non solo la linea — è la label che usciva
-  // dal canvas per l'ultima cella del set, vedi bug su 5926962/2188908), resti dentro 1000×1000.
-  it('nessun elemento (incluse le etichette delle quote) esce dal canvas 1000×1000', () => {
-    const scene = composeMultiProdotto({ proposal: proposalGiardino, fotoPerGruppo: fotoPerGruppoGiardino })
-    const { width: canvasW, height: canvasH } = scene.canvas
-
-    const larghezzaStimata = (v: string) => v.length * theme.testo.larghezzaCarattereEm * theme.testo.etichetta
-
-    for (const el of scene.elements) {
-      if (el.type === 'quota') {
-        expect(el.x1).toBeGreaterThanOrEqual(0)
-        expect(el.x2).toBeGreaterThanOrEqual(0)
-        expect(el.y1).toBeGreaterThanOrEqual(0)
-        expect(el.y1).toBeLessThanOrEqual(canvasH)
-        expect(el.y2).toBeGreaterThanOrEqual(0)
-        expect(el.y2).toBeLessThanOrEqual(canvasH)
-
-        // Replica l'ancoraggio dell'etichetta in svg.ts per orientamento.
-        let labelRight: number
-        if (el.orientamento === 'verticale') {
-          labelRight = Math.max(el.x1, el.x2) + theme.freccia.labelGap + larghezzaStimata(el.valore)
-        } else if (el.orientamento === 'orizzontale') {
-          labelRight = (el.x1 + el.x2) / 2 + larghezzaStimata(el.valore) / 2
-        } else {
-          labelRight = el.x2 + theme.freccia.labelGap + larghezzaStimata(el.valore)
-        }
-        expect(labelRight).toBeLessThanOrEqual(canvasW)
-      }
-      if (el.type === 'foto') {
-        expect(el.x + el.width).toBeLessThanOrEqual(canvasW)
-        expect(el.y + el.height).toBeLessThanOrEqual(canvasH)
-      }
-      if (el.type === 'badge') {
-        expect(el.x).toBeGreaterThanOrEqual(0)
-      }
-    }
   })
 })

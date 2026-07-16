@@ -12,43 +12,10 @@
       "id": "ph-g0",
       "imageHash": "hash-g0",
       "x": 40,
-      "y": 198,
-      "width": 173,
-      "height": 264,
+      "y": 165,
+      "width": 216,
+      "height": 330,
       "gruppo": "g0"
-    },
-    {
-      "type": "quota",
-      "id": "q-g0-0",
-      "gruppo": "g0",
-      "orientamento": "verticale",
-      "valore": "55 cm",
-      "x1": 225,
-      "y1": 198,
-      "x2": 225,
-      "y2": 462
-    },
-    {
-      "type": "quota",
-      "id": "q-g0-1",
-      "gruppo": "g0",
-      "orientamento": "orizzontale",
-      "valore": "36 cm",
-      "x1": 40,
-      "y1": 461.84321779824313,
-      "x2": 213,
-      "y2": 486.15678220175687
-    },
-    {
-      "type": "quota",
-      "id": "q-g0-2",
-      "gruppo": "g0",
-      "orientamento": "diagonale",
-      "valore": "22 cm",
-      "x1": 240.13753907700564,
-      "y1": 503.11419865721945,
-      "x2": 260.4906933847599,
-      "y2": 515.8322609988163
     },
     {
       "type": "badge",
@@ -56,109 +23,43 @@
       "gruppo": "g0",
       "testo": "38 L",
       "x": 40,
-      "y": 118
+      "y": 85
     },
     {
       "type": "foto",
       "id": "ph-g1",
       "imageHash": "hash-g1",
-      "x": 348,
-      "y": 198,
-      "width": 173,
-      "height": 264,
+      "x": 391,
+      "y": 166,
+      "width": 216,
+      "height": 329,
       "gruppo": "g1"
-    },
-    {
-      "type": "quota",
-      "id": "q-g1-0",
-      "gruppo": "g1",
-      "orientamento": "verticale",
-      "valore": "64 cm",
-      "x1": 533,
-      "y1": 198,
-      "x2": 533,
-      "y2": 462
-    },
-    {
-      "type": "quota",
-      "id": "q-g1-1",
-      "gruppo": "g1",
-      "orientamento": "orizzontale",
-      "valore": "42 cm",
-      "x1": 348,
-      "y1": 461.84321779824313,
-      "x2": 521,
-      "y2": 486.15678220175687
-    },
-    {
-      "type": "quota",
-      "id": "q-g1-2",
-      "gruppo": "g1",
-      "orientamento": "diagonale",
-      "valore": "26 cm",
-      "x1": 548.1375390770056,
-      "y1": 503.11419865721945,
-      "x2": 568.4906933847599,
-      "y2": 515.8322609988163
     },
     {
       "type": "badge",
       "id": "bg-g1-0",
       "gruppo": "g1",
       "testo": "60 L",
-      "x": 348,
-      "y": 118
+      "x": 391,
+      "y": 86
     },
     {
       "type": "foto",
       "id": "ph-g2",
       "imageHash": "hash-g2",
-      "x": 656,
-      "y": 192,
-      "width": 173,
-      "height": 276,
+      "x": 742,
+      "y": 158,
+      "width": 216,
+      "height": 345,
       "gruppo": "g2"
-    },
-    {
-      "type": "quota",
-      "id": "q-g2-0",
-      "gruppo": "g2",
-      "orientamento": "verticale",
-      "valore": "75 cm",
-      "x1": 841,
-      "y1": 192,
-      "x2": 841,
-      "y2": 468
-    },
-    {
-      "type": "quota",
-      "id": "q-g2-1",
-      "gruppo": "g2",
-      "orientamento": "orizzontale",
-      "valore": "47 cm",
-      "x1": 656,
-      "y1": 467.84321779824313,
-      "x2": 829,
-      "y2": 492.15678220175687
-    },
-    {
-      "type": "quota",
-      "id": "q-g2-2",
-      "gruppo": "g2",
-      "orientamento": "diagonale",
-      "valore": "28 cm",
-      "x1": 856.1375390770056,
-      "y1": 509.11419865721945,
-      "x2": 876.4906933847599,
-      "y2": 521.8322609988163
     },
     {
       "type": "badge",
       "id": "bg-g2-0",
       "gruppo": "g2",
       "testo": "99 L",
-      "x": 656,
-      "y": 112
+      "x": 742,
+      "y": 78
     },
     {
       "type": "icona-label",

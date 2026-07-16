@@ -12,43 +12,10 @@
       "id": "ph-g0",
       "imageHash": "hash-g0",
       "x": 40,
-      "y": 231,
-      "width": 173,
-      "height": 198,
+      "y": 206,
+      "width": 216,
+      "height": 248,
       "gruppo": "g0"
-    },
-    {
-      "type": "quota",
-      "id": "q-g0-0",
-      "gruppo": "g0",
-      "orientamento": "verticale",
-      "valore": "86 cm",
-      "x1": 225,
-      "y1": 231,
-      "x2": 225,
-      "y2": 429
-    },
-    {
-      "type": "quota",
-      "id": "q-g0-1",
-      "gruppo": "g0",
-      "orientamento": "orizzontale",
-      "valore": "75 cm",
-      "x1": 40,
-      "y1": 428.84321779824313,
-      "x2": 213,
-      "y2": 453.15678220175687
-    },
-    {
-      "type": "quota",
-      "id": "q-g0-2",
-      "gruppo": "g0",
-      "orientamento": "diagonale",
-      "valore": "85 cm",
-      "x1": 240.13753907700564,
-      "y1": 470.11419865721945,
-      "x2": 260.4906933847599,
-      "y2": 482.83226099881637
     },
     {
       "type": "badge",
@@ -56,109 +23,43 @@
       "gruppo": "g0",
       "testo": "150 Kg",
       "x": 40,
-      "y": 151
+      "y": 126
     },
     {
       "type": "foto",
       "id": "ph-g1",
       "imageHash": "hash-g1",
-      "x": 348,
-      "y": 277,
-      "width": 173,
-      "height": 106,
+      "x": 391,
+      "y": 264,
+      "width": 216,
+      "height": 133,
       "gruppo": "g1"
-    },
-    {
-      "type": "quota",
-      "id": "q-g1-0",
-      "gruppo": "g1",
-      "orientamento": "verticale",
-      "valore": "86 cm",
-      "x1": 533,
-      "y1": 277,
-      "x2": 533,
-      "y2": 383
-    },
-    {
-      "type": "quota",
-      "id": "q-g1-1",
-      "gruppo": "g1",
-      "orientamento": "orizzontale",
-      "valore": "140 cm",
-      "x1": 348,
-      "y1": 382.84321779824313,
-      "x2": 521,
-      "y2": 407.15678220175687
-    },
-    {
-      "type": "quota",
-      "id": "q-g1-2",
-      "gruppo": "g1",
-      "orientamento": "diagonale",
-      "valore": "85 cm",
-      "x1": 548.1375390770056,
-      "y1": 424.11419865721945,
-      "x2": 568.4906933847599,
-      "y2": 436.83226099881637
     },
     {
       "type": "badge",
       "id": "bg-g1-0",
       "gruppo": "g1",
       "testo": "300 Kg",
-      "x": 348,
-      "y": 197
+      "x": 391,
+      "y": 184
     },
     {
       "type": "foto",
       "id": "ph-g2",
       "imageHash": "hash-g2",
-      "x": 656,
-      "y": 298,
-      "width": 173,
-      "height": 64,
+      "x": 742,
+      "y": 290,
+      "width": 216,
+      "height": 80,
       "gruppo": "g2"
-    },
-    {
-      "type": "quota",
-      "id": "q-g2-0",
-      "gruppo": "g2",
-      "orientamento": "verticale",
-      "valore": "40,5 cm",
-      "x1": 841,
-      "y1": 298,
-      "x2": 841,
-      "y2": 362
-    },
-    {
-      "type": "quota",
-      "id": "q-g2-1",
-      "gruppo": "g2",
-      "orientamento": "orizzontale",
-      "valore": "110 cm",
-      "x1": 656,
-      "y1": 361.84321779824313,
-      "x2": 829,
-      "y2": 386.15678220175687
-    },
-    {
-      "type": "quota",
-      "id": "q-g2-2",
-      "gruppo": "g2",
-      "orientamento": "diagonale",
-      "valore": "64,5 cm",
-      "x1": 856.1375390770056,
-      "y1": 403.11419865721945,
-      "x2": 876.4906933847599,
-      "y2": 415.83226099881637
     },
     {
       "type": "badge",
       "id": "bg-g2-0",
       "gruppo": "g2",
       "testo": "50 Kg",
-      "x": 656,
-      "y": 218
+      "x": 742,
+      "y": 210
     },
     {
       "type": "icona-label",

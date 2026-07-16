@@ -120,7 +120,7 @@ export async function cambiaFotoAction(
   }
 
   const fitted = fitFoto(bbox ?? { width: cella.width, height: cella.height }, cella)
-  const quote = dim ? quoteFromBBox(fitted, dim) : []
+  const quote = opts?.gruppo ? [] : dim ? quoteFromBBox(fitted, dim) : []
   const extUsato = box ? 'png' : cached.ext
   const imageDataUri = `data:${extToMime(extUsato)};base64,${bytesUsati.toString('base64')}`
 
