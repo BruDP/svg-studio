@@ -62,3 +62,14 @@ test('prodotto non-specchio con le stesse misure: la profondità resta', async (
   const proposal = await extractProposal(nonSpecchio, dict, fakeGenerate)
   expect(proposal.dimensioni).toEqual({ larghezza: 70, profondita: 34, altezza: 170 })
 })
+
+test('mobile/lampada che CITA lo specchio (non a inizio): la profondità resta (falso positivo reale 2188413/5918801)', async () => {
+  const mobile = {
+    ...barbecue,
+    sku: `${barbecue.sku}-mobile-specchio-test`,
+    descrizioneBreve: 'Mobile a specchio da bagno in legno mdf laccato',
+    notaTecnica: ['Misure: l. 70 x p. 34 x h. 170 cm'],
+  }
+  const proposal = await extractProposal(mobile, dict, fakeGenerate)
+  expect(proposal.dimensioni).toEqual({ larghezza: 70, profondita: 34, altezza: 170 })
+})

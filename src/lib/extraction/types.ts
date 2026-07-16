@@ -10,9 +10,8 @@ export interface RawExtraction {
 }
 
 // Versione della pipeline di estrazione (entra in computeInputHash → invalida la cache
-// quando cambia la logica che determina la proposta). Bump a 6: parseSetDimensions ora
-// riconosce i set corroborati anche via "Portata massima ... Kg" (set giardino/mobili, oltre
-// a "Capacità ... L"), tollera il separatore x mancante e filtra le righe-accessorio. Senza
-// questo bump i set già in cache resterebbero senza sottoProdotti (es. 5905391, che il Piano A
-// aveva mancato di invalidare) → renderizzati col template singolo invece del multi-prodotto.
-export const PROMPT_VERSION = 6
+// quando cambia la logica che determina la proposta). Bump a 7: nascondiProfonditaSpecchi ora
+// ancora il match "specchi" a inizio descrizioneBreve, così mobili/lampade che citano uno
+// specchio ("Mobile a specchio", "Lampada da specchio") non perdono più la profondità (falsi
+// positivi 2188413/5918801 già in cache col profondita erroneamente nullo).
+export const PROMPT_VERSION = 7

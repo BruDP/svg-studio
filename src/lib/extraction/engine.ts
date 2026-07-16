@@ -27,11 +27,14 @@ export interface SchedaProposal {
 
 // Regola prodotto: sugli specchi non va mostrata la quota di profondità — a differenza di mobili
 // e sedute (dove la profondità aiuta a capire l'ingombro), per uno specchio è solo lo spessore
-// della cornice, non un dato utile all'acquirente. Rilevato dal testo (nessuna categoria dedicata
-// nel dizionario: gli specchi rientrano in "arredo_interno" insieme ad altri mobili).
+// della cornice, non un dato utile all'acquirente. Nessuna categoria dedicata nel dizionario, si
+// rileva dal testo: match ancorato a INIZIO descrizioneBreve sullo stem "specchi" (specchio/
+// specchiera/specchi). Ancorato apposta: "Mobile a specchio da bagno" o "Lampada da specchio"
+// contengono "specchio" ma NON sono specchi (la profondità del mobile/lampada è un dato reale) —
+// un match libero /specchio/ le sbaglierebbe (falsi positivi reali nel feed: 2188413, 5918801).
 function nascondiProfonditaSpecchi(product: ProductRecord, dim: Dimensioni | null): Dimensioni | null {
   if (!dim || dim.profondita === null) return dim
-  return /specchio/i.test(product.descrizioneBreve) ? { ...dim, profondita: null } : dim
+  return /^\s*specchi/i.test(product.descrizioneBreve) ? { ...dim, profondita: null } : dim
 }
 
 export function computeInputHash(product: ProductRecord, dict: Dictionary): string {
