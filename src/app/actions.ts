@@ -5,12 +5,14 @@ import sharp from 'sharp'
 import { refreshFeedIfStale } from '@/lib/feed/fetcher'
 import { getProduct, searchProducts } from '@/lib/feed/repository'
 import { loadDictionary } from '@/lib/dictionary/loader'
-import { extractProposal } from '@/lib/extraction/engine'
+import { extractProposal, type SchedaProposal } from '@/lib/extraction/engine'
 import { composeSceneForProduct } from '../../scripts/compose-lib'
 import { resolveRenderBundle, resolveIconsForKeys, resolveEditorIcons, renderSceneServer, innerSvg } from '@/lib/render/bundle'
 import { exportScene } from '@/lib/export/raster'
 import { parseScene } from '@/lib/scene/schema'
 import type { Scene } from '@/lib/scene/types'
+import type { ProductRecord } from '@/lib/feed/types'
+import type { Dictionary } from '@/lib/dictionary/types'
 import type { ProposeResult } from '@/lib/ui/types'
 import { isFake, fakeGenerate, fakeDownload, fakeSearchIconify, fakeFetchIconifySvg } from '@/lib/testing/fake'
 import { cacheImage, readCachedImage, writeImageBytes } from '@/lib/images/cache'
@@ -24,20 +26,34 @@ import { searchIconify, fetchIconifySvg, ICONIFY_SETS } from '@/lib/icons/iconif
 import { saveIcon, approveIcon, getIcon, listIcons } from '@/lib/icons/repository'
 import { normalizeIconSvg } from '@/lib/icons/normalize'
 
-export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
-  const s = (sku ?? '').trim()
-  if (!s) throw new Error('SKU mancante')
-
+/**
+ * Pipeline condivisa propose→scena: refresh feed, prodotto, estrazione (rispetta `isFake()`),
+ * composizione. Usata sia dal flusso interattivo (`proposeSceneAction`) sia dalla generazione
+ * headless in blocco (`generaSchedaAction`).
+ */
+async function costruisciScena(
+  sku: string,
+  dict: Dictionary,
+): Promise<{ product: ProductRecord; proposal: SchedaProposal; scene: Scene }> {
   await refreshFeedIfStale(isFake() ? { download: async () => '' } : {})
-  const product = await getProduct(s)
-  if (!product) throw new Error(`SKU ${s} non trovato nel feed`)
+  const product = await getProduct(sku)
+  if (!product) throw new Error(`SKU ${sku} non trovato nel feed`)
 
-  const dict = loadDictionary()
   const generate = isFake() ? fakeGenerate() : undefined
   const proposal = await extractProposal(product, dict, generate)
 
   const composeDeps = isFake() ? { download: fakeDownload() } : undefined
   const { scene } = await composeSceneForProduct({ proposal, product, deps: composeDeps })
+
+  return { product, proposal, scene }
+}
+
+export async function proposeSceneAction(sku: string): Promise<ProposeResult> {
+  const s = (sku ?? '').trim()
+  if (!s) throw new Error('SKU mancante')
+
+  const dict = loadDictionary()
+  const { product, proposal, scene } = await costruisciScena(s, dict)
 
   // icone per TUTTE le feature applicabili alla categoria (così "aggiungi" ha già l'icona)
   const applicabili = Object.entries(dict.features)
@@ -65,6 +81,28 @@ export async function cercaSkuAction(q: string): Promise<{ sku: string; descrizi
   const s = (q ?? '').trim()
   if (s.length < 2) return []
   return searchProducts(s)
+}
+
+/**
+ * Generazione headless di una scheda per il banco batch: stessa pipeline di `proposeSceneAction`
+ * ma senza il bundle pesante per l'editor (icone/immagini), pensata per girare in sequenza su
+ * più SKU. Non propaga mai un'eccezione al chiamante: un errore su uno SKU non deve interrompere
+ * il ciclo del client (vedi vincolo batch sequenziale in StudioClient/Banco).
+ */
+export async function generaSchedaAction(
+  sku: string,
+): Promise<{ sku: string; ok: boolean; path?: string; errore?: string }> {
+  const s = (sku ?? '').trim()
+  try {
+    if (!s) throw new Error('SKU mancante')
+    const dict = loadDictionary()
+    const { scene } = await costruisciScena(s, dict)
+    const svg = await renderSceneServer(scene)
+    const path = await exportScene({ svg, sku: scene.sku })
+    return { sku: s, ok: true, path }
+  } catch (e) {
+    return { sku: s, ok: false, errore: String(e instanceof Error ? e.message : e) }
+  }
 }
 
 export async function cambiaFotoAction(

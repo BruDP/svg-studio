@@ -22,7 +22,7 @@ export function EditorPreview({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   return (
-    <div ref={ref} className="relative w-full max-w-[1000px] aspect-square">
+    <div ref={ref} data-testid="anteprima-editor" className="relative w-full max-w-[1000px] aspect-square">
       <ScenePreview scene={scene} iconMap={iconMap} imageMap={imageMap} />
       <QuotaOverlay scene={scene} containerRef={ref} dispatch={dispatch} />
       <IconMarkOverlay scene={scene} inRevisione={inRevisione} />

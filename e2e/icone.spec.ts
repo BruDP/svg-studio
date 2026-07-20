@@ -1,18 +1,14 @@
 import { test, expect } from '@playwright/test'
+import { apriDalBanco } from './helpers'
 
 test('picker: scegliere un\'icona la mostra marcata; l\'export segnala le non approvate', async ({ page }) => {
-  await page.goto('/studio')
-  // apri e proponi (helper inline: gestisce la race di idratazione)
-  const input = page.getByLabel('SKU')
-  await expect(async () => { await input.fill('2137070'); await expect(page.getByRole('button', { name: 'Proponi' })).toBeEnabled() }).toPass({ timeout: 15_000 })
-  await page.getByRole('button', { name: 'Proponi' }).click()
-  await expect(page.locator('svg').filter({ hasText: 'barbecue' })).toBeVisible({ timeout: 30_000 })
+  await apriDalBanco(page, '2137070', '2137070')
+  await expect(page.getByTestId('anteprima-editor')).toBeVisible({ timeout: 30_000 })
 
   // cambia icona della prima feature
   await page.getByRole('button', { name: /^Cambia icona / }).first().click()
-  // il dialog del picker (role="dialog") disambigua dal bottone "Cerca" di SkuSearch
-  // presente altrove nella pagina — senza lo scoping, getByRole('button', { name: 'Cerca' })
-  // risulta ambiguo (strict mode violation) perché matcha entrambi i bottoni.
+  // il dialog del picker (role="dialog") disambigua dal bottone "Cerca" del banco — senza lo
+  // scoping, getByRole('button', { name: 'Cerca' }) rischia di matchare bottoni omonimi altrove.
   const dialog = page.getByRole('dialog')
   const cerca = dialog.getByLabel('Cerca icona')
   await cerca.fill('stella')

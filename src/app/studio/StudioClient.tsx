@@ -9,7 +9,7 @@ import { EditorPreview } from '@/lib/ui/EditorPreview'
 import { FeaturePanel } from './FeaturePanel'
 import { IconPicker } from './IconPicker'
 import { PhotoPicker } from './PhotoPicker'
-import { SkuSearch } from './SkuSearch'
+import { Banco, type VoceLista } from './Banco'
 
 type Bundle = {
   iconMap: Record<string, string>
@@ -35,10 +35,13 @@ function gruppiDiScena(scene: Scene | null): string[] {
 }
 
 export function StudioClient() {
+  const [vista, setVista] = useState<'banco' | 'editor'>('banco')
+  const [listaLavoro, setListaLavoro] = useState<VoceLista[]>([])
+
   const [sku, setSku] = useState('')
   const [bundle, setBundle] = useState<Bundle | null>(null)
   const [scene, dispatch] = useReducer(
-    (s: Scene | null, a: Parameters<typeof applyMutation>[1] | { type: 'reset'; scene: Scene }) =>
+    (s: Scene | null, a: Parameters<typeof applyMutation>[1] | { type: 'reset'; scene: Scene | null }) =>
       a.type === 'reset' ? a.scene : s ? applyMutation(s, a) : s,
     null,
   )
@@ -57,6 +60,11 @@ export function StudioClient() {
 
   function proponiSku(skuArg: string = sku) {
     setErrore(null); setThumb(null); setMsg(null)
+    // Pulisce la scheda precedente (se aperta da un'altra voce della lista) prima di caricare
+    // la nuova, così non lampeggia un editor disallineato mentre la propose è in corso.
+    dispatch({ type: 'reset', scene: null })
+    setBundle(null)
+    setProdotto(null)
     start(async () => {
       try {
         const r = await proposeSceneAction(skuArg)
@@ -68,6 +76,18 @@ export function StudioClient() {
         setGruppoAttivo(gruppiDiScena(r.scene)[0] ?? null)
       } catch (e) { setBundle(null); setErrore(e instanceof Error ? e.message : 'Errore') }
     })
+  }
+
+  /** Apre l'editor su uno SKU della lista di lavoro (voce "Apri"). */
+  function apri(skuScelto: string) {
+    setSku(skuScelto)
+    setVista('editor')
+    proponiSku(skuScelto)
+  }
+
+  /** Torna al banco SENZA perdere la lista di lavoro (che vive in questo componente). */
+  function tornaAlBanco() {
+    setVista('banco')
   }
 
   function riprendi() {
@@ -138,20 +158,24 @@ export function StudioClient() {
     })
   }
 
+  if (vista === 'banco') {
+    return <Banco listaLavoro={listaLavoro} setListaLavoro={setListaLavoro} onApri={apri} />
+  }
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-2">
-        <input aria-label="SKU" className="flex-1 rounded border border-zinc-300 px-3 py-2"
-          placeholder="Inserisci SKU (es. 2137070)" value={sku}
-          onChange={(e) => setSku(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && proponiSku()} />
-        <button className="rounded bg-zinc-800 px-4 py-2 text-white disabled:opacity-50"
-          onClick={() => proponiSku()} disabled={inCorso || sku.trim() === ''}>{inCorso ? 'Elaboro…' : 'Proponi'}</button>
-      </div>
-
-      <SkuSearch onScegli={(s) => { setSku(s); proponiSku(s) }} />
+      <button
+        type="button"
+        className="min-h-[40px] self-start rounded border border-zinc-300 px-4 py-2 text-sm text-zinc-700 transition-colors duration-150 hover:border-emerald-600 disabled:opacity-50"
+        onClick={tornaAlBanco}
+        disabled={inCorso}
+      >
+        ← Torna al banco
+      </button>
 
       {errore && <p role="alert" className="text-red-600">{errore}</p>}
       {msg && <p className="text-emerald-700">{msg}</p>}
+      {inCorso && !scene && <p className="text-zinc-500">Carico scheda {sku}…</p>}
 
       {scene && bundle && prodotto && (
         <div className="flex flex-col gap-4 md:flex-row">

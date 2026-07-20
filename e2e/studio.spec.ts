@@ -1,28 +1,12 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
+import { apriDalBanco } from './helpers'
 
-// Apre /studio e lancia "Proponi" per lo SKU dato, in modo robusto rispetto alla
-// race di idratazione di Next in dev: Playwright può riempire l'input e cliccare
-// prima che React idrati, così l'onChange non scatta e lo stato controllato `sku`
-// resta vuoto (pulsante disabilitato) anche se il valore è nel DOM. Ri-fillo a ogni
-// iterazione finché il PULSANTE risulta abilitato — l'unico segnale che lo stato React
-// ha davvero recepito lo SKU (cioè che un fill è avvenuto post-idratazione) — poi clicco.
-async function apriEProponi(page: Page, sku: string) {
-  await page.goto('/studio')
-  const input = page.getByLabel('SKU')
-  const proponi = page.getByRole('button', { name: 'Proponi' })
-  await expect(async () => {
-    await input.fill(sku)
-    await expect(proponi).toBeEnabled()
-  }).toPass({ timeout: 15_000 })
-  await proponi.click()
-}
-
-test('SKU → anteprima → export', async ({ page }) => {
-  await apriEProponi(page, '2137070')
+test('cerca per codice, aggiungi alla lista, apri → anteprima ed export', async ({ page }) => {
+  await apriDalBanco(page, '2137070', '2137070')
 
   // l'anteprima SVG appare (filtrata sul contenuto per non intercettare l'svg
   // della dev toolbar di Next.js, anch'esso presente nel DOM in modalità dev)
-  const anteprima = page.locator('svg').filter({ hasText: 'barbecue' })
+  const anteprima = page.getByTestId('anteprima-editor')
   await expect(anteprima).toBeVisible({ timeout: 30_000 })
   await expect(page.getByText('SKU 2137070')).toBeVisible()
 
@@ -31,16 +15,31 @@ test('SKU → anteprima → export', async ({ page }) => {
   await expect(page.getByAltText('Anteprima esportata')).toBeVisible({ timeout: 30_000 })
 })
 
-test('SKU inesistente → errore chiaro', async ({ page }) => {
-  await apriEProponi(page, 'SKU-CHE-NON-ESISTE')
-  // Next.js in dev inietta un secondo elemento role="alert" (route-announcer) accanto
-  // a quello dell'app: filtriamo sul testo per isolare il messaggio d'errore reale.
-  await expect(page.getByRole('alert').filter({ hasText: 'non trovato' })).toBeVisible({ timeout: 30_000 })
+test('cerca per descrizione: risultato aggiungibile, poi segnato come già aggiunto', async ({ page }) => {
+  await page.goto('/studio')
+  const ricerca = page.getByLabel('Cerca per codice o descrizione')
+  const aggiungi = page.getByRole('button', { name: 'Aggiungi 2137070 alla lista di lavoro' })
+  await expect(async () => {
+    await ricerca.fill('barbecue')
+    await expect(aggiungi).toBeVisible({ timeout: 2_000 })
+  }).toPass({ timeout: 15_000 })
+
+  await aggiungi.click()
+  await expect(page.getByRole('button', { name: '2137070 già aggiunto alla lista' })).toBeVisible()
+  await expect(page.getByText('Lista di lavoro (1)')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Apri 2137070' })).toBeVisible()
+})
+
+test('ricerca senza risultati mostra un messaggio chiaro', async ({ page }) => {
+  await page.goto('/studio')
+  const ricerca = page.getByLabel('Cerca per codice o descrizione')
+  await ricerca.fill('nessun-prodotto-corrisponde-a-questo-testo')
+  await expect(page.getByText(/Nessun risultato/)).toBeVisible({ timeout: 15_000 })
 })
 
 test('modifica: rimuovere una feature aggiorna anteprima ed export', async ({ page }) => {
-  await apriEProponi(page, '2137070')
-  await expect(page.locator('svg').filter({ hasText: 'barbecue' })).toBeVisible({ timeout: 30_000 })
+  await apriDalBanco(page, '2137070', '2137070')
+  await expect(page.getByTestId('anteprima-editor')).toBeVisible({ timeout: 30_000 })
 
   // conteggio etichette prima
   const etichette = page.getByLabel(/^Etichetta /)
@@ -56,9 +55,9 @@ test('modifica: rimuovere una feature aggiorna anteprima ed export', async ({ pa
   await expect(page.getByAltText('Anteprima esportata')).toBeVisible({ timeout: 30_000 })
 })
 
-test('salva e riprendi: la scheda modificata persiste', async ({ page }) => {
-  await apriEProponi(page, '2137070')
-  await expect(page.locator('svg').filter({ hasText: 'barbecue' })).toBeVisible({ timeout: 30_000 })
+test('salva e riprendi: la scheda modificata persiste; tornare al banco mantiene la lista', async ({ page }) => {
+  await apriDalBanco(page, '2137070', '2137070')
+  await expect(page.getByTestId('anteprima-editor')).toBeVisible({ timeout: 30_000 })
 
   const etichette = page.getByLabel(/^Etichetta /)
   const primaN = await etichette.count()
@@ -67,16 +66,22 @@ test('salva e riprendi: la scheda modificata persiste', async ({ page }) => {
   await page.getByRole('button', { name: 'Salva' }).click()
   await expect(page.getByText('Scheda salvata')).toBeVisible({ timeout: 30_000 })
 
-  // ri-proponi (pagina già idratata) e riprendi la salvata → deve avere una feature in meno
-  await page.getByRole('button', { name: 'Proponi' }).click()
-  await expect(etichette).toHaveCount(primaN, { timeout: 30_000 }) // proposta fresca = conteggio pieno
+  // torna al banco: la lista di lavoro resta intatta (stessa voce ancora presente)
+  await page.getByRole('button', { name: '← Torna al banco' }).click()
+  await expect(page.getByText('Lista di lavoro (1)')).toBeVisible()
+  const apriDiNuovo = page.getByRole('button', { name: 'Apri 2137070' })
+  await expect(apriDiNuovo).toBeVisible()
+
+  // ri-apri (propose fresca) → conteggio pieno, poi "Riprendi salvata" → una feature in meno
+  await apriDiNuovo.click()
+  await expect(etichette).toHaveCount(primaN, { timeout: 30_000 })
   await page.getByRole('button', { name: 'Riprendi salvata' }).click()
-  await expect(etichette).toHaveCount(primaN - 1, { timeout: 30_000 }) // salvata = una in meno
+  await expect(etichette).toHaveCount(primaN - 1, { timeout: 30_000 })
 })
 
 test('drag di una maniglia quota sposta l\'estremo', async ({ page }) => {
-  await apriEProponi(page, '2137070')
-  await expect(page.locator('svg').filter({ hasText: 'barbecue' })).toBeVisible({ timeout: 30_000 })
+  await apriDalBanco(page, '2137070', '2137070')
+  await expect(page.getByTestId('anteprima-editor')).toBeVisible({ timeout: 30_000 })
 
   const maniglia = page.locator('[data-testid^="quota-"]').first()
   await expect(maniglia).toBeVisible()
@@ -98,22 +103,25 @@ test('drag di una maniglia quota sposta l\'estremo', async ({ page }) => {
 })
 
 test('cambio foto: selezionare una miniatura non rompe anteprima ed export', async ({ page }) => {
-  await apriEProponi(page, '2137070')
-  await expect(page.locator('svg').filter({ hasText: 'barbecue' })).toBeVisible({ timeout: 30_000 })
+  await apriDalBanco(page, '2137070', '2137070')
+  await expect(page.getByTestId('anteprima-editor')).toBeVisible({ timeout: 30_000 })
   await page.getByRole('button', { name: 'Foto 2' }).click()
-  await expect(page.locator('svg').filter({ hasText: 'barbecue' })).toBeVisible()
+  await expect(page.getByTestId('anteprima-editor')).toBeVisible()
   await page.getByRole('button', { name: 'Esporta JPEG' }).click()
   await expect(page.getByAltText('Anteprima esportata')).toBeVisible({ timeout: 30_000 })
 })
 
-test('ricerca per nome trova il prodotto e lo carica', async ({ page }) => {
+test('genera tutte: genera la scheda in blocco e mostra il riepilogo', async ({ page }) => {
   await page.goto('/studio')
-  const cerca = page.getByLabel('Cerca per nome')
+  const ricerca = page.getByLabel('Cerca per codice o descrizione')
+  const aggiungi = page.getByRole('button', { name: 'Aggiungi 2137070 alla lista di lavoro' })
   await expect(async () => {
-    await cerca.fill('barbecue')
-    await expect(page.getByRole('button', { name: 'Cerca' })).toBeEnabled()
+    await ricerca.fill('2137070')
+    await expect(aggiungi).toBeVisible({ timeout: 2_000 })
   }).toPass({ timeout: 15_000 })
-  await page.getByRole('button', { name: 'Cerca' }).click()
-  await page.getByRole('button', { name: 'Scegli 2137070' }).click()
-  await expect(page.locator('svg').filter({ hasText: 'barbecue' })).toBeVisible({ timeout: 30_000 })
+  await aggiungi.click()
+
+  await page.getByRole('button', { name: 'Genera tutte' }).click()
+  await expect(page.getByText('1 generate, 0 errori')).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByText(/✓ fatto/)).toBeVisible()
 })
