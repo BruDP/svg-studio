@@ -13,11 +13,14 @@ async function main() {
   const dict = loadDictionary()
   const keys = Object.keys(dict.features).sort()
   const approva = process.argv.includes('--approve')
+  // --force: risemina anche le chiavi già presenti (saveIcon fa upsert). Utile per rimpiazzare
+  // icone placeholder/fake seminate offline con i glifi reali da Iconify.
+  const force = process.argv.includes('--force')
   let creati = 0
   let saltati = 0
 
   for (const key of keys) {
-    if (await getIcon(key)) {
+    if (!force && (await getIcon(key))) {
       saltati++
       continue
     }
