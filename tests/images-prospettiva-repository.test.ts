@@ -38,4 +38,31 @@ describe('cache Vision prospettiva', () => {
     })
     expect(await db.visionProspettiva.count()).toBe(1)
   })
+
+  it('override manuale: un salvataggio "vision" successivo NON sovrascrive una riga "manuale"', async () => {
+    const h = 'e'.repeat(64)
+    await saveProspettiva(h, { direzione: 'destra', angoloDeg: 12, verso: 'su' }, 'manuale')
+    await saveProspettiva(h, { direzione: 'sinistra', angoloDeg: 40, verso: 'giu' }, 'vision')
+    expect(await loadProspettiva(h)).toEqual({
+      prospettiva: { direzione: 'destra', angoloDeg: 12, verso: 'su' },
+    })
+  })
+
+  it('un salvataggio "manuale" sovrascrive sempre (anche un\'altra riga manuale precedente)', async () => {
+    const h = 'f'.repeat(64)
+    await saveProspettiva(h, { direzione: 'destra', angoloDeg: 12, verso: 'su' }, 'manuale')
+    await saveProspettiva(h, { direzione: 'sinistra', angoloDeg: 40, verso: 'giu' }, 'manuale')
+    expect(await loadProspettiva(h)).toEqual({
+      prospettiva: { direzione: 'sinistra', angoloDeg: 40, verso: 'giu' },
+    })
+  })
+
+  it('"vision" scrive normalmente quando non c\'è ancora una riga (o è "vision")', async () => {
+    const h = 'a1'.repeat(32)
+    await saveProspettiva(h, { direzione: 'destra', angoloDeg: 5, verso: 'giu' }, 'vision')
+    await saveProspettiva(h, { direzione: 'sinistra', angoloDeg: 8, verso: 'su' }, 'vision')
+    expect(await loadProspettiva(h)).toEqual({
+      prospettiva: { direzione: 'sinistra', angoloDeg: 8, verso: 'su' },
+    })
+  })
 })

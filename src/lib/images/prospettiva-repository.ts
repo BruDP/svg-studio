@@ -27,9 +27,25 @@ export async function loadProspettiva(
   }
 }
 
-export async function saveProspettiva(hash: string, prospettiva: Prospettiva | null): Promise<void> {
+/**
+ * Salva la prospettiva risolta per `hash`. `origine`:
+ * - `'vision'` (default): scrittura automatica di `resolveProspettiva`. Se la riga esistente è
+ *   `origine='manuale'` (correzione dell'operatore), NON viene sovrascritta: la correzione manuale
+ *   vince sempre su Vision.
+ * - `'manuale'`: correzione dell'operatore in editor (vedi `saveSceneAction`). Sovrascrive sempre,
+ *   qualunque fosse la riga precedente.
+ */
+export async function saveProspettiva(
+  hash: string,
+  prospettiva: Prospettiva | null,
+  origine: 'vision' | 'manuale' = 'vision',
+): Promise<void> {
+  if (origine === 'vision') {
+    const esistente = await db.visionProspettiva.findUnique({ where: { hash } })
+    if (esistente?.origine === 'manuale') return // il manuale vince sempre su Vision
+  }
   const data = prospettiva
-    ? { direzione: prospettiva.direzione, angoloDeg: prospettiva.angoloDeg, verso: prospettiva.verso }
-    : { direzione: 'nessuna', angoloDeg: 0, verso: 'nessuno' }
+    ? { direzione: prospettiva.direzione, angoloDeg: prospettiva.angoloDeg, verso: prospettiva.verso, origine }
+    : { direzione: 'nessuna', angoloDeg: 0, verso: 'nessuno', origine }
   await db.visionProspettiva.upsert({ where: { hash }, create: { hash, ...data }, update: data })
 }

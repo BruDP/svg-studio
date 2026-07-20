@@ -83,3 +83,17 @@ export function parseProspettiva(jsonText: string): Prospettiva | null {
   const verso: 'su' | 'giu' = r.verso === 'su' ? 'su' : 'giu'
   return { direzione: r.direzioneProfondita, angoloDeg, verso }
 }
+
+/**
+ * Ricava la Prospettiva dalla quota diagonale che l'operatore ha corretto a mano nell'editor
+ * (livello 1 "memoria correzioni"): la direzione/verso/angolo sono dedotti dal segmento x1,y1→x2,y2
+ * così come l'operatore lo ha disegnato, senza richiamare Vision.
+ */
+export function prospettivaDaQuotaDiagonale(q: { x1: number; y1: number; x2: number; y2: number }): Prospettiva {
+  const direzione: 'destra' | 'sinistra' = q.x2 >= q.x1 ? 'destra' : 'sinistra'
+  const verso: 'su' | 'giu' = q.y2 >= q.y1 ? 'giu' : 'su'
+  const a = Math.abs((Math.atan2(q.y2 - q.y1, q.x2 - q.x1) * 180) / Math.PI)
+  const acuto = Math.min(a, 180 - a)
+  const angoloDeg = Math.max(0, Math.min(45, acuto))
+  return { direzione, angoloDeg, verso }
+}

@@ -64,5 +64,9 @@ model VisionProspettiva {
   direzione String
   angoloDeg Float
   verso     String
+  // "vision" (default, scritta da resolveProspettiva) oppure "manuale" (correzione dell'operatore
+  // in editor, catturata da saveSceneAction): una riga 'manuale' non viene più sovrascritta da
+  // Vision, così la correzione persiste su tutte le generazioni/batch successivi.
+  origine   String   @default("vision")
   createdAt DateTime @default(now())
 }

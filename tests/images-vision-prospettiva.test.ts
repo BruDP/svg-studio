@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { buildProspettivaPrompt, buildProspettivaSchema, parseProspettiva } from '@/lib/images/vision-prospettiva'
+import {
+  buildProspettivaPrompt,
+  buildProspettivaSchema,
+  parseProspettiva,
+  prospettivaDaQuotaDiagonale,
+} from '@/lib/images/vision-prospettiva'
 
 describe('buildProspettivaPrompt / buildProspettivaSchema', () => {
   it('il prompt distingue frontale/tre_quarti e chiede direzione, angolo e verso', () => {
@@ -116,5 +121,51 @@ describe('parseProspettiva', () => {
   it('verso mancante o diverso da "su" → default "giu"', () => {
     const json = JSON.stringify({ prospettiva: 'tre_quarti', direzioneProfondita: 'destra', angoloProfonditaGradi: 20 })
     expect(parseProspettiva(json)).toEqual({ direzione: 'destra', angoloDeg: 20, verso: 'giu' })
+  })
+})
+
+describe('prospettivaDaQuotaDiagonale', () => {
+  it('destra/giu: x2>x1, y2>y1', () => {
+    const p = prospettivaDaQuotaDiagonale({ x1: 0, y1: 0, x2: 100, y2: 30 })
+    expect(p.direzione).toBe('destra')
+    expect(p.verso).toBe('giu')
+    expect(p.angoloDeg).toBeCloseTo(16.699, 2)
+  })
+
+  it('sinistra/su: x2<x1, y2<y1', () => {
+    const p = prospettivaDaQuotaDiagonale({ x1: 100, y1: 100, x2: 0, y2: 50 })
+    expect(p.direzione).toBe('sinistra')
+    expect(p.verso).toBe('su')
+    expect(p.angoloDeg).toBeCloseTo(26.565, 2)
+  })
+
+  it('destra/su: x2>x1, y2<y1', () => {
+    const p = prospettivaDaQuotaDiagonale({ x1: 0, y1: 50, x2: 100, y2: 0 })
+    expect(p.direzione).toBe('destra')
+    expect(p.verso).toBe('su')
+    expect(p.angoloDeg).toBeCloseTo(26.565, 2)
+  })
+
+  it('sinistra/giu: x2<x1, y2>y1', () => {
+    const p = prospettivaDaQuotaDiagonale({ x1: 100, y1: 0, x2: 0, y2: 50 })
+    expect(p.direzione).toBe('sinistra')
+    expect(p.verso).toBe('giu')
+    expect(p.angoloDeg).toBeCloseTo(26.565, 2)
+  })
+
+  it('coordinate uguali (x1===x2) → direzione "destra" per convenzione (>=)', () => {
+    const p = prospettivaDaQuotaDiagonale({ x1: 50, y1: 0, x2: 50, y2: 40 })
+    expect(p.direzione).toBe('destra')
+  })
+
+  it('coordinate uguali (y1===y2) → verso "giu" per convenzione (>=), angolo 0 (orizzontale)', () => {
+    const p = prospettivaDaQuotaDiagonale({ x1: 0, y1: 20, x2: 100, y2: 20 })
+    expect(p.verso).toBe('giu')
+    expect(p.angoloDeg).toBeCloseTo(0, 5)
+  })
+
+  it('segmento verticale → angolo clampato a 45 (max ammesso)', () => {
+    const p = prospettivaDaQuotaDiagonale({ x1: 50, y1: 0, x2: 50, y2: 100 })
+    expect(p.angoloDeg).toBe(45)
   })
 })

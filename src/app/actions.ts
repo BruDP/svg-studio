@@ -19,8 +19,10 @@ import { cacheImage, readCachedImage, writeImageBytes } from '@/lib/images/cache
 import { extToMime } from '@/lib/ui/mime'
 import { resolveBBox } from '@/lib/images/resolve-bbox'
 import { resolveProspettiva } from '@/lib/images/resolve-prospettiva'
+import { prospettivaDaQuotaDiagonale } from '@/lib/images/vision-prospettiva'
+import { saveProspettiva } from '@/lib/images/prospettiva-repository'
 import { fitFoto, quoteFromBBox, celleProdotti, type QuotaSpec } from '@/lib/layout/engine'
-import { FOTO_BOX } from '@/lib/layout/colonna-sinistra'
+import { FOTO_BOX, TEMPLATE_ID } from '@/lib/layout/colonna-sinistra'
 import { parseDimensions, parseSetDimensions, type Dimensioni } from '@/lib/extraction/dimensions'
 import { db } from '@/lib/db'
 import { searchIconify, fetchIconifySvg, ICONIFY_SETS } from '@/lib/icons/iconify'
@@ -194,9 +196,43 @@ export async function cambiaFotoAction(
   }
 }
 
+/**
+ * Livello 1 "memoria correzioni": se l'operatore ha corretto a mano la quota diagonale
+ * (profondità) in editor, deduce la Prospettiva da quella correzione e la salva come override
+ * `origine='manuale'` — Vision non la sovrascriverà più (vedi `saveProspettiva`). Solo per
+ * prodotto singolo (`colonna-sinistra`): i template "set" non hanno quota profondità.
+ * Non deve mai far fallire il salvataggio scena: logga e prosegue in caso di errore.
+ */
+async function catturaCorrezioneProspettiva(scene: Scene): Promise<void> {
+  try {
+    if (scene.templateId !== TEMPLATE_ID) return
+    const diagonale = scene.elements.find(
+      (e): e is Extract<typeof e, { type: 'quota' }> => e.type === 'quota' && e.orientamento === 'diagonale',
+    )
+    const foto = scene.elements.find((e) => e.type === 'foto')
+    if (!diagonale || !foto) return
+
+    const product = await getProduct(scene.sku)
+    const url = product?.images[0]
+    if (!url) return
+
+    // Hash dell'immagine ORIGINALE (pre-ritaglio bbox): è quello usato da resolveProspettiva/compose,
+    // NON l'imageHash della scena (quello è il ritaglio). Se non combaciano l'override non verrebbe
+    // mai riletto. cacheImage legge/scrive solo il file locale già scaricato: nessuna rete extra.
+    const downloadDeps = isFake() ? { download: fakeDownload() } : undefined
+    const { hash } = await cacheImage(url, downloadDeps)
+
+    const prospettiva = prospettivaDaQuotaDiagonale(diagonale)
+    await saveProspettiva(hash, prospettiva, 'manuale')
+  } catch (e) {
+    console.warn('[saveSceneAction] cattura correzione prospettiva fallita, scena salvata comunque:', e)
+  }
+}
+
 export async function saveSceneAction(sceneJson: string): Promise<void> {
   const scene: Scene = parseScene(JSON.parse(sceneJson))
   if (!/^[A-Za-z0-9._-]+$/.test(scene.sku)) throw new Error('SKU non valido')
+  await catturaCorrezioneProspettiva(scene)
   await db.scene.upsert({
     where: { sku: scene.sku },
     create: { sku: scene.sku, sceneJson: JSON.stringify(scene) },
