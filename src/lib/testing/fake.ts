@@ -28,3 +28,12 @@ export function fakeFetchIconifySvg(): (id: string) => Promise<string> {
   return async () =>
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 3l3 6 6 1-4 4 1 6-6-3-6 3 1-6-4-4 6-1z"/></svg>'
 }
+
+/** Vision prospettiva finta: risposta canned "frontale" (ignora la foto), così i test offline
+ *  usano la geometria di profondità di default. Non dovrebbe mai essere invocata a runtime:
+ *  resolveProspettiva controlla isFake() e ritorna null PRIMA di chiamare askProspettiva. Esiste
+ *  comunque per simmetria con gli altri fake e per chi vuole superare il check isFake() via DI. */
+export function fakeAskProspettiva(): (imageBytes: Buffer, mime: string) => Promise<string> {
+  return async () =>
+    JSON.stringify({ prospettiva: 'frontale', direzioneProfondita: 'nessuna', angoloProfonditaGradi: 0, verso: 'nessuno' })
+}

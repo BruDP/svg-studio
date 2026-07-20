@@ -53,3 +53,16 @@ model VisionBBox {
   height    Int?
   createdAt DateTime @default(now())
 }
+
+// Cache Vision per la prospettiva (direzione/angolo/verso dello spigolo di profondità).
+// Il caso "frontale/nessuna prospettiva" è rappresentato da una riga con direzione='nessuna'
+// (angoloDeg=0, verso='nessuno') anziché dall'assenza di riga: così si distingue "mai chiesto"
+// (nessuna riga → undefined in loadProspettiva) da "chiesto, risultato: frontale" (riga con
+// direzione='nessuna' → null), evitando di richiamare Vision ad ogni volta sulle foto frontali.
+model VisionProspettiva {
+  hash      String   @id
+  direzione String
+  angoloDeg Float
+  verso     String
+  createdAt DateTime @default(now())
+}

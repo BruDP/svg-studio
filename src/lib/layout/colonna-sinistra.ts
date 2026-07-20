@@ -1,4 +1,5 @@
 import type { SchedaProposal } from '@/lib/extraction/engine'
+import type { Prospettiva } from '@/lib/images/vision-prospettiva'
 import type { Scene, SceneElement } from '@/lib/scene/types'
 import { SCENE_VERSION } from '@/lib/scene/types'
 import { theme } from '@/lib/theme'
@@ -26,8 +27,12 @@ export function composeColonnaSinistra(input: {
   proposal: SchedaProposal
   imageHash: string
   bbox: { width: number; height: number } | null
+  // Prospettiva rilevata via Vision sulla foto (spigolo di profondità): opzionale, risolta a
+  // monte in compose-lib.ts. Se assente/null la quota di profondità usa l'inclinazione di
+  // default (nessuna prospettiva rilevata o foto frontale).
+  prospettiva?: Prospettiva | null
 }): Scene {
-  const { proposal, imageHash, bbox } = input
+  const { proposal, imageHash, bbox, prospettiva } = input
   const elements: SceneElement[] = []
 
   // Nessun titolo: le schede di riferimento non hanno intestazione (la chiave categoria
@@ -61,7 +66,7 @@ export function composeColonnaSinistra(input: {
 
   // Quote ancorate alla foto
   if (proposal.dimensioni) {
-    quoteFromBBox(fitted, proposal.dimensioni).forEach((q, i) => {
+    quoteFromBBox(fitted, proposal.dimensioni, prospettiva).forEach((q, i) => {
       elements.push({ type: 'quota', id: `q${i}`, ...q })
     })
   }

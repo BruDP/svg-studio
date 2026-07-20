@@ -121,10 +121,14 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
         const angoloOrizz = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI
         ruota = ` transform="rotate(${angoloOrizz} ${lx} ${ly})"`
       } else {
-        lx = x2 + gap
-        ly = y2 + fs / 3
-        anchor = 'start'
-        const angolo = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI
+        // Diagonale (profondità): etichetta centrata sotto il punto medio, ruotata lungo la linea
+        // ma normalizzata a [-90,90] così resta sempre dritta e leggibile anche quando la linea
+        // punta verso sinistra (x2 < x1).
+        const grezzo = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI
+        const angolo = grezzo > 90 ? grezzo - 180 : grezzo < -90 ? grezzo + 180 : grezzo
+        lx = mx
+        ly = my + gap + fs / 2
+        anchor = 'middle'
         ruota = ` transform="rotate(${angolo} ${lx} ${ly})"`
       }
       const etichetta = `<text x="${lx}" y="${ly}" text-anchor="${anchor}"${ruota} font-family="${theme.fontFamily}" font-size="${fs}" font-weight="500" fill="${theme.colors.accento}">${esc(el.valore)}</text>`

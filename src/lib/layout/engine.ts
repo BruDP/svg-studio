@@ -142,19 +142,17 @@ function cm(v: number): string {
 export function quoteFromBBox(
   fotoBox: { x: number; y: number; width: number; height: number },
   dim: { larghezza: number | null; profondita: number | null; altezza: number | null },
+  // Prospettiva della foto rilevata da Vision (per-immagine): direzione/angolo/verso dello spigolo
+  // di profondità del prodotto. `null`/assente → foto frontale-2D o Vision non pervenuta.
+  prospettiva?: { direzione: 'destra' | 'sinistra'; angoloDeg: number; verso: 'su' | 'giu' } | null,
 ): QuotaSpec[] {
   const out: QuotaSpec[] = []
   const destraX = fotoBox.x + fotoBox.width + theme.freccia.testa
   const cornerX = fotoBox.x + fotoBox.width
   const cornerY = fotoBox.y + fotoBox.height
   const sottoY = cornerY + theme.freccia.testa
-  // Estensione verticale della linea larghezza dovuta all'inclinazione: l'estremo sinistro sale,
-  // quello destro scende, centrati su sottoY (la spaziatura del layout attorno a sottoY non cambia).
-  const dyLarghezza = fotoBox.width * Math.tan((theme.freccia.inclinazioneLarghezzaDeg * Math.PI) / 180)
-  // Punto da cui continua la profondità: l'estremo destro (più basso) della larghezza, per dare
-  // l'impressione di un'unica linea di base che piega verso la profondità, non due segmenti scollegati.
-  const baseProfonditaY = sottoY + dyLarghezza / 2
 
+  // Altezza: retta verticale a destra della foto.
   if (dim.altezza !== null) {
     out.push({
       orientamento: 'verticale',
@@ -165,30 +163,40 @@ export function quoteFromBBox(
       y2: fotoBox.y + fotoBox.height,
     })
   }
+  // Larghezza: retta ORIZZONTALE dritta sotto la foto (come l'altezza è dritta verticale).
   if (dim.larghezza !== null) {
     out.push({
       orientamento: 'orizzontale',
       valore: cm(dim.larghezza),
       x1: fotoBox.x,
-      y1: sottoY - dyLarghezza / 2,
+      y1: sottoY,
       x2: cornerX,
-      y2: sottoY + dyLarghezza / 2,
+      y2: sottoY,
     })
   }
+  // Profondità: retta diagonale PARALLELA allo spigolo del prodotto che si allontana, secondo la
+  // prospettiva rilevata da Vision. Parte dall'estremo della larghezza sul lato verso cui va la
+  // profondità (destra→spigolo destro, sinistra→spigolo sinistro) e prosegue con angolo e verso
+  // rilevati. Senza prospettiva (frontale/2D o Vision assente) usa un default modesto in giù a
+  // destra come cue convenzionale. Retta netta, non in scala.
   if (dim.profondita !== null) {
-    const ang = (theme.freccia.inclinazioneProfonditaDeg * Math.PI) / 180
-    const lunghezza = theme.freccia.testa * 2
-    // Il punto di partenza è spostato di `distanzaDiagonale` (lungo l'angolo di profondità)
-    // dal corner/estremo larghezza: uno stacco visibile, non un punto di continuità, come nelle
-    // schede di riferimento dove le due frecce sono disegnate separate.
-    const distanza = theme.freccia.distanzaDiagonale
+    const p = prospettiva ?? {
+      direzione: 'destra' as const,
+      angoloDeg: theme.freccia.profonditaDefaultDeg,
+      verso: 'giu' as const,
+    }
+    const ang = (p.angoloDeg * Math.PI) / 180
+    const dirX = p.direzione === 'destra' ? 1 : -1
+    const dirY = p.verso === 'su' ? -1 : 1
+    const ancoraX = p.direzione === 'destra' ? cornerX : fotoBox.x
+    const lunghezza = theme.freccia.testa * 4
     out.push({
       orientamento: 'diagonale',
       valore: cm(dim.profondita),
-      x1: cornerX + distanza * Math.cos(ang),
-      y1: baseProfonditaY + distanza * Math.sin(ang),
-      x2: cornerX + (distanza + lunghezza) * Math.cos(ang),
-      y2: baseProfonditaY + (distanza + lunghezza) * Math.sin(ang),
+      x1: ancoraX,
+      y1: sottoY,
+      x2: ancoraX + dirX * lunghezza * Math.cos(ang),
+      y2: sottoY + dirY * lunghezza * Math.sin(ang),
     })
   }
   return out

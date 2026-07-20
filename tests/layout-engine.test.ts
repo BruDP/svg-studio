@@ -37,34 +37,34 @@ describe('quoteFromBBox', () => {
     expect(vert.x1).toBeGreaterThanOrEqual(box.x + box.width)
   })
 
-  it('la diagonale è staccata dall\'estremo destro della larghezza di "distanzaDiagonale" lungo il proprio angolo (non un punto di continuità)', () => {
+  it('larghezza dritta orizzontale; profondità senza prospettiva = diagonale in giù a destra col default', () => {
     const box = { x: 100, y: 100, width: 300, height: 300 }
     const q = quoteFromBBox(box, { larghezza: 50, profondita: 40, altezza: 80 })
-    const diag = q.find((e) => e.orientamento === 'diagonale')!
     const orizz = q.find((e) => e.orientamento === 'orizzontale')!
-    // il punto di partenza della diagonale è esattamente "distanzaDiagonale" px lungo il proprio
-    // angolo dall'estremo destro della larghezza: uno stacco visibile (> tick), non un punto di
-    // continuità — altrimenti i trattini perpendicolari delle due quote si accavallano a farfalla,
-    // come nelle schede di riferimento dove le due frecce sono nettamente separate.
-    const distanza = Math.hypot(diag.x1 - orizz.x2, diag.y1 - orizz.y2)
-    expect(distanza).toBeCloseTo(theme.freccia.distanzaDiagonale, 5)
-    expect(theme.freccia.distanzaDiagonale).toBeGreaterThan(theme.freccia.tick)
-    // entrambe le coordinate si spostano nella direzione attesa (destra e in basso)
-    expect(diag.x1).toBeGreaterThan(orizz.x2 - 1)
-    expect(diag.y1).toBeGreaterThan(orizz.y2)
+    const diag = q.find((e) => e.orientamento === 'diagonale')!
+    // larghezza perfettamente orizzontale (come l'altezza è verticale): niente inclinazione
+    expect(orizz.y1).toBe(orizz.y2)
+    // profondità di default (nessuna prospettiva): parte dall'estremo destro della larghezza e va
+    // a destra e in giù, con l'angolo di ripiego `profonditaDefaultDeg`
+    expect(diag.x1).toBeCloseTo(orizz.x2, 5)
+    expect(diag.x2).toBeGreaterThan(diag.x1)
+    expect(diag.y2).toBeGreaterThan(diag.y1)
+    const ang = (Math.atan2(diag.y2 - diag.y1, diag.x2 - diag.x1) * 180) / Math.PI
+    expect(ang).toBeCloseTo(theme.freccia.profonditaDefaultDeg, 5)
   })
 
-  it('la linea orizzontale (larghezza) e la diagonale (profondità) hanno un\'inclinazione fissa, non sono più flat/45°', () => {
+  it('la profondità segue la prospettiva rilevata: direzione (sinistra), verso (su) e angolo', () => {
     const box = { x: 100, y: 100, width: 300, height: 300 }
-    const q = quoteFromBBox(box, { larghezza: 50, profondita: 40, altezza: 80 })
+    const q = quoteFromBBox(box, { larghezza: 50, profondita: 40, altezza: 80 }, { direzione: 'sinistra', angoloDeg: 30, verso: 'su' })
     const orizz = q.find((e) => e.orientamento === 'orizzontale')!
     const diag = q.find((e) => e.orientamento === 'diagonale')!
-    // la larghezza non è più perfettamente orizzontale (y1 !== y2)
-    expect(orizz.y1).not.toBe(orizz.y2)
-    const angoloOrizz = (Math.atan2(orizz.y2 - orizz.y1, orizz.x2 - orizz.x1) * 180) / Math.PI
-    expect(angoloOrizz).toBeCloseTo(theme.freccia.inclinazioneLarghezzaDeg, 5)
-    const angoloDiag = (Math.atan2(diag.y2 - diag.y1, diag.x2 - diag.x1) * 180) / Math.PI
-    expect(angoloDiag).toBeCloseTo(theme.freccia.inclinazioneProfonditaDeg, 5)
+    // parte dall'estremo SINISTRO della larghezza, va a sinistra e in su
+    expect(diag.x1).toBeCloseTo(orizz.x1, 5)
+    expect(diag.x2).toBeLessThan(diag.x1)
+    expect(diag.y2).toBeLessThan(diag.y1)
+    // angolo acuto rispetto all'orizzontale ~30°
+    const grezzo = Math.abs((Math.atan2(diag.y2 - diag.y1, diag.x2 - diag.x1) * 180) / Math.PI)
+    expect(Math.min(grezzo, 180 - grezzo)).toBeCloseTo(30, 5)
   })
 
   it('salta le dimensioni null', () => {

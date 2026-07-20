@@ -18,6 +18,7 @@ import { isFake, fakeGenerate, fakeDownload, fakeSearchIconify, fakeFetchIconify
 import { cacheImage, readCachedImage, writeImageBytes } from '@/lib/images/cache'
 import { extToMime } from '@/lib/ui/mime'
 import { resolveBBox } from '@/lib/images/resolve-bbox'
+import { resolveProspettiva } from '@/lib/images/resolve-prospettiva'
 import { fitFoto, quoteFromBBox, celleProdotti, type QuotaSpec } from '@/lib/layout/engine'
 import { FOTO_BOX } from '@/lib/layout/colonna-sinistra'
 import { parseDimensions, parseSetDimensions, type Dimensioni } from '@/lib/extraction/dimensions'
@@ -172,8 +173,14 @@ export async function cambiaFotoAction(
     dim = parseDimensions(product.notaTecnica)
   }
 
+  // Prospettiva della NUOVA foto (solo ramo prodotto singolo, cioè senza `gruppo`, e solo se la
+  // quota di profondità serve davvero): la linea di profondità resta parallela allo spigolo del
+  // prodotto anche dopo il cambio immagine. Stessi bytes/hash già letti sopra (pre-ritaglio).
+  const prospettiva =
+    !opts?.gruppo && dim?.profondita != null ? await resolveProspettiva(bytes, cached.hash, { mime }) : null
+
   const fitted = fitFoto(bbox ?? { width: cella.width, height: cella.height }, cella)
-  const quote = opts?.gruppo ? [] : dim ? quoteFromBBox(fitted, dim) : []
+  const quote = opts?.gruppo ? [] : dim ? quoteFromBBox(fitted, dim, prospettiva) : []
   const extUsato = box ? 'png' : cached.ext
   const imageDataUri = `data:${extToMime(extUsato)};base64,${bytesUsati.toString('base64')}`
 
