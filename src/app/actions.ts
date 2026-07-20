@@ -101,8 +101,23 @@ export async function generaSchedaAction(
     const path = await exportScene({ svg, sku: scene.sku })
     return { sku: s, ok: true, path }
   } catch (e) {
-    return { sku: s, ok: false, errore: String(e instanceof Error ? e.message : e) }
+    return { sku: s, ok: false, errore: descriviErrore(e) }
   }
+}
+
+/**
+ * Messaggio d'errore leggibile per il banco. Il caso più comune è il download di un'immagine
+ * prodotto con URL non risolvibile (es. record con host placeholder `esempio.local`): undici
+ * lancia un opaco "fetch failed" con la causa reale (ENOTFOUND + hostname) annidata in `cause`.
+ * La srotoliamo così l'operatore capisce che è l'immagine irraggiungibile, non un bug.
+ */
+function descriviErrore(e: unknown): string {
+  if (!(e instanceof Error)) return String(e)
+  const cause = (e as { cause?: { code?: string; hostname?: string } }).cause
+  if (e.message === 'fetch failed' && cause?.hostname) {
+    return `download non riuscito: host ${cause.hostname} non raggiungibile${cause.code ? ` (${cause.code})` : ''}`
+  }
+  return e.message
 }
 
 export async function cambiaFotoAction(
