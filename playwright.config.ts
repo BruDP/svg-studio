@@ -8,7 +8,7 @@ export default defineConfig({
     command: 'npm run dev',
     url: 'http://localhost:3000/studio',
     reuseExistingServer: false,
-    env: { SVG_STUDIO_FAKE: '1' },
+    env: { SVG_STUDIO_FAKE: '1', DATABASE_URL: 'file:./data/e2e.db' },
     timeout: 120_000,
   },
 })
