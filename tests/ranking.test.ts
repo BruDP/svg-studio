@@ -14,8 +14,7 @@ const vf = (chiave: string, valore: string | null = null): ValidatedFeature => (
 
 test('ordina per priorità decrescente, tie-break alfabetico sulla chiave', () => {
   const out = rankFeatures([vf('display_touch'), vf('no_frost'), vf('classe_energetica', 'E')], 'frigorifero', dict)
-  // solo le feature REALI (verificate): il padding min-6 aggiunge in coda extra verificata=false
-  expect(out.features.filter((f) => f.verificata).map((f) => f.chiave)).toEqual(['classe_energetica', 'no_frost', 'display_touch'])
+  expect(out.features.map((f) => f.chiave)).toEqual(['classe_energetica', 'no_frost', 'display_touch'])
 })
 
 test('tie-break genuino: due feature a pari priorità nella stessa categoria si ordinano alfabeticamente', () => {
@@ -34,14 +33,12 @@ test('tie-break genuino: due feature a pari priorità nella stessa categoria si 
 test('le chiavi badge finiscono in badges, non in features', () => {
   const out = rankFeatures([vf('capacita_litri', '515'), vf('no_frost')], 'frigorifero', dict)
   expect(out.badges.map((f) => f.chiave)).toEqual(['capacita_litri'])
-  // solo le feature REALI (verificate): capacita_litri è badge, resta solo no_frost tra le reali
-  expect(out.features.filter((f) => f.verificata).map((f) => f.chiave)).toEqual(['no_frost'])
+  expect(out.features.map((f) => f.chiave)).toEqual(['no_frost'])
 })
 
 test('scarta le feature non applicabili alla categoria', () => {
   const out = rankFeatures([vf('doppia_cerniera'), vf('no_frost')], 'frigorifero', dict)
-  // doppia_cerniera non è applicabile a frigorifero → resta solo no_frost tra le reali (verificate)
-  expect(out.features.filter((f) => f.verificata).map((f) => f.chiave)).toEqual(['no_frost'])
+  expect(out.features.map((f) => f.chiave)).toEqual(['no_frost'])
 })
 
 test('massimo 7 feature icona: l ottava (priorità più bassa) viene tagliata', () => {
