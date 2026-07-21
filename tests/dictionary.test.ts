@@ -3,13 +3,14 @@ import { loadDictionary } from '@/lib/dictionary/loader'
 
 test('il dizionario reale carica e valida', () => {
   const dict = loadDictionary()
-  expect(dict.version).toBe(6)
+  expect(dict.version).toBe(7)
   expect(Object.keys(dict.features).length).toBeGreaterThanOrEqual(20)
   expect(dict.categorie).toContain('frigorifero')
   expect(dict.categorie).toContain('condizionatore_portatile')
   expect(dict.categorie).toContain('ventilatore')
   expect(dict.categorie).toContain('deumidificatore')
   expect(dict.categorie).toContain('ombrellone')
+  expect(dict.categorie).toContain('illuminazione')
   expect(dict.features.capacita_litri.categorie).toContain('forno')
   expect(dict.features.sbrinamento_automatico.categorie).toContain('frigorifero')
   expect(dict.features.sbrinamento_automatico.categorie).toContain('congelatore')

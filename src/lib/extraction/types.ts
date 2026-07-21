@@ -10,8 +10,8 @@ export interface RawExtraction {
 }
 
 // Versione della pipeline di estrazione (entra in computeInputHash → invalida la cache
-// quando cambia la logica che determina la proposta). Bump a 7: nascondiProfonditaSpecchi ora
-// ancora il match "specchi" a inizio descrizioneBreve, così mobili/lampade che citano uno
-// specchio ("Mobile a specchio", "Lampada da specchio") non perdono più la profondità (falsi
-// positivi 2188413/5918801 già in cache col profondita erroneamente nullo).
-export const PROMPT_VERSION = 7
+// quando cambia la logica che determina la proposta). Bump a 8: nuova categoria
+// "illuminazione" + 8 chiavi feature lampade in dictionary/features.yaml (v7) e
+// dictionary/categories.yaml (v4), più curatela arredo_interno (5 feature irrilevanti
+// rimosse). Invalida la cache: le lampade classificate arredo_interno vanno ri-estratte.
+export const PROMPT_VERSION = 8

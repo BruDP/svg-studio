@@ -1,4 +1,4 @@
-version: 6
+version: 7
 features:
   classe_energetica:
     label: "Classe {valore}"
@@ -48,7 +48,7 @@ features:
     priorita: 88
     badge: true
     valore: obbligatorio
-    categorie: [sedia_ufficio_gaming, arredo_interno, arredo_esterno]
+    categorie: [sedia_ufficio_gaming, arredo_esterno]
   cuscini_inclusi:
     label: "Cuscini inclusi"
     icona: tabler:pillow
@@ -97,7 +97,7 @@ features:
     priorita: 75
     badge: false
     valore: obbligatorio
-    categorie: [sedia_ufficio_gaming, arredo_interno]
+    categorie: [sedia_ufficio_gaming]
   struttura_acciaio:
     label: "Struttura in acciaio al carbonio"
     icona: tabler:building-factory-2
@@ -111,21 +111,21 @@ features:
     priorita: 55
     badge: false
     valore: assente
-    categorie: [arredo_interno, arredo_esterno, sedia_ufficio_gaming]
+    categorie: [arredo_esterno, sedia_ufficio_gaming]
   fodera_lavabile:
     label: "Fodera lavabile a {valore}°"
     icona: tabler:wash
     priorita: 54
     badge: false
     valore: obbligatorio
-    categorie: [arredo_interno, arredo_esterno]
+    categorie: [arredo_esterno]
   uso_interno_esterno:
     label: "Adatto ad uso interno ed esterno"
     icona: tabler:home-move
     priorita: 68
     badge: false
     valore: assente
-    categorie: [arredo_esterno, arredo_interno]
+    categorie: [arredo_esterno]
   ruote_girevoli_360:
     label: "{valore} ruote girevoli a 360°"
     icona: tabler:wheel
@@ -574,3 +574,59 @@ features:
     badge: false
     valore: assente
     categorie: [ombrellone]
+  luce_led:
+    label: "Luce LED"
+    icona: tabler:bulb
+    priorita: 80
+    badge: false
+    valore: assente
+    categorie: [illuminazione]
+  dimmerabile:
+    label: "Luce dimmerabile"
+    icona: tabler:brightness-2
+    priorita: 78
+    badge: false
+    valore: assente
+    categorie: [illuminazione]
+  senza_cavo:
+    label: "Senza fili"
+    icona: tabler:plug-off
+    priorita: 76
+    badge: false
+    valore: assente
+    categorie: [illuminazione]
+  ricaricabile_usb:
+    label: "Ricaricabile USB"
+    icona: tabler:battery-charging
+    priorita: 74
+    badge: false
+    valore: assente
+    categorie: [illuminazione]
+  alimentazione_batteria:
+    label: "A batterie"
+    icona: tabler:battery-3
+    priorita: 72
+    badge: false
+    valore: assente
+    categorie: [illuminazione]
+  temperatura_colore:
+    label: "Temperatura {valore}"
+    icona: tabler:sun
+    priorita: 65
+    badge: false
+    valore: obbligatorio
+    categorie: [illuminazione]
+  uso_interno:
+    label: "Uso interno"
+    icona: tabler:home
+    priorita: 40
+    badge: false
+    valore: assente
+    categorie: [illuminazione]
+  luminosita_lumen:
+    label: "{valore} lumen"
+    icona: tabler:sun-high
+    priorita: 85
+    badge: true
+    valore: obbligatorio
+    categorie: [illuminazione]
