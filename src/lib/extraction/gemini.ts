@@ -32,11 +32,15 @@ export function buildPrompt(product: ProductRecord, dict: Dictionary): string {
     .join('\n')
 
   return [
-    'Sei un classificatore di schede tecniche prodotto. Analizza il testo e individua SOLO le feature',
-    'presenti nell elenco chiavi qui sotto che il testo dimostra esplicitamente.',
-    'Regole: NON inventare valori. "valore" va compilato solo per le chiavi con valore obbligatorio,',
-    'copiando il numero/dato esattamente come scritto nel testo. "testoSorgente" è la frase esatta',
-    'del testo da cui hai dedotto la feature. Indica anche la categoria del prodotto.',
+    'Sei un classificatore di schede tecniche prodotto. Analizza il testo (descrizione, dettaglio, nota',
+    'tecnica) ed estrai in modo ESAUSTIVO TUTTE le feature dell elenco chiavi qui sotto che il testo',
+    'supporta: non fermarti alle più ovvie, includi ogni caratteristica verificabile. Punta a un elenco',
+    'ricco, idealmente 6 o più feature quando il testo lo consente.',
+    'Regole ANTI-INVENZIONE (prioritarie): includi una feature SOLO se il testo la dimostra; se non',
+    'esiste una frase di supporto, NON includerla (meglio meno feature che una inventata). NON inventare',
+    'valori: "valore" va compilato solo per le chiavi con valore obbligatorio, copiando il numero/dato',
+    'esattamente come scritto nel testo. "testoSorgente" è la frase ESATTA del testo da cui hai dedotto',
+    'la feature. Indica anche la categoria del prodotto.',
     '',
     'CHIAVI AMMESSE:',
     featureList,
