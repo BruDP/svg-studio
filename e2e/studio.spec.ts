@@ -11,7 +11,7 @@ test('cerca per codice, aggiungi alla lista, apri → anteprima ed export', asyn
   await expect(page.getByText('SKU 2137070')).toBeVisible()
 
   // export → miniatura di conferma
-  await page.getByRole('button', { name: 'Esporta JPEG' }).click()
+  await page.getByRole('button', { name: 'Esporta PNG + SVG' }).click()
   await expect(page.getByAltText('Anteprima esportata')).toBeVisible({ timeout: 30_000 })
 })
 
@@ -51,7 +51,7 @@ test('modifica: rimuovere una feature aggiorna anteprima ed export', async ({ pa
   await expect(etichette).toHaveCount(primaN - 1)
 
   // export continua a funzionare (riflette la scena modificata)
-  await page.getByRole('button', { name: 'Esporta JPEG' }).click()
+  await page.getByRole('button', { name: 'Esporta PNG + SVG' }).click()
   await expect(page.getByAltText('Anteprima esportata')).toBeVisible({ timeout: 30_000 })
 })
 
@@ -98,7 +98,7 @@ test('drag di una maniglia quota sposta l\'estremo', async ({ page }) => {
   expect(Math.abs(dopo!.x - prima!.x) + Math.abs(dopo!.y - prima!.y)).toBeGreaterThan(20)
 
   // l'export riflette comunque la scena modificata
-  await page.getByRole('button', { name: 'Esporta JPEG' }).click()
+  await page.getByRole('button', { name: 'Esporta PNG + SVG' }).click()
   await expect(page.getByAltText('Anteprima esportata')).toBeVisible({ timeout: 30_000 })
 })
 
@@ -107,7 +107,7 @@ test('cambio foto: selezionare una miniatura non rompe anteprima ed export', asy
   await expect(page.getByTestId('anteprima-editor')).toBeVisible({ timeout: 30_000 })
   await page.getByRole('button', { name: 'Foto 2' }).click()
   await expect(page.getByTestId('anteprima-editor')).toBeVisible()
-  await page.getByRole('button', { name: 'Esporta JPEG' }).click()
+  await page.getByRole('button', { name: 'Esporta PNG + SVG' }).click()
   await expect(page.getByAltText('Anteprima esportata')).toBeVisible({ timeout: 30_000 })
 })
 

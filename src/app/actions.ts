@@ -271,7 +271,7 @@ export async function exportSceneAction(
   const path = await exportScene({ svg, sku: scene.sku })
   // Miniatura da Buffer (non da path): su Windows sharp/libvips mmappa il file di input e,
   // nel processo server long-lived, l'handle resta appeso impedendo una successiva
-  // sovrascrittura di output/{sku}.jpg (ri-export dello stesso SKU). Leggere i byte evita l'mmap.
+  // sovrascrittura di output/{sku}.png (ri-export dello stesso SKU). Leggere i byte evita l'mmap.
   const thumb = await sharp(readFileSync(path)).resize(240, 240).jpeg({ quality: 80 }).toBuffer()
   const chiaviScena = [...new Set(scene.elements.filter((e) => e.type === 'icona-label').map((e) => e.chiave))]
   const approvate = await resolveIconsForKeys(chiaviScena)

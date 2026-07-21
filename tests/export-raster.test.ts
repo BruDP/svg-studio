@@ -1,5 +1,5 @@
 import { describe, it, expect, afterAll } from 'vitest'
-import { rmSync, existsSync } from 'node:fs'
+import { rmSync, existsSync, readFileSync } from 'node:fs'
 import sharp from 'sharp'
 import { renderSvgToPng, exportScene } from '@/lib/export/raster'
 
@@ -24,12 +24,18 @@ describe('renderSvgToPng', () => {
 })
 
 describe('exportScene', () => {
-  it('scrive output/{sku}.jpg come JPEG 1000×1000', async () => {
+  it('scrive {sku}.png (PNG 2000px) e {sku}.svg (sorgente vettoriale)', async () => {
     const p = await exportScene({ svg, sku: 'TEST123', dir: 'tests/tmp-out' })
-    expect(p).toContain('TEST123.jpg')
+    // formato primario = PNG ad alta risoluzione
+    expect(p).toContain('TEST123.png')
     expect(existsSync(p)).toBe(true)
     const meta = await sharp(p).metadata()
-    expect(meta.format).toBe('jpeg')
-    expect(meta.width).toBe(1000)
+    expect(meta.format).toBe('png')
+    expect(meta.width).toBe(2000)
+    expect(meta.height).toBe(2000)
+    // esporta anche il sorgente SVG, identico all'input
+    const svgPath = p.replace(/\.png$/, '.svg')
+    expect(existsSync(svgPath)).toBe(true)
+    expect(readFileSync(svgPath, 'utf8')).toBe(svg)
   })
 })

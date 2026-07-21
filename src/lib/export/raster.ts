@@ -1,7 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { Resvg } from '@resvg/resvg-js'
-import sharp from 'sharp'
 import { theme } from '@/lib/theme'
 import { FONT_FILES } from '@/lib/fonts'
 
@@ -19,6 +18,14 @@ export function renderSvgToPng(svg: string, size = 1000): Buffer {
   return resvg.render().asPng()
 }
 
+/**
+ * Esporta la scheda in DUE file nella cartella `dir`:
+ * - `<sku>.png` — raster ad alta risoluzione (default 2000px): nitido su righe/testo/icone
+ *   (niente artefatti JPEG attorno alle linee sottili), pronto per presentazione/marketplace.
+ * - `<sku>.svg` — sorgente vettoriale scalabile a qualsiasi dimensione, self-contained (foto
+ *   prodotto e icone incorporate come data URI): apribile e ristampabile senza perdita.
+ * Ritorna il percorso del PNG (formato primario).
+ */
 export async function exportScene(input: {
   svg: string
   sku: string
@@ -26,11 +33,11 @@ export async function exportScene(input: {
   dir?: string
 }): Promise<string> {
   const dir = input.dir ?? 'output'
-  const size = input.size ?? 1000
+  const size = input.size ?? 2000
   const png = renderSvgToPng(input.svg, size)
-  const jpeg = await sharp(png).jpeg({ quality: 92 }).toBuffer()
   mkdirSync(dir, { recursive: true })
-  const outPath = path.join(dir, `${input.sku}.jpg`)
-  writeFileSync(outPath, jpeg)
-  return outPath
+  const pngPath = path.join(dir, `${input.sku}.png`)
+  writeFileSync(pngPath, png)
+  writeFileSync(path.join(dir, `${input.sku}.svg`), input.svg)
+  return pngPath
 }
