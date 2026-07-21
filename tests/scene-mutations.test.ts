@@ -79,14 +79,15 @@ describe('applyMutation', () => {
     expect(s.elements.some((e) => e.id === 'ph')).toBe(true)
   })
 
-  it('rimuovi-quote elimina TUTTE le quote, lasciando icone/foto/titolo (prodotti sferici)', () => {
-    const s0 = scenaConQuota()
+  it('rimuovi-profondita toglie SOLO la diagonale; altezza e larghezza restano (prodotti sferici)', () => {
+    const s0 = scenaConQuota() // ha una quota verticale (altezza)
     s0.elements.push({ type: 'quota', id: 'q1', orientamento: 'orizzontale', valore: '51 cm', x1: 480, y1: 560, x2: 880, y2: 560 })
-    const s = applyMutation(s0, { type: 'rimuovi-quote' })
-    expect(s.elements.some((e) => e.type === 'quota')).toBe(false)
+    s0.elements.push({ type: 'quota', id: 'q2', orientamento: 'diagonale', valore: '40 cm', x1: 880, y1: 560, x2: 920, y2: 600 })
+    const s = applyMutation(s0, { type: 'rimuovi-profondita' })
+    const orient = s.elements.filter((e) => e.type === 'quota').map((e) => (e as { orientamento: string }).orientamento)
+    expect(orient).toEqual(['verticale', 'orizzontale']) // diagonale rimossa, le altre due restano
     expect(icone(s)).toHaveLength(2)
     expect(foto(s)).toBeDefined()
-    expect(s.elements.some((e) => e.id === 'titolo')).toBe(true)
   })
 })
 
