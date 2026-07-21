@@ -18,7 +18,7 @@ export function QuotaOverlay({
   containerRef: RefObject<HTMLDivElement | null>
   dispatch: (a: SceneAction) => void
 }) {
-  const quote = scene.elements.filter((e): e is QuotaElement => e.type === 'quota')
+  const quote = scene.elements.filter((e): e is QuotaElement => e.type === 'quota' && !e.nascosta)
 
   const onDrag = useCallback(
     (id: string, estremo: 'inizio' | 'fine') => (e: React.PointerEvent) => {

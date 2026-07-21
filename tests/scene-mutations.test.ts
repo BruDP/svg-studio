@@ -79,15 +79,25 @@ describe('applyMutation', () => {
     expect(s.elements.some((e) => e.id === 'ph')).toBe(true)
   })
 
-  it('rimuovi-profondita toglie SOLO la diagonale; altezza e larghezza restano (prodotti sferici)', () => {
+  it('toggle-profondita nasconde/mostra SOLO la diagonale, senza eliminarla; altezza/larghezza intatte', () => {
     const s0 = scenaConQuota() // ha una quota verticale (altezza)
     s0.elements.push({ type: 'quota', id: 'q1', orientamento: 'orizzontale', valore: '51 cm', x1: 480, y1: 560, x2: 880, y2: 560 })
     s0.elements.push({ type: 'quota', id: 'q2', orientamento: 'diagonale', valore: '40 cm', x1: 880, y1: 560, x2: 920, y2: 600 })
-    const s = applyMutation(s0, { type: 'rimuovi-profondita' })
-    const orient = s.elements.filter((e) => e.type === 'quota').map((e) => (e as { orientamento: string }).orientamento)
-    expect(orient).toEqual(['verticale', 'orizzontale']) // diagonale rimossa, le altre due restano
-    expect(icone(s)).toHaveLength(2)
-    expect(foto(s)).toBeDefined()
+    const diag = (s: typeof s0) => s.elements.find((e) => e.type === 'quota' && e.orientamento === 'diagonale') as { nascosta?: boolean }
+
+    // 1° toggle: la diagonale diventa nascosta (ma resta nella scena, coordinate preservate)
+    const s1 = applyMutation(s0, { type: 'toggle-profondita' })
+    expect(s1.elements.filter((e) => e.type === 'quota')).toHaveLength(3) // nessuna rimozione
+    expect(diag(s1).nascosta).toBe(true)
+    // le altre due quote non toccate
+    const altre = s1.elements.filter((e) => e.type === 'quota' && (e as { orientamento: string }).orientamento !== 'diagonale')
+    expect(altre.every((e) => !(e as { nascosta?: boolean }).nascosta)).toBe(true)
+
+    // 2° toggle: riappare (nascosta=false), identica
+    const s2 = applyMutation(s1, { type: 'toggle-profondita' })
+    expect(diag(s2).nascosta).toBe(false)
+    expect(icone(s2)).toHaveLength(2)
+    expect(foto(s2)).toBeDefined()
   })
 })
 

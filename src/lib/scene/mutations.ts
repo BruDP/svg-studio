@@ -4,7 +4,7 @@ import { colonnaPositions } from '@/lib/layout/engine'
 export type SceneAction =
   | { type: 'sposta-feature'; id: string; direzione: 'su' | 'giu' }
   | { type: 'rimuovi'; id: string }
-  | { type: 'rimuovi-profondita' }
+  | { type: 'toggle-profondita' }
   | { type: 'aggiungi-feature'; chiave: string; etichetta: string }
   | { type: 'modifica-etichetta'; id: string; etichetta: string }
   | { type: 'sposta-quota'; id: string; estremo: 'inizio' | 'fine'; x: number; y: number }
@@ -76,12 +76,15 @@ export function applyMutation(scene: Scene, action: SceneAction): Scene {
       let k = 0
       return { ...scene, elements: elements.map((el) => (isIcona(el) ? riflowate[k++] : el)) }
     }
-    case 'rimuovi-profondita': {
-      // Toglie SOLO la quota di profondità (diagonale): utile per prodotti sferici/irregolari dove
-      // la profondità non ha senso. Altezza (verticale) e larghezza (orizzontale) restano SEMPRE.
+    case 'toggle-profondita': {
+      // Mostra/nascondi SOLO la quota di profondità (diagonale): utile per prodotti sferici/irregolari.
+      // Non la elimina — flippa `nascosta` così ripremendo il tasto riappare identica. Altezza
+      // (verticale) e larghezza (orizzontale) restano SEMPRE visibili.
       return {
         ...scene,
-        elements: scene.elements.filter((el) => !(el.type === 'quota' && el.orientamento === 'diagonale')),
+        elements: scene.elements.map((el) =>
+          el.type === 'quota' && el.orientamento === 'diagonale' ? { ...el, nascosta: !el.nascosta } : el,
+        ),
       }
     }
     case 'aggiungi-feature': {

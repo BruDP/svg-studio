@@ -46,6 +46,12 @@ export interface QuotaElement {
   y2: number
   /** Sotto-prodotto di appartenenza in una scheda "set" (es. 'g0'). Opzionale, retrocompatibile. */
   gruppo?: string
+  /**
+   * Se true la quota è nascosta: resta nella scena (coordinate preservate) ma non viene disegnata
+   * né mostra maniglie. Usata dal toggle "profondità" per prodotti sferici — ripremendo riappare
+   * identica. Opzionale, retrocompatibile.
+   */
+  nascosta?: boolean
 }
 
 /** Badge speciale (es. "120 KG") posizionato vicino alla foto. */

@@ -33,6 +33,7 @@ const quota = z.object({
   x2: z.number(),
   y2: z.number(),
   gruppo: z.string().optional(),
+  nascosta: z.boolean().optional(),
 })
 
 const badge = z.object({

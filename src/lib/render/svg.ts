@@ -88,6 +88,8 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       return `<image x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" href="${href}" preserveAspectRatio="xMidYMid meet"/>`
     }
     case 'quota': {
+      // Quota nascosta (toggle profondità): resta nella scena ma non si disegna.
+      if (el.nascosta) return ''
       // Linea di quota "premium": stessa cromia accento delle icone, con trattini
       // perpendicolari agli estremi (stile disegno tecnico) ed etichetta accostata alla
       // linea (non sopra), così l'estensione comunica esattamente la misura del prodotto.
