@@ -2,12 +2,13 @@
 
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import { cercaSkuAction, generaSchedaAction } from '../actions'
+import type { Qualita } from '@/lib/quality/valuta'
 
 export type VoceLista = { sku: string; descrizioneBreve: string }
 
 type StatoRiga =
   | { stato: 'in-corso' }
-  | { stato: 'fatto'; path: string }
+  | { stato: 'fatto'; path: string; qualita?: Qualita }
   | { stato: 'errore'; errore: string }
 
 /**
@@ -29,7 +30,7 @@ export function Banco({
   const [cercando, setCercando] = useState(false)
   const [statoRighe, setStatoRighe] = useState<Record<string, StatoRiga>>({})
   const [generazioneInCorso, setGenerazioneInCorso] = useState(false)
-  const [riepilogo, setRiepilogo] = useState<{ ok: number; errori: number } | null>(null)
+  const [riepilogo, setRiepilogo] = useState<{ ok: number; errori: number; daRivedere: number } | null>(null)
 
   // Debounce ~300ms, min 2 caratteri: evita una chiamata server a ogni tasto premuto.
   useEffect(() => {
@@ -75,13 +76,15 @@ export function Banco({
     setRiepilogo(null)
     let ok = 0
     let errori = 0
+    let daRivedere = 0
     for (const voce of listaLavoro) {
       setStatoRighe((prev) => ({ ...prev, [voce.sku]: { stato: 'in-corso' } }))
       try {
         const r = await generaSchedaAction(voce.sku)
         if (r.ok && r.path) {
           ok++
-          setStatoRighe((prev) => ({ ...prev, [voce.sku]: { stato: 'fatto', path: r.path! } }))
+          if (r.qualita?.daRivedere) daRivedere++
+          setStatoRighe((prev) => ({ ...prev, [voce.sku]: { stato: 'fatto', path: r.path!, qualita: r.qualita } }))
         } else {
           errori++
           setStatoRighe((prev) => ({ ...prev, [voce.sku]: { stato: 'errore', errore: r.errore ?? 'Errore sconosciuto' } }))
@@ -91,7 +94,7 @@ export function Banco({
         setStatoRighe((prev) => ({ ...prev, [voce.sku]: { stato: 'errore', errore: e instanceof Error ? e.message : 'Errore' } }))
       }
     }
-    setRiepilogo({ ok, errori })
+    setRiepilogo({ ok, errori, daRivedere })
     setGenerazioneInCorso(false)
   }
 
@@ -183,7 +186,12 @@ export function Banco({
                       <span className="text-zinc-500">{voce.sku}</span> — {voce.descrizioneBreve}
                     </div>
                     {s?.stato === 'in-corso' && <p className="text-xs text-amber-700">⏳ in corso</p>}
-                    {s?.stato === 'fatto' && <p className="text-xs text-emerald-700">✓ fatto ({s.path})</p>}
+                    {s?.stato === 'fatto' &&
+                      (s.qualita?.daRivedere ? (
+                        <p role="alert" className="text-xs text-amber-700">⚠ da rivedere: {s.qualita.problemi.join('; ')}</p>
+                      ) : (
+                        <p className="text-xs text-emerald-700">✓ fatto</p>
+                      ))}
                     {s?.stato === 'errore' && (
                       <p role="alert" className="text-xs text-red-600">✗ {s.errore}</p>
                     )}
@@ -224,6 +232,7 @@ export function Banco({
           {riepilogo && (
             <p className="text-sm text-zinc-700">
               {riepilogo.ok} generate, {riepilogo.errori} errori
+              {riepilogo.daRivedere > 0 && <span className="text-amber-700">, {riepilogo.daRivedere} da rivedere</span>}
             </p>
           )}
         </div>

@@ -122,6 +122,7 @@ test('genera tutte: genera la scheda in blocco e mostra il riepilogo', async ({ 
   await aggiungi.click()
 
   await page.getByRole('button', { name: 'Genera tutte' }).click()
-  await expect(page.getByText('1 generate, 0 errori')).toBeVisible({ timeout: 30_000 })
-  await expect(page.getByText(/✓ fatto/)).toBeVisible()
+  await expect(page.getByText(/1 generate, 0 errori/)).toBeVisible({ timeout: 30_000 })
+  // stato per riga: "✓ fatto" se ok, oppure "⚠ da rivedere: …" se la scheda ha segnali di qualità
+  await expect(page.getByText(/✓ fatto|⚠ da rivedere/)).toBeVisible()
 })

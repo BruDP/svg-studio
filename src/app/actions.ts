@@ -19,6 +19,7 @@ import { cacheImage, readCachedImage, writeImageBytes } from '@/lib/images/cache
 import { extToMime } from '@/lib/ui/mime'
 import { resolveBBox } from '@/lib/images/resolve-bbox'
 import { resolveProspettiva } from '@/lib/images/resolve-prospettiva'
+import { valutaQualita, type Qualita } from '@/lib/quality/valuta'
 import { prospettivaDaQuotaDiagonale } from '@/lib/images/vision-prospettiva'
 import { saveProspettiva } from '@/lib/images/prospettiva-repository'
 import { fitFoto, quoteFromBBox, celleProdotti, type QuotaSpec } from '@/lib/layout/engine'
@@ -94,7 +95,7 @@ export async function cercaSkuAction(q: string): Promise<{ sku: string; descrizi
  */
 export async function generaSchedaAction(
   sku: string,
-): Promise<{ sku: string; ok: boolean; path?: string; errore?: string }> {
+): Promise<{ sku: string; ok: boolean; path?: string; errore?: string; qualita?: Qualita }> {
   const s = (sku ?? '').trim()
   try {
     if (!s) throw new Error('SKU mancante')
@@ -102,7 +103,7 @@ export async function generaSchedaAction(
     const { scene } = await costruisciScena(s, dict)
     const svg = await renderSceneServer(scene)
     const path = await exportScene({ svg, sku: scene.sku })
-    return { sku: s, ok: true, path }
+    return { sku: s, ok: true, path, qualita: valutaQualita(scene) }
   } catch (e) {
     return { sku: s, ok: false, errore: descriviErrore(e) }
   }
