@@ -17,6 +17,14 @@
       "verificata": false,
       "priorita": 30,
       "badge": false
+    },
+    {
+      "chiave": "struttura_acciaio",
+      "etichetta": "Struttura in acciaio al carbonio",
+      "valore": null,
+      "verificata": false,
+      "priorita": 72,
+      "badge": false
     }
   ],
   "badges": [],
