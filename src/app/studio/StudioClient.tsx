@@ -212,6 +212,16 @@ export function StudioClient() {
               pezzoAttivo={gruppi.length > 0 ? `Pezzo ${gruppi.indexOf(gruppoAttivo ?? gruppi[0]) + 1}` : null}
             />
             <FeaturePanel scene={scene} categoriaFeatures={bundle.categoriaFeatures} dispatch={dispatch} onCambiaIcona={setPickerChiave} />
+            {scene.elements.some((e) => e.type === 'quota') && (
+              <button
+                type="button"
+                className="min-h-[40px] self-start rounded border border-zinc-300 px-4 py-2 text-sm text-zinc-700 transition-colors duration-150 hover:border-red-500 hover:text-red-600 disabled:opacity-50"
+                onClick={() => dispatch({ type: 'rimuovi-quote' })}
+                disabled={inCorso}
+              >
+                Rimuovi misure
+              </button>
+            )}
             <div className="flex gap-2">
               <button className="rounded bg-zinc-700 px-4 py-2 text-white disabled:opacity-50" onClick={salva} disabled={inCorso}>Salva</button>
               <button className="rounded bg-emerald-700 px-4 py-2 text-white disabled:opacity-50" onClick={esporta} disabled={inCorso}>Esporta PNG + SVG</button>

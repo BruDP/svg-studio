@@ -78,6 +78,16 @@ describe('applyMutation', () => {
     expect(s.elements.some((e) => e.id === 'titolo')).toBe(true)
     expect(s.elements.some((e) => e.id === 'ph')).toBe(true)
   })
+
+  it('rimuovi-quote elimina TUTTE le quote, lasciando icone/foto/titolo (prodotti sferici)', () => {
+    const s0 = scenaConQuota()
+    s0.elements.push({ type: 'quota', id: 'q1', orientamento: 'orizzontale', valore: '51 cm', x1: 480, y1: 560, x2: 880, y2: 560 })
+    const s = applyMutation(s0, { type: 'rimuovi-quote' })
+    expect(s.elements.some((e) => e.type === 'quota')).toBe(false)
+    expect(icone(s)).toHaveLength(2)
+    expect(foto(s)).toBeDefined()
+    expect(s.elements.some((e) => e.id === 'titolo')).toBe(true)
+  })
 })
 
 describe('sposta-quota', () => {

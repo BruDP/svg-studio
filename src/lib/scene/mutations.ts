@@ -4,6 +4,7 @@ import { colonnaPositions } from '@/lib/layout/engine'
 export type SceneAction =
   | { type: 'sposta-feature'; id: string; direzione: 'su' | 'giu' }
   | { type: 'rimuovi'; id: string }
+  | { type: 'rimuovi-quote' }
   | { type: 'aggiungi-feature'; chiave: string; etichetta: string }
   | { type: 'modifica-etichetta'; id: string; etichetta: string }
   | { type: 'sposta-quota'; id: string; estremo: 'inizio' | 'fine'; x: number; y: number }
@@ -74,6 +75,11 @@ export function applyMutation(scene: Scene, action: SceneAction): Scene {
       const riflowate = riflow(elements.filter(isIcona), startY)
       let k = 0
       return { ...scene, elements: elements.map((el) => (isIcona(el) ? riflowate[k++] : el)) }
+    }
+    case 'rimuovi-quote': {
+      // Toglie TUTTE le rette di misura: utile per prodotti a forma sferica/irregolare dove le
+      // quote larghezza/profondità non hanno senso. Il resto (foto, icone, badge) resta invariato.
+      return { ...scene, elements: scene.elements.filter((el) => el.type !== 'quota') }
     }
     case 'aggiungi-feature': {
       const nuova: IconLabelElement = {
