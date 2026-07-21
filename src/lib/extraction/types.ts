@@ -16,4 +16,6 @@ export interface RawExtraction {
 // rimosse). Invalida la cache: le lampade classificate arredo_interno vanno ri-estratte.
 // Bump a 9: prompt di estrazione reso ESAUSTIVO (estrae tutte le feature supportate dal testo,
 // punta a >=6) mantenendo l'ancora anti-invenzione (testoSorgente) — più icone per scheda.
-export const PROMPT_VERSION = 9
+// Bump a 10: padding "minimo 6 icone" in rankFeatures (feature di categoria da-verificare) — è
+// post-processing dell'estrazione, entra nel JSON cachato → invalida la cache per applicarlo.
+export const PROMPT_VERSION = 10
