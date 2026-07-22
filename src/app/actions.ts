@@ -1,6 +1,5 @@
 'use server'
 
-import { readFileSync } from 'node:fs'
 import sharp from 'sharp'
 import { refreshFeedIfStale } from '@/lib/feed/fetcher'
 import { getProduct, searchProducts } from '@/lib/feed/repository'
@@ -102,7 +101,7 @@ export async function generaSchedaAction(
     const dict = loadDictionary()
     const { scene } = await costruisciScena(s, dict)
     const svg = await renderSceneServer(scene)
-    const path = await exportScene({ svg, sku: scene.sku })
+    const { path } = await exportScene({ svg, sku: scene.sku })
     return { sku: s, ok: true, path, qualita: valutaQualita(scene) }
   } catch (e) {
     return { sku: s, ok: false, errore: descriviErrore(e) }
@@ -274,21 +273,21 @@ export async function loadSceneAction(sku: string): Promise<{
 
 export async function exportSceneAction(
   sceneJson: string,
-): Promise<{ path: string; thumbDataUri: string; iconeNonApprovate: string[] }> {
+): Promise<{ path: string; svgText: string; jpegDataUri: string; iconeNonApprovate: string[] }> {
   const scene: Scene = parseScene(JSON.parse(sceneJson))
   if (!/^[A-Za-z0-9._-]+$/.test(scene.sku)) throw new Error('SKU non valido')
   const svg = await renderSceneServer(scene)
-  const path = await exportScene({ svg, sku: scene.sku })
-  // Miniatura da Buffer (non da path): su Windows sharp/libvips mmappa il file di input e,
-  // nel processo server long-lived, l'handle resta appeso impedendo una successiva
-  // sovrascrittura di output/{sku}.png (ri-export dello stesso SKU). Leggere i byte evita l'mmap.
-  const thumb = await sharp(readFileSync(path)).resize(240, 240).jpeg({ quality: 80 }).toBuffer()
+  // `jpeg` è già il raster completo (2000px, stesso file scritto su disco): usato sia per
+  // l'anteprima in editor sia per il download — niente ri-lettura da disco né ridimensionamento
+  // separato per una miniatura (formato unico, scelta dell'operatore tra SVG e JPEG).
+  const { path, jpeg } = await exportScene({ svg, sku: scene.sku })
   const chiaviScena = [...new Set(scene.elements.filter((e) => e.type === 'icona-label').map((e) => e.chiave))]
   const approvate = await resolveIconsForKeys(chiaviScena)
   const iconeNonApprovate = chiaviScena.filter((k) => !(k in approvate))
   return {
     path,
-    thumbDataUri: `data:image/jpeg;base64,${thumb.toString('base64')}`,
+    svgText: svg,
+    jpegDataUri: `data:image/jpeg;base64,${jpeg.toString('base64')}`,
     iconeNonApprovate,
   }
 }

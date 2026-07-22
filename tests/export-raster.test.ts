@@ -1,7 +1,7 @@
 import { describe, it, expect, afterAll } from 'vitest'
 import { rmSync, existsSync, readFileSync } from 'node:fs'
 import sharp from 'sharp'
-import { renderSvgToPng, exportScene } from '@/lib/export/raster'
+import { renderSvgToPng, renderSvgToJpeg, exportScene } from '@/lib/export/raster'
 
 const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000"><rect width="1000" height="1000" fill="#FFFFFF"/><text x="60" y="100" font-family="Poppins" font-size="40" fill="#4A4A4A">Ciao</text></svg>\n'
 
@@ -23,18 +23,30 @@ describe('renderSvgToPng', () => {
   })
 })
 
+describe('renderSvgToJpeg', () => {
+  it('produce un JPEG 1000×1000', async () => {
+    const jpeg = await renderSvgToJpeg(svg)
+    const meta = await sharp(jpeg).metadata()
+    expect(meta.format).toBe('jpeg')
+    expect(meta.width).toBe(1000)
+    expect(meta.height).toBe(1000)
+  })
+})
+
 describe('exportScene', () => {
-  it('scrive {sku}.png (PNG 2000px) e {sku}.svg (sorgente vettoriale)', async () => {
-    const p = await exportScene({ svg, sku: 'TEST123', dir: 'tests/tmp-out' })
-    // formato primario = PNG ad alta risoluzione
-    expect(p).toContain('TEST123.png')
+  it('scrive {sku}.jpg (JPEG 2000px, pronto per upload ecommerce) e {sku}.svg (sorgente vettoriale)', async () => {
+    const { path: p, jpeg } = await exportScene({ svg, sku: 'TEST123', dir: 'tests/tmp-out' })
+    // formato primario = JPEG (stesso formato del master Magento di origine)
+    expect(p).toContain('TEST123.jpg')
     expect(existsSync(p)).toBe(true)
     const meta = await sharp(p).metadata()
-    expect(meta.format).toBe('png')
+    expect(meta.format).toBe('jpeg')
     expect(meta.width).toBe(2000)
     expect(meta.height).toBe(2000)
+    // il Buffer ritornato è lo stesso file scritto su disco
+    expect(jpeg.equals(readFileSync(p))).toBe(true)
     // esporta anche il sorgente SVG, identico all'input
-    const svgPath = p.replace(/\.png$/, '.svg')
+    const svgPath = p.replace(/\.jpg$/, '.svg')
     expect(existsSync(svgPath)).toBe(true)
     expect(readFileSync(svgPath, 'utf8')).toBe(svg)
   })

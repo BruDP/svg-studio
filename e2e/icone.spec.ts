@@ -19,7 +19,7 @@ test('picker: scegliere un\'icona la mostra marcata; l\'export segnala le non ap
   await expect(page.locator('[data-testid^="icona-marcata-"]').first()).toBeVisible({ timeout: 30_000 })
 
   // export segnala le non approvate
-  await page.getByRole('button', { name: 'Esporta PNG + SVG' }).click()
+  await page.getByRole('button', { name: 'Esporta' }).click()
   await expect(page.getByText(/non approvate/i)).toBeVisible({ timeout: 30_000 })
 })
 

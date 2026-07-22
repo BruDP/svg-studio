@@ -48,7 +48,7 @@ export function StudioClient() {
   )
   const [prodotto, setProdotto] = useState<ProposeResult['prodotto'] | null>(null)
   const [salvataDisponibile, setSalvata] = useState(false)
-  const [thumb, setThumb] = useState<string | null>(null)
+  const [esportata, setEsportata] = useState<{ svgText: string; jpegDataUri: string } | null>(null)
   const [avvisoExport, setAvvisoExport] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [errore, setErrore] = useState<string | null>(null)
@@ -60,7 +60,7 @@ export function StudioClient() {
   const gruppi = gruppiDiScena(scene)
 
   function proponiSku(skuArg: string = sku) {
-    setErrore(null); setThumb(null); setMsg(null)
+    setErrore(null); setEsportata(null); setMsg(null)
     // Pulisce la scheda precedente (se aperta da un'altra voce della lista) prima di caricare
     // la nuova, così non lampeggia un editor disallineato mentre la propose è in corso.
     dispatch({ type: 'reset', scene: null })
@@ -92,7 +92,7 @@ export function StudioClient() {
   }
 
   function riprendi() {
-    setErrore(null); setThumb(null); setMsg(null)
+    setErrore(null); setEsportata(null); setMsg(null)
     start(async () => {
       try {
         const r = await loadSceneAction(sku)
@@ -162,13 +162,26 @@ export function StudioClient() {
     start(async () => {
       try {
         const r = await exportSceneAction(JSON.stringify(scene))
-        setThumb(r.thumbDataUri)
+        setEsportata({ svgText: r.svgText, jpegDataUri: r.jpegDataUri })
         if (r.iconeNonApprovate.length > 0) {
           setAvvisoExport(`⚠ ${r.iconeNonApprovate.length} icone non approvate non sono nella scheda. Approvale in /icone.`)
         }
       }
       catch (e) { setErrore(e instanceof Error ? e.message : 'Errore export') }
     })
+  }
+
+  /** Scarica il testo SVG come file — via Blob, non `data:` URI (l'SVG incorpora foto/icone come
+   * data URI ed è già multi-MB: un `href` con l'intero markup appesantirebbe inutilmente il DOM). */
+  function scaricaSvg() {
+    if (!esportata || !prodotto) return
+    const blob = new Blob([esportata.svgText], { type: 'image/svg+xml' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${prodotto.sku}.svg`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   if (vista === 'banco') {
@@ -228,15 +241,31 @@ export function StudioClient() {
             <ElementiPanel scene={scene} dispatch={dispatch} />
             <div className="flex gap-2">
               <button className="rounded bg-zinc-700 px-4 py-2 text-white disabled:opacity-50" onClick={salva} disabled={inCorso}>Salva</button>
-              <button className="rounded bg-emerald-700 px-4 py-2 text-white disabled:opacity-50" onClick={esporta} disabled={inCorso}>Esporta PNG + SVG</button>
+              <button className="rounded bg-emerald-700 px-4 py-2 text-white disabled:opacity-50" onClick={esporta} disabled={inCorso}>Esporta</button>
               {salvataDisponibile && (
                 <button className="rounded border border-zinc-300 px-4 py-2 text-zinc-700 disabled:opacity-50" onClick={riprendi} disabled={inCorso}>Riprendi salvata</button>
               )}
             </div>
-            {thumb && (
+            {esportata && prodotto && (
               <div>
                 <p className="text-sm text-zinc-500">Esportata:</p>
-                <img alt="Anteprima esportata" src={thumb} className="mt-1 border border-zinc-200" width={240} height={240} />
+                <img alt="Anteprima esportata" src={esportata.jpegDataUri} className="mt-1 border border-zinc-200" width={240} height={240} />
+                <div className="mt-1 flex gap-2">
+                  <a
+                    href={esportata.jpegDataUri}
+                    download={`${prodotto.sku}.jpg`}
+                    className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:border-emerald-600"
+                  >
+                    Scarica JPEG
+                  </a>
+                  <button
+                    type="button"
+                    onClick={scaricaSvg}
+                    className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:border-emerald-600"
+                  >
+                    Scarica SVG
+                  </button>
+                </div>
                 {avvisoExport && <p role="alert" className="mt-1 text-sm text-amber-700">{avvisoExport}</p>}
               </div>
             )}
