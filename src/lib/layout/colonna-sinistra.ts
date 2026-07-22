@@ -54,15 +54,17 @@ export function composeColonnaSinistra(input: {
   const elements: SceneElement[] = []
 
   // Intestazione: eyebrow (marchio, maiuscoletto) + titolo (nome prodotto, prima parte prima della
-  // virgola per togliere misure/varianti dalla riga-titolo). Ancora editoriale nella colonna sx.
+  // virgola per togliere misure/varianti dalla riga-titolo). Ancora editoriale nella colonna sx,
+  // SOTTO il lockup del marchio Satur (disegnato dal renderer in alto a sinistra, ~y34..82): da qui
+  // eyebrow/titolo partono a y≈108 per non sovrapporsi al lockup.
   let iconStartY = 160
   if (nome) {
     if (marchio) {
-      elements.push({ type: 'testo', id: 'eyebrow', testo: marchio, x: theme.margini.colonnaX, y: 52, ruolo: 'sottotitolo' })
+      elements.push({ type: 'testo', id: 'eyebrow', testo: marchio, x: theme.margini.colonnaX, y: 108, ruolo: 'sottotitolo' })
     }
     const titolo = estraiTitolo(nome, marchio)
-    elements.push({ type: 'testo', id: 'titolo', testo: titolo, x: theme.margini.colonnaX, y: 80, ruolo: 'titolo' })
-    iconStartY = 232 // sotto l'intestazione (eyebrow + titolo fino a 2 righe)
+    elements.push({ type: 'testo', id: 'titolo', testo: titolo, x: theme.margini.colonnaX, y: 136, ruolo: 'titolo' })
+    iconStartY = 268 // sotto l'intestazione (eyebrow + titolo fino a 2 righe)
   }
 
   // Icone in colonna, nell'ordine del ranking

@@ -111,11 +111,21 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       return cerchio + glifo + label
     }
     case 'foto': {
+      // Il prodotto diventa un "tile" fotografico: angoli arrotondati (clip) + ombra flat sotto,
+      // così si stacca dal fondo crema con profondità invece di galleggiare piatto. Ombra a tinta
+      // unita offset (niente blur: resvg non lo rende affidabile, e lo stile flat è coerente con
+      // l'illustrazione di riferimento). Il ritaglio ha lo stesso aspect del prodotto (fitFoto),
+      // quindi arrotonda gli angoli della foto, non introduce margini.
+      const { x, y, width: w, height: hh } = el
+      const rx = theme.foto.raggio
+      const clipId = `foto-${el.id}`
+      const ombra = `<rect x="${x}" y="${y + theme.foto.ombraOffset}" width="${w}" height="${hh}" rx="${rx}" fill="${theme.colors.testo}" opacity="0.10"/>`
+      const clip = `<clipPath id="${clipId}"><rect x="${x}" y="${y}" width="${w}" height="${hh}" rx="${rx}"/></clipPath>`
       const href = deps.image(el.imageHash)
-      if (!href) {
-        return `<rect x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" fill="${theme.colors.fotoPlaceholder}"/>`
-      }
-      return `<image x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" href="${href}" preserveAspectRatio="xMidYMid meet"/>`
+      const contenuto = href
+        ? `<image x="${x}" y="${y}" width="${w}" height="${hh}" href="${href}" preserveAspectRatio="xMidYMid meet" clip-path="url(#${clipId})"/>`
+        : `<rect x="${x}" y="${y}" width="${w}" height="${hh}" rx="${rx}" fill="${theme.colors.fotoPlaceholder}"/>`
+      return ombra + clip + contenuto
     }
     case 'quota': {
       // Quota nascosta (toggle profondità): resta nella scena ma non si disegna.
@@ -186,18 +196,63 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
 }
 
 /**
- * Motivo "confetti": un piccolo gruppo di triangoli in angolo, richiamo diretto al logo Satur
- * (cuore sfaccettato) e al pattern del Brand Book — firma discreta del marchio, non decorazione
- * invadente: sta nel margine in alto a destra del canvas, sopra il riquadro foto (mai sopra
- * icone/quote/testo), identica per geometria in entrambi i template, colorata sull'accento
- * "di famiglia" della scheda + inchiostro, così resta in tono qualunque sia la categoria.
+ * Cuore Satur sfaccettato — ricostruzione fedele del marchio dal Brand Book 2025: silhouette di
+ * cuore riempita da un pinwheel di triangoli, con la palette multicolore FISSA del logo (NON
+ * l'accento di reparto della scheda: il logo del marchio è invariante). Colori campionati a livello
+ * di pixel dal brand book. `ox,oy` = angolo alto-sinistra del box del cuore, `s` = lato (px).
  */
-function confetti(accento: string): string {
-  const chiaro = mescola(accento, theme.colors.sfondo, 0.45)
-  const t1 = `<polygon points="960,4 996,4 978,30" fill="${accento}"/>`
-  const t2 = `<polygon points="895,10 918,22 895,34" fill="${theme.colors.testo}"/>`
-  const t3 = `<polygon points="925,36 948,36 936,14" fill="${chiaro}"/>`
-  return t1 + t2 + t3
+function cuoreSatur(ox: number, oy: number, s: number): string {
+  const k = s / 100
+  const X = (px: number) => +(ox + px * k).toFixed(2)
+  const Y = (py: number) => +(oy + py * k).toFixed(2)
+  const heart =
+    `M${X(50)},${Y(90)} ` +
+    `C${X(20)},${Y(66)} ${X(2)},${Y(50)} ${X(2)},${Y(32)} ` +
+    `C${X(2)},${Y(14)} ${X(24)},${Y(6)} ${X(38)},${Y(18)} ` +
+    `C${X(44)},${Y(23)} ${X(48)},${Y(28)} ${X(50)},${Y(30)} ` +
+    `C${X(52)},${Y(28)} ${X(56)},${Y(23)} ${X(62)},${Y(18)} ` +
+    `C${X(76)},${Y(6)} ${X(98)},${Y(14)} ${X(98)},${Y(32)} ` +
+    `C${X(98)},${Y(50)} ${X(80)},${Y(66)} ${X(50)},${Y(90)} Z`
+  // 4×4 celle, ogni cella = 2 triangoli (diagonale alternata a scacchiera) → pinwheel sfaccettato.
+  const celle: string[][][] = [
+    [['#6DBE4B', '#8E857B'], ['#B1A99F', '#1B3C6E'], ['#1099A9', '#12739A'], ['#39A0AF', '#1099A9']],
+    [['#82BF6D', '#94CC75'], ['#6A81A7', '#1B3C6E'], ['#60AAC3', '#28AFC7'], ['#8B919B', '#7C2530']],
+    [['#94CC75', '#ABA5C4'], ['#604775', '#953B81'], ['#5B89B5', '#953B81'], ['#EF1B2B', '#85373B']],
+    [['#ABA5C4', '#A7799D'], ['#A7779C', '#604775'], ['#F04F23', '#EF1B2B'], ['#FCD106', '#F13C38']],
+  ]
+  const gx0 = 4, gy0 = 4, cw = 23, ch = 21.5
+  let tri = ''
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      const x0 = gx0 + c * cw, y0 = gy0 + r * ch, x1 = x0 + cw, y1 = y0 + ch
+      const [a, b] = celle[r][c]
+      if ((r + c) % 2 === 0) {
+        tri += `<polygon points="${X(x0)},${Y(y0)} ${X(x1)},${Y(y0)} ${X(x1)},${Y(y1)}" fill="${a}"/>`
+        tri += `<polygon points="${X(x0)},${Y(y0)} ${X(x0)},${Y(y1)} ${X(x1)},${Y(y1)}" fill="${b}"/>`
+      } else {
+        tri += `<polygon points="${X(x0)},${Y(y0)} ${X(x1)},${Y(y0)} ${X(x0)},${Y(y1)}" fill="${a}"/>`
+        tri += `<polygon points="${X(x1)},${Y(y0)} ${X(x1)},${Y(y1)} ${X(x0)},${Y(y1)}" fill="${b}"/>`
+      }
+    }
+  }
+  return `<clipPath id="satur-cuore"><path d="${heart}"/></clipPath><g clip-path="url(#satur-cuore)">${tri}</g>`
+}
+
+/**
+ * Lockup del marchio Satur (cuore + wordmark "satur" + payoff), ancorato in alto a sinistra: è
+ * la firma "chi ha fatto questa scheda" — presente su ogni scheda, indipendente dalla categoria.
+ * Il wordmark reale usa il font "run" (non licenziato qui): Poppins minuscolo ne è il sostituto
+ * più vicino, coerente col resto della scheda.
+ */
+function logoSatur(): string {
+  const s = 40
+  const ox = theme.margini.colonnaX
+  const oy = 34
+  const cuore = cuoreSatur(ox, oy, s)
+  const wx = ox + s + 12
+  const wm = `<text x="${wx}" y="${oy + s * 0.72}" font-family="${theme.fontFamily}" font-size="${s * 0.84}" font-weight="600" fill="${theme.colors.testo}">satur</text>`
+  const payoff = `<text x="${wx + 2}" y="${oy + s + 3}" font-family="${theme.fontFamily}" font-size="${s * 0.2}" font-weight="600" letter-spacing="2.5" fill="${theme.colors.testoMuto}">PASSIONE CASA</text>`
+  return cuore + wm + payoff
 }
 
 /**
@@ -263,7 +318,7 @@ export function renderScene(scene: Scene, deps: { icon: IconResolver; image: Ima
         `<line x1="${panelW}" y1="0" x2="${panelW}" y2="${h}" stroke="${theme.colors.divisore}" stroke-width="1.5"/>`
       : '') +
     giardino +
-    confetti(accento)
+    logoSatur()
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`,
     `  ${sfondo}`,

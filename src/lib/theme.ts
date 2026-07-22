@@ -22,7 +22,7 @@ export const theme = {
     // Accento di DEFAULT/fallback (scene senza categoria riconosciuta o senza `accento` salvato).
     // Le schede con categoria nota usano invece `scene.accento` (vedi theme-satur.ts): chip icona,
     // quote, eyebrow e badge sono tinti dinamicamente sull'accento risolto, non su un colore fisso
-    // — vedi `mescola()` in render/colore.ts per i toni derivati (chip bg/ring, confetti).
+    // — vedi `mescola()` in render/colore.ts per i toni derivati (chip bg/ring, fogliame garden).
     accento: ACCENTO,
     accentoScuro: ACCENTO_SCURO,
     divisore: '#E2DDCC', // hairline pannello, neutro caldo (era grigio freddo)
@@ -44,6 +44,10 @@ export const theme = {
     // o Vision non pervenuta): una diagonale modesta in giù a destra, come cue convenzionale. Sulle
     // foto in 3/4 l'angolo reale arriva invece da Vision (per-immagine), non da qui.
     profonditaDefaultDeg: 22,
+  },
+  foto: {
+    raggio: 22, // angoli arrotondati del tile fotografico
+    ombraOffset: 14, // offset verticale dell'ombra flat sotto il tile
   },
   badge: {
     altezza: 52,

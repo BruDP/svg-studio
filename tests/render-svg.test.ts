@@ -19,6 +19,18 @@ describe('renderScene', () => {
     expect(svg.trim().endsWith('</svg>')).toBe(true)
   })
 
+  it('porta il marchio Satur su ogni scheda: cuore sfaccettato (clipPath) + wordmark', () => {
+    const svg = renderScene(scene, deps)
+    expect(svg).toContain('clipPath id="satur-cuore"') // logo cuore ricostruito
+    expect(svg).toContain('>satur</text>') // wordmark
+  })
+
+  it('la foto è un tile arrotordato con ombra (clip-path + rect ombra)', () => {
+    const svg = renderScene(scene, deps)
+    expect(svg).toMatch(/clip-path="url\(#foto-/) // foto ritagliata ad angoli arrotondati
+    expect(svg).toMatch(/<rect[^>]*opacity="0\.10"/) // ombra flat sotto il tile
+  })
+
   it('inserisce l\'icona risolta e il segnaposto per quella mancante', () => {
     const svg = renderScene(scene, deps)
     expect(svg).toContain('M2 2h20') // icona risolta
