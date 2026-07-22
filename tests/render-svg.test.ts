@@ -107,4 +107,26 @@ describe('renderScene', () => {
     // il testo intero deve restare presente (nessuna parola persa), a parte l'eventuale ellissi.
     expect(righe.join(' ').replace('…', '')).toContain('Dotato')
   })
+
+  it('titolo troppo lungo per 2 righe: l\'ellissi arretra al confine di parola (nessun taglio a metà parola)', () => {
+    // Caso reale dal feed (descrizioneBreve concatenata senza spazio): senza il fix l'ultima riga
+    // tagliava dentro una parola ("...verdeIl set s…", "...dondolo co…").
+    const titoloScene = {
+      ...scene,
+      elements: [
+        { type: 'testo' as const, id: 't1', ruolo: 'titolo' as const, testo: 'Babbo Natale con cavallo a dondolo con 40 luci Led effetto innevato in magnesia', x: 60, y: 80 },
+      ],
+    }
+    const svg = renderScene(titoloScene, deps)
+    const righe = [...svg.matchAll(/<tspan[^>]*>([^<]*)<\/tspan>/g)].map((m) => m[1])
+    expect(righe.length).toBeGreaterThanOrEqual(2)
+    const ultima = righe[righe.length - 1]
+    expect(ultima.endsWith('…')).toBe(true)
+    // il carattere subito prima dell'ellissi deve essere l'inizio di una parola intera:
+    // cioè il testo (ellissi esclusa) non deve essere un prefisso proprio di una parola più lunga del titolo.
+    const contenuto = ultima.replace('…', '')
+    const ultimaParola = contenuto.trim().split(' ').pop()!
+    const paroleOriginali = titoloScene.elements[0].testo.split(' ')
+    expect(paroleOriginali.some((p) => p === ultimaParola)).toBe(true) // parola intera, non spezzata
+  })
 })

@@ -38,6 +38,10 @@ function spezzaEtichetta(testo: string, maxWidth: number, fontSize: number, maxR
   while (restante.length > 1 && larghezzaStimata(`${restante}…`, fontSize) > maxWidth) {
     restante = restante.slice(0, -1)
   }
+  // Arretra fino all'ultimo spazio per non tagliare a metà parola (es. "…co" da "compone"),
+  // a meno che non resti un'unica parola più lunga della riga: lì il taglio a carattere è l'unica opzione.
+  const ultimoSpazio = restante.lastIndexOf(' ')
+  if (ultimoSpazio > 0) restante = restante.slice(0, ultimoSpazio)
   tenute.push(`${restante}…`)
   return tenute
 }
