@@ -4,9 +4,10 @@ import { colonnaPositions } from '@/lib/layout/engine'
 export type SceneAction =
   | { type: 'sposta-feature'; id: string; direzione: 'su' | 'giu' }
   | { type: 'rimuovi'; id: string }
-  | { type: 'toggle-profondita' }
+  | { type: 'toggle-elemento'; id: string }
   | { type: 'aggiungi-feature'; chiave: string; etichetta: string }
   | { type: 'modifica-etichetta'; id: string; etichetta: string }
+  | { type: 'modifica-testo'; id: string; testo: string }
   | { type: 'sposta-quota'; id: string; estremo: 'inizio' | 'fine'; x: number; y: number }
   | {
       type: 'imposta-foto'
@@ -76,15 +77,20 @@ export function applyMutation(scene: Scene, action: SceneAction): Scene {
       let k = 0
       return { ...scene, elements: elements.map((el) => (isIcona(el) ? riflowate[k++] : el)) }
     }
-    case 'toggle-profondita': {
-      // Mostra/nascondi SOLO la quota di profondità (diagonale): utile per prodotti sferici/irregolari.
-      // Non la elimina — flippa `nascosta` così ripremendo il tasto riappare identica. Altezza
-      // (verticale) e larghezza (orizzontale) restano SEMPRE visibili.
+    case 'toggle-elemento': {
+      // Mostra/nascondi un elemento per id: non lo elimina — flippa il flag di visibilità
+      // (`nascosta` su quota, `nascosto` su badge/testo) così ripremendo riappare identico
+      // (coordinate/testo preservati). Ogni misura (altezza/larghezza/profondità), titolo,
+      // eyebrow e badge è togglabile allo stesso modo — non solo la profondità come in passato.
+      // Su icona-label/foto non si applica (si usa 'rimuovi'): nessuna modifica, scena invariata.
       return {
         ...scene,
-        elements: scene.elements.map((el) =>
-          el.type === 'quota' && el.orientamento === 'diagonale' ? { ...el, nascosta: !el.nascosta } : el,
-        ),
+        elements: scene.elements.map((el) => {
+          if (el.id !== action.id) return el
+          if (el.type === 'quota') return { ...el, nascosta: !el.nascosta }
+          if (el.type === 'badge' || el.type === 'testo') return { ...el, nascosto: !el.nascosto }
+          return el
+        }),
       }
     }
     case 'aggiungi-feature': {
@@ -104,6 +110,16 @@ export function applyMutation(scene: Scene, action: SceneAction): Scene {
         ...scene,
         elements: scene.elements.map((el) =>
           isIcona(el) && el.id === action.id ? { ...el, etichetta: action.etichetta } : el,
+        ),
+      }
+    }
+    case 'modifica-testo': {
+      // Modifica il testo di un elemento 'testo' (titolo/eyebrow) o 'badge' per id — analogo a
+      // 'modifica-etichetta' per le icone. Le icona-label usano `etichetta`, non `testo`.
+      return {
+        ...scene,
+        elements: scene.elements.map((el) =>
+          (el.type === 'testo' || el.type === 'badge') && el.id === action.id ? { ...el, testo: action.testo } : el,
         ),
       }
     }

@@ -63,6 +63,8 @@ export interface BadgeElement {
   y: number
   /** Sotto-prodotto di appartenenza in una scheda "set" (es. 'g0'). Opzionale, retrocompatibile. */
   gruppo?: string
+  /** Se true il badge è nascosto (stesso pattern di `QuotaElement.nascosta`). Opzionale, retrocompatibile. */
+  nascosto?: boolean
 }
 
 export interface TestoElement {
@@ -72,6 +74,8 @@ export interface TestoElement {
   x: number
   y: number
   ruolo: 'titolo' | 'sottotitolo' | 'corpo'
+  /** Se true l'elemento testo è nascosto (stesso pattern di `QuotaElement.nascosta`). Opzionale, retrocompatibile. */
+  nascosto?: boolean
 }
 
 export type SceneElement =

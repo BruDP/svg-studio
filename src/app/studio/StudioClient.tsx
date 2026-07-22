@@ -7,6 +7,7 @@ import type { Scene } from '@/lib/scene/types'
 import { applyMutation } from '@/lib/scene/mutations'
 import { EditorPreview } from '@/lib/ui/EditorPreview'
 import { FeaturePanel } from './FeaturePanel'
+import { ElementiPanel } from './ElementiPanel'
 import { IconPicker } from './IconPicker'
 import { PhotoPicker } from './PhotoPicker'
 import { Banco, type VoceLista } from './Banco'
@@ -212,21 +213,7 @@ export function StudioClient() {
               pezzoAttivo={gruppi.length > 0 ? `Pezzo ${gruppi.indexOf(gruppoAttivo ?? gruppi[0]) + 1}` : null}
             />
             <FeaturePanel scene={scene} categoriaFeatures={bundle.categoriaFeatures} dispatch={dispatch} onCambiaIcona={setPickerChiave} />
-            {(() => {
-              const diag = scene.elements.find((e) => e.type === 'quota' && e.orientamento === 'diagonale')
-              if (!diag) return null
-              const nascosta = diag.type === 'quota' && diag.nascosta
-              return (
-                <button
-                  type="button"
-                  className="min-h-[40px] self-start rounded border border-zinc-300 px-4 py-2 text-sm text-zinc-700 transition-colors duration-150 hover:border-emerald-600 disabled:opacity-50"
-                  onClick={() => dispatch({ type: 'toggle-profondita' })}
-                  disabled={inCorso}
-                >
-                  {nascosta ? 'Mostra profondità' : 'Rimuovi profondità'}
-                </button>
-              )
-            })()}
+            <ElementiPanel scene={scene} dispatch={dispatch} />
             <div className="flex gap-2">
               <button className="rounded bg-zinc-700 px-4 py-2 text-white disabled:opacity-50" onClick={salva} disabled={inCorso}>Salva</button>
               <button className="rounded bg-emerald-700 px-4 py-2 text-white disabled:opacity-50" onClick={esporta} disabled={inCorso}>Esporta PNG + SVG</button>

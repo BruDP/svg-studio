@@ -43,6 +43,7 @@ const badge = z.object({
   x: z.number(),
   y: z.number(),
   gruppo: z.string().optional(),
+  nascosto: z.boolean().optional(),
 })
 
 const testo = z.object({
@@ -52,6 +53,7 @@ const testo = z.object({
   x: z.number(),
   y: z.number(),
   ruolo: z.enum(['titolo', 'sottotitolo', 'corpo']),
+  nascosto: z.boolean().optional(),
 })
 
 const element = z.discriminatedUnion('type', [iconLabel, foto, quota, badge, testo])

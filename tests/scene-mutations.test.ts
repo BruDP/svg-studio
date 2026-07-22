@@ -79,25 +79,68 @@ describe('applyMutation', () => {
     expect(s.elements.some((e) => e.id === 'ph')).toBe(true)
   })
 
-  it('toggle-profondita nasconde/mostra SOLO la diagonale, senza eliminarla; altezza/larghezza intatte', () => {
-    const s0 = scenaConQuota() // ha una quota verticale (altezza)
+  it('toggle-elemento nasconde/mostra SOLO la quota target per id, senza eliminarla; le altre intatte', () => {
+    const s0 = scenaConQuota() // ha una quota verticale (altezza), id 'q0'
     s0.elements.push({ type: 'quota', id: 'q1', orientamento: 'orizzontale', valore: '51 cm', x1: 480, y1: 560, x2: 880, y2: 560 })
     s0.elements.push({ type: 'quota', id: 'q2', orientamento: 'diagonale', valore: '40 cm', x1: 880, y1: 560, x2: 920, y2: 600 })
-    const diag = (s: typeof s0) => s.elements.find((e) => e.type === 'quota' && e.orientamento === 'diagonale') as { nascosta?: boolean }
+    const trova = (s: typeof s0, id: string) => s.elements.find((e) => e.id === id) as { nascosta?: boolean }
 
-    // 1° toggle: la diagonale diventa nascosta (ma resta nella scena, coordinate preservate)
-    const s1 = applyMutation(s0, { type: 'toggle-profondita' })
+    // 1° toggle: SOLO q2 (diagonale) diventa nascosta (ma resta nella scena, coordinate preservate)
+    const s1 = applyMutation(s0, { type: 'toggle-elemento', id: 'q2' })
     expect(s1.elements.filter((e) => e.type === 'quota')).toHaveLength(3) // nessuna rimozione
-    expect(diag(s1).nascosta).toBe(true)
-    // le altre due quote non toccate
-    const altre = s1.elements.filter((e) => e.type === 'quota' && (e as { orientamento: string }).orientamento !== 'diagonale')
-    expect(altre.every((e) => !(e as { nascosta?: boolean }).nascosta)).toBe(true)
+    expect(trova(s1, 'q2').nascosta).toBe(true)
+    expect(trova(s1, 'q0').nascosta).toBeFalsy()
+    expect(trova(s1, 'q1').nascosta).toBeFalsy()
 
     // 2° toggle: riappare (nascosta=false), identica
-    const s2 = applyMutation(s1, { type: 'toggle-profondita' })
-    expect(diag(s2).nascosta).toBe(false)
+    const s2 = applyMutation(s1, { type: 'toggle-elemento', id: 'q2' })
+    expect(trova(s2, 'q2').nascosta).toBe(false)
     expect(icone(s2)).toHaveLength(2)
     expect(foto(s2)).toBeDefined()
+  })
+
+  it('toggle-elemento funziona anche su ALTEZZA/LARGHEZZA (non solo profondità)', () => {
+    const s0 = scenaConQuota() // 'q0' è verticale = altezza
+    const s1 = applyMutation(s0, { type: 'toggle-elemento', id: 'q0' })
+    expect(quota(s1).nascosta).toBe(true)
+  })
+
+  it('toggle-elemento nasconde/mostra un badge per id, senza toccarne il testo', () => {
+    const s0 = scenaBase()
+    s0.elements.push({ type: 'badge', id: 'bg0', testo: '515 L', x: 480, y: 700 })
+    const s1 = applyMutation(s0, { type: 'toggle-elemento', id: 'bg0' })
+    const badge = (s: typeof s0) => s.elements.find((e) => e.id === 'bg0') as { nascosto?: boolean; testo: string }
+    expect(badge(s1).nascosto).toBe(true)
+    expect(badge(s1).testo).toBe('515 L')
+    const s2 = applyMutation(s1, { type: 'toggle-elemento', id: 'bg0' })
+    expect(badge(s2).nascosto).toBe(false)
+  })
+
+  it('toggle-elemento nasconde/mostra il titolo (elemento testo) per id', () => {
+    const s1 = applyMutation(scenaBase(), { type: 'toggle-elemento', id: 'titolo' })
+    const titolo = (s: Scene) => s.elements.find((e) => e.id === 'titolo') as { nascosto?: boolean }
+    expect(titolo(s1).nascosto).toBe(true)
+  })
+
+  it('toggle-elemento su icona-label/foto non fa nulla (si usa "rimuovi" per quelle)', () => {
+    const s0 = scenaBase()
+    const s1 = applyMutation(s0, { type: 'toggle-elemento', id: 'f0' })
+    expect(s1).toEqual(s0)
+  })
+
+  it('modifica-testo cambia il testo di un elemento testo (titolo), non la posizione', () => {
+    const s = applyMutation(scenaBase(), { type: 'modifica-testo', id: 'titolo', testo: 'Barbecue premium' })
+    const titolo = s.elements.find((e) => e.id === 'titolo') as { testo: string; y: number }
+    expect(titolo.testo).toBe('Barbecue premium')
+    expect(titolo.y).toBe(60)
+  })
+
+  it('modifica-testo cambia il testo di un badge per id', () => {
+    const s0 = scenaBase()
+    s0.elements.push({ type: 'badge', id: 'bg0', testo: '515 L', x: 480, y: 700 })
+    const s1 = applyMutation(s0, { type: 'modifica-testo', id: 'bg0', testo: '474 L effettivi' })
+    const badge = s1.elements.find((e) => e.id === 'bg0') as { testo: string }
+    expect(badge.testo).toBe('474 L effettivi')
   })
 })
 

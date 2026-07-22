@@ -49,6 +49,7 @@ function spezzaEtichetta(testo: string, maxWidth: number, fontSize: number, maxR
 function renderElement(el: SceneElement, deps: { icon: IconResolver; image: ImageResolver }): string {
   switch (el.type) {
     case 'testo': {
+      if (el.nascosto) return ''
       if (el.ruolo === 'sottotitolo') {
         // Eyebrow: marchio in maiuscoletto spaziato, tinta accento — ancora editoriale sopra il titolo.
         const size = theme.testo.eyebrow
@@ -159,6 +160,7 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       return linea + ticks + etichetta
     }
     case 'badge': {
+      if (el.nascosto) return ''
       // Larghezza dal testo reale (ratio Poppins calibrato) + padding, così badge lunghi
       // come "7000 BTU" non vengono tagliati dal box (il testo è centrato in x+w/2).
       const w = Math.ceil(larghezzaStimata(el.testo, theme.testo.badge)) + theme.badge.paddingX * 2

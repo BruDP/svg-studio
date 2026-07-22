@@ -108,6 +108,24 @@ describe('renderScene', () => {
     expect(righe.join(' ').replace('…', '')).toContain('Dotato')
   })
 
+  it('elemento testo nascosto (titolo/eyebrow) non produce alcun <text>', () => {
+    const testoNascosto = {
+      ...scene,
+      elements: [
+        { type: 'testo' as const, id: 't1', ruolo: 'titolo' as const, testo: 'Titolo nascosto', x: 60, y: 80, nascosto: true },
+      ],
+    }
+    expect(renderScene(testoNascosto, deps)).not.toContain('Titolo nascosto')
+  })
+
+  it('badge nascosto non produce alcun <rect>/<text> del badge', () => {
+    const badgeNascosto = {
+      ...scene,
+      elements: [{ type: 'badge' as const, id: 'bg1', testo: '515 L', x: 480, y: 700, nascosto: true }],
+    }
+    expect(renderScene(badgeNascosto, deps)).not.toContain('515 L')
+  })
+
   it('titolo troppo lungo per 2 righe: l\'ellissi arretra al confine di parola (nessun taglio a metà parola)', () => {
     // Caso reale dal feed (descrizioneBreve concatenata senza spazio): senza il fix l'ultima riga
     // tagliava dentro una parola ("...verdeIl set s…", "...dondolo co…").
