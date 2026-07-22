@@ -33,7 +33,7 @@ describe('composeColonnaSinistra', () => {
     expect(per('badge')).toHaveLength(1)
     expect(per('foto')).toHaveLength(1)
     expect(per('quota')).toHaveLength(3) // larghezza+profondita+altezza
-    expect(per('testo')).toHaveLength(0) // nessun titolo (rimosso: chiave categoria non adatta)
+    expect(per('testo')).toHaveLength(0) // senza `nome` in input: nessuna intestazione
   })
 
   it('preserva l\'ordine del ranking nelle icone in colonna', () => {
@@ -46,6 +46,26 @@ describe('composeColonnaSinistra', () => {
     const a = composeColonnaSinistra({ proposal, imageHash: 'abc123', bbox: { width: 200, height: 200 } })
     const b = composeColonnaSinistra({ proposal, imageHash: 'abc123', bbox: { width: 200, height: 200 } })
     expect(JSON.stringify(a)).toBe(JSON.stringify(b))
+  })
+
+  it('con nome+marchio genera l\'intestazione editoriale e sposta più in basso le icone', () => {
+    const scene = composeColonnaSinistra({
+      proposal,
+      imageHash: 'abc123',
+      bbox: { width: 200, height: 200 },
+      nome: 'Barbecue tondo rosso con ruote Ø51xh.84,5 cm, BestBQ',
+      marchio: 'BestBQ',
+    })
+    const testi = scene.elements.filter((e) => e.type === 'testo') as { ruolo?: string; testo: string; y: number }[]
+    const eyebrow = testi.find((t) => t.ruolo === 'sottotitolo')
+    const titolo = testi.find((t) => t.ruolo === 'titolo')
+    expect(eyebrow?.testo).toBe('BestBQ')
+    expect(titolo?.testo).toBe('Barbecue tondo rosso con ruote') // estraiTitolo: niente troncamento su virgola decimale
+
+    const primaIcona = scene.elements.find((e) => e.type === 'icona-label') as { y: number }
+    const senzaHeader = composeColonnaSinistra({ proposal, imageHash: 'abc123', bbox: { width: 200, height: 200 } })
+    const primaIconaSenzaHeader = senzaHeader.elements.find((e) => e.type === 'icona-label') as { y: number }
+    expect(primaIcona.y).toBeGreaterThan(primaIconaSenzaHeader.y) // spazio riservato all'intestazione
   })
 
   it('corrisponde al golden committato', () => {
