@@ -28,9 +28,12 @@ export const theme = {
     divisore: '#E2DDCC', // hairline pannello, neutro caldo (era grigio freddo)
   },
   icona: {
-    raggio: 42,
+    // Ridotto da 42: le icone pesavano visivamente più della foto prodotto nonostante la foto
+    // fosse più grande in assoluto — chip più piccoli lasciano alla foto il ruolo di protagonista
+    // e liberano spazio orizzontale (colonna più stretta → FOTO_BOX più largo).
+    raggio: 30,
     stroke: 3,
-    iconaLato: 42, // lato del glifo 24×24 scalato dentro il chip
+    iconaLato: 30, // lato del glifo 24×24 scalato dentro il chip (stessa proporzione di prima)
   },
   freccia: {
     stroke: 2.5,
@@ -62,15 +65,22 @@ export const theme = {
   margini: {
     canvas: 60,
     colonnaX: 60,
-    colonnaGap: 96, // distanza verticale tra icone in colonna
-    labelGap: 20, // distanza cerchio → etichetta
+    colonnaGap: 76, // distanza verticale tra icone in colonna (ridotta insieme al raggio icona)
+    labelGap: 16, // distanza cerchio → etichetta
     // Larghezza massima (px) di un'etichetta prima di andare a capo: deve coincidere con
-    // lo spazio disponibile nel template colonna-sinistra (FOTO_BOX.x, vedi colonna-sinistra.ts)
+    // lo spazio disponibile nel template colonna-sinistra (FOTO_BOX_X, vedi colonna-sinistra.ts)
     // meno un margine di sicurezza — se in futuro un template diverso posiziona la foto altrove,
-    // ricalcolare. Ridotta da 290 per lasciare più spazio orizzontale alla foto prodotto.
+    // ricalcolare. NON scendere sotto 258: è il minimo verificato contro le etichette reali più
+    // lunghe del dizionario a restare pulite su 2 righe senza ellissi — es. "Struttura in acciaio
+    // al carbonio" (barbecue, SKU 2137070) sta in "Struttura in" / "acciaio al carbonio" a 258px,
+    // ma va in ellissi ("acciaio al…") già a 246px. Verificato riducendo e trovando la regressione
+    // sul rendering reale, non solo sui casi brevi di test.
     labelMaxLarghezza: 258,
     // Larghezza massima del titolo (nome prodotto) prima di andare a capo: colonna sinistra, dal
-    // margine (60) fin quasi all'hairline del pannello, con un po' d'aria.
-    titoloMaxLarghezza: 362,
+    // margine (60) fin quasi all'hairline del pannello, con un po' d'aria. NON scendere sotto 340:
+    // è il minimo verificato contro titoli reali a restare puliti su 2 righe — es. "Frigorifero 4
+    // porte con freezer 515L" (SKU 5926226) va in ellissi ("...con…") già a 326px, pulito
+    // ("Frigorifero 4 porte" / "con freezer 515L") solo da 340px in su.
+    titoloMaxLarghezza: 344,
   },
 } as const

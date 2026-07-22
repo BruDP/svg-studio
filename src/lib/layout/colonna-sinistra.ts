@@ -13,15 +13,17 @@ export const CANVAS = { width: 1000, height: 1000 }
 /**
  * Riquadro destinato alla foto (metà destra del canvas). Il prodotto è ritagliato sul suo
  * bounding box (compose-lib) e riempie il riquadro senza margini bianchi → grande e dominante.
- * `x` resta a destra della colonna icone+etichette (che finisce ~x=422: cerchio a x=60..144 +
- * labelMaxLarghezza 258), con un piccolo margine dall'hairline del pannello (PANEL_WIDTH in
- * svg.ts, 430). `width` è il massimo che lascia comunque spazio, a destra, alla freccia-quota
+ * `x` resta a destra della colonna icone+etichette (che finisce ~x=340: cerchio a x=60..120 +
+ * labelMaxLarghezza 204), con un piccolo margine dall'hairline del pannello (PANEL_WIDTH in
+ * svg.ts, 360). `width` è il massimo che lascia comunque spazio, a destra, alla freccia-quota
  * verticale (altezza) e alla sua etichetta accostata (es. "177,5 cm") senza uscire dal canvas —
- * vedi il test di bounds in layout-colonna-sinistra.test.ts.
+ * vedi il test di bounds in layout-colonna-sinistra.test.ts. Colonna icone ristretta (rispetto
+ * alla versione precedente) apposta per dare alla foto la parte larga del canvas: la foto
+ * prodotto deve restare la protagonista visiva della scheda.
  */
-export const FOTO_BOX_X = 438
+export const FOTO_BOX_X = 420
 export const FOTO_BOX_Y = 60
-export const FOTO_BOX_WIDTH = 427
+export const FOTO_BOX_WIDTH = 445
 
 /**
  * Altezza del riquadro foto: il massimo che lascia comunque spazio, in basso, agli N badge

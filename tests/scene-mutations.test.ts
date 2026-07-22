@@ -34,7 +34,7 @@ describe('applyMutation', () => {
     expect(ic.map((e) => e.chiave)).toEqual(['b', 'a'])
     // le posizioni y restano quelle della colonna (riflow), non seguono l'elemento
     expect(ic[0].y).toBe(160)
-    expect(ic[1].y).toBe(256)
+    expect(ic[1].y).toBe(236) // 160 + colonnaGap (76)
   })
 
   it('sposta-feature su in cima è no-op sull\'ordine', () => {
@@ -55,7 +55,7 @@ describe('applyMutation', () => {
     expect(ic.map((e) => e.chiave)).toEqual(['a', 'b', 'c'])
     const nuova = ic[2]
     expect(nuova.verificata).toBe(false)
-    expect(nuova.y).toBe(352) // 160 + 2*96
+    expect(nuova.y).toBe(312) // 160 + 2*76 (colonnaGap)
     expect(ic.map((e) => e.id).length).toBe(new Set(ic.map((e) => e.id)).size) // id univoci
   })
 

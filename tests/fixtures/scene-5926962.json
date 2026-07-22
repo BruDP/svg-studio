@@ -97,7 +97,7 @@
       "chiave": "manico_telescopico",
       "etichetta": "Manico telescopico",
       "x": 40,
-      "y": 716,
+      "y": 696,
       "verificata": false,
       "maxLarghezzaEtichetta": 190
     },
@@ -107,7 +107,7 @@
       "chiave": "espandibile",
       "etichetta": "Espandibile",
       "x": 340,
-      "y": 716,
+      "y": 696,
       "verificata": false,
       "maxLarghezzaEtichetta": 190
     },
@@ -117,7 +117,7 @@
       "chiave": "interno_foderato",
       "etichetta": "Interno foderato",
       "x": 640,
-      "y": 716,
+      "y": 696,
       "verificata": false,
       "maxLarghezzaEtichetta": 190
     },
@@ -127,7 +127,7 @@
       "chiave": "divisorio_interno",
       "etichetta": "Divisorio interno",
       "x": 40,
-      "y": 812,
+      "y": 772,
       "verificata": false,
       "maxLarghezzaEtichetta": 190
     }
