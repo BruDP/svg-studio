@@ -31,6 +31,35 @@ describe('renderScene', () => {
     expect(svg).toMatch(/<rect[^>]*opacity="0\.10"/) // ombra flat sotto il tile
   })
 
+  it('eyebrow marchio: disegna il LOGO se il resolver immagini lo fornisce (chiave logo:<slug>)', () => {
+    const s = parseScene({
+      version: 1,
+      sku: 'TEST',
+      templateId: 'colonna-sinistra',
+      canvas: { width: 1000, height: 1000 },
+      elements: [{ type: 'testo', id: 'eyebrow', testo: 'Kooper', x: 60, y: 100, ruolo: 'sottotitolo' }],
+    })
+    const conLogo = renderScene(s, {
+      icon: () => null,
+      image: (k) => (k === 'logo:kooper' ? 'data:image/png;base64,AAAA' : null),
+    })
+    expect(conLogo).toContain('href="data:image/png;base64,AAAA"')
+    expect(conLogo).not.toContain('>Kooper</text>') // niente wordmark quando c'è il logo
+  })
+
+  it('eyebrow marchio: ripiego al wordmark (display pulito) se manca il file logo', () => {
+    const s = parseScene({
+      version: 1,
+      sku: 'TEST',
+      templateId: 'colonna-sinistra',
+      canvas: { width: 1000, height: 1000 },
+      elements: [{ type: 'testo', id: 'eyebrow', testo: 'Villa d Este Home Tivoli', x: 60, y: 100, ruolo: 'sottotitolo' }],
+    })
+    const svg = renderScene(s, deps) // deps.image ritorna null per la chiave logo
+    expect(svg).toContain("Villa d'Este</text>") // wordmark con display normalizzato
+    expect(svg).not.toContain('logo:') // nessun riferimento a chiave logo nel markup
+  })
+
   it('inserisce l\'icona risolta e il segnaposto per quella mancante', () => {
     const svg = renderScene(scene, deps)
     expect(svg).toContain('M2 2h20') // icona risolta

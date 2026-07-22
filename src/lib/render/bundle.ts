@@ -3,6 +3,8 @@ import { getApprovedIcon, getIcon } from '@/lib/icons/repository'
 import { readCachedImage } from '@/lib/images/cache'
 import { renderScene } from '@/lib/render/svg'
 import { extToMime } from '@/lib/ui/mime'
+import { chiaveLogo } from '@/lib/branding/marchio'
+import { caricaLogoMarchio } from '@/lib/branding/logo-loader'
 
 export interface RenderBundle {
   iconMap: Record<string, string>
@@ -12,6 +14,8 @@ export interface RenderBundle {
 type BundleDeps = {
   getIcon?: (k: string) => Promise<{ svg: string } | null>
   readImage?: (hash: string) => { bytes: Buffer; ext: string } | null
+  // Logo del marchio come data URI (o null). Override per i test; default = file in assets/loghi.
+  readLogo?: (marchio: string) => string | null
 }
 
 /** Estrae il contenuto interno di un SVG normalizzato (rimuove il wrapper <svg>…</svg>). */
@@ -40,6 +44,8 @@ export async function resolveRenderBundle(scene: Scene, deps: BundleDeps = {}): 
       return null
     })
 
+  const readLogo = deps.readLogo ?? ((marchio: string) => caricaLogoMarchio(marchio))
+
   const iconMap: Record<string, string> = {}
   const imageMap: Record<string, string> = {}
 
@@ -51,6 +57,16 @@ export async function resolveRenderBundle(scene: Scene, deps: BundleDeps = {}): 
     if (el.type === 'foto' && !(el.imageHash in imageMap)) {
       const img = readImage(el.imageHash)
       if (img) imageMap[el.imageHash] = `data:${extToMime(img.ext)};base64,${img.bytes.toString('base64')}`
+    }
+    // Logo del marchio: risolto dall'eyebrow (testo/sottotitolo = marchio) e messo nella imageMap
+    // sotto la chiave `logo:<slug>` — riusa il resolver immagini già propagato a preview ed export,
+    // niente plumbing nuovo lato client. Se il file non c'è, il renderer disegna il wordmark.
+    if (el.type === 'testo' && el.ruolo === 'sottotitolo') {
+      const chiave = chiaveLogo(el.testo)
+      if (!(chiave in imageMap)) {
+        const dataUri = readLogo(el.testo)
+        if (dataUri) imageMap[chiave] = dataUri
+      }
     }
   }
 

@@ -60,11 +60,13 @@ export function composeColonnaSinistra(input: {
   let iconStartY = 160
   if (nome) {
     if (marchio) {
-      elements.push({ type: 'testo', id: 'eyebrow', testo: marchio, x: theme.margini.colonnaX, y: 108, ruolo: 'sottotitolo' })
+      // Eyebrow = marchio: il renderer ci mette il LOGO se il file esiste (box ad altezza
+      // theme.testo.logoAltezza da qui in giù), altrimenti il wordmark del marchio.
+      elements.push({ type: 'testo', id: 'eyebrow', testo: marchio, x: theme.margini.colonnaX, y: 100, ruolo: 'sottotitolo' })
     }
     const titolo = estraiTitolo(nome, marchio)
-    elements.push({ type: 'testo', id: 'titolo', testo: titolo, x: theme.margini.colonnaX, y: 136, ruolo: 'titolo' })
-    iconStartY = 268 // sotto l'intestazione (eyebrow + titolo fino a 2 righe)
+    elements.push({ type: 'testo', id: 'titolo', testo: titolo, x: theme.margini.colonnaX, y: 150, ruolo: 'titolo' })
+    iconStartY = 280 // sotto l'intestazione (logo/eyebrow + titolo fino a 2 righe)
   }
 
   // Icone in colonna, nell'ordine del ranking

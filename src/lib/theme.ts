@@ -58,7 +58,8 @@ export const theme = {
   },
   testo: {
     titolo: 34,
-    eyebrow: 18, // maiuscoletto marchio sopra il titolo
+    eyebrow: 18, // wordmark marchio (ripiego quando manca il file logo)
+    logoAltezza: 40, // altezza del box del logo marchio (ancorato a sinistra, proporzioni preservate)
     etichetta: 26,
     badge: 30,
     // Rapporto larghezza/carattere calibrato empiricamente sul font Poppins reale

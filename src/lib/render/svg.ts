@@ -3,6 +3,7 @@ import { theme } from '@/lib/theme'
 import { mescola } from './colore'
 import { PALETTE_REPARTO } from '@/lib/theme-satur'
 import { FOTO_BOX_X, FOTO_BOX_Y, FOTO_BOX_WIDTH, fotoBoxHeight } from '@/lib/layout/colonna-sinistra'
+import { chiaveLogo, marchioInfo } from '@/lib/branding/marchio'
 
 export type IconResolver = (chiave: string) => string | null
 export type ImageResolver = (imageHash: string) => string | null
@@ -54,9 +55,19 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
     case 'testo': {
       if (el.nascosto) return ''
       if (el.ruolo === 'sottotitolo') {
-        // Eyebrow: marchio in maiuscoletto spaziato, tinta accento — ancora editoriale sopra il titolo.
+        // Eyebrow = marchio prodotto. Se esiste il file logo (bundle → imageMap chiave `logo:<slug>`)
+        // si disegna il LOGO reale, ancorato a sinistra in un box ad altezza fissa (proporzioni
+        // preservate). Altrimenti si disegna il wordmark del marchio (nome pulito, inchiostro,
+        // stondato) come ripiego dignitoso — vedi assets/loghi/README.md.
+        const logoHref = deps.image(chiaveLogo(el.testo))
+        if (logoHref) {
+          const hLogo = theme.testo.logoAltezza
+          const wBox = theme.margini.titoloMaxLarghezza // stesso limite sinistro del titolo
+          return `<image x="${el.x}" y="${el.y}" width="${wBox}" height="${hLogo}" href="${logoHref}" preserveAspectRatio="xMinYMid meet"/>`
+        }
         const size = theme.testo.eyebrow
-        return `<text x="${el.x}" y="${el.y + size}" font-family="${theme.fontFamily}" font-size="${size}" font-weight="600" letter-spacing="2" fill="${accento}">${esc(el.testo.toUpperCase())}</text>`
+        const { display } = marchioInfo(el.testo)
+        return `<text x="${el.x}" y="${el.y + size}" font-family="${theme.fontFamily}" font-size="${size}" font-weight="600" letter-spacing="0.3" fill="${theme.colors.testo}">${esc(display)}</text>`
       }
       if (el.ruolo === 'titolo') {
         // Nome prodotto: SemiBold, inchiostro, a capo su max 2 righe entro la colonna sinistra.
