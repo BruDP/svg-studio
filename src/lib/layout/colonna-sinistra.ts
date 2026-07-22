@@ -12,16 +12,26 @@ export const CANVAS = { width: 1000, height: 1000 }
 /**
  * Riquadro destinato alla foto (metà destra del canvas). Il prodotto è ritagliato sul suo
  * bounding box (compose-lib) e riempie il riquadro senza margini bianchi → grande e dominante.
- * `x` resta a destra della colonna icone+etichette (che finisce ~x=454: cerchio a x=60..144 +
- * labelMaxLarghezza 290). Larghezza contenuta (400) per lasciare a destra spazio alla
- * freccia-quota verticale e alla sua etichetta accostata (es. "84,5 cm"); l'altezza è ampia
- * (il guadagno di dimensione viene soprattutto dal riempimento del ritaglio).
+ * `x` resta a destra della colonna icone+etichette (che finisce ~x=422: cerchio a x=60..144 +
+ * labelMaxLarghezza 258), con un piccolo margine dall'hairline del pannello (PANEL_WIDTH in
+ * svg.ts, 430). `width` è il massimo che lascia comunque spazio, a destra, alla freccia-quota
+ * verticale (altezza) e alla sua etichetta accostata (es. "177,5 cm") senza uscire dal canvas —
+ * vedi il test di bounds in layout-colonna-sinistra.test.ts.
  */
-export const FOTO_BOX = {
-  x: 460,
-  y: 95,
-  width: 400,
-  height: 780,
+export const FOTO_BOX_X = 438
+export const FOTO_BOX_Y = 60
+export const FOTO_BOX_WIDTH = 427
+
+/**
+ * Altezza del riquadro foto: il massimo che lascia comunque spazio, in basso, agli N badge
+ * impilati sotto la foto (ognuno `theme.badge.altezza` + 8px di distacco, più il gap fisso prima
+ * del primo) senza uscire dal canvas — replica la formula di posizionamento badge più sotto in
+ * questa stessa funzione. Con 0 badge il riquadro arriva quasi al bordo inferiore del canvas.
+ */
+export function fotoBoxHeight(nBadge: number, canvasHeight: number): number {
+  const primoBadgeGap = theme.freccia.testa + theme.freccia.labelGap + theme.testo.etichetta + 16
+  const riservaBadge = nBadge === 0 ? 0 : primoBadgeGap + (nBadge - 1) * (theme.badge.altezza + 8) + theme.badge.altezza
+  return canvasHeight - riservaBadge - FOTO_BOX_Y
 }
 
 export function composeColonnaSinistra(input: {
@@ -66,8 +76,16 @@ export function composeColonnaSinistra(input: {
     })
   })
 
-  // Foto scalata dentro il riquadro (aspect ratio dal bbox, o riquadro pieno se assente)
-  const fitted = fitFoto(bbox ?? { width: FOTO_BOX.width, height: FOTO_BOX.height }, FOTO_BOX)
+  // Foto scalata dentro il riquadro (aspect ratio dal bbox, o riquadro pieno se assente).
+  // L'altezza del riquadro dipende dal numero di badge di QUESTA proposta (vedi fotoBoxHeight):
+  // con meno badge il riquadro (e quindi la foto) può essere più grande.
+  const fotoBox = {
+    x: FOTO_BOX_X,
+    y: FOTO_BOX_Y,
+    width: FOTO_BOX_WIDTH,
+    height: fotoBoxHeight(proposal.badges.length, CANVAS.height),
+  }
+  const fitted = fitFoto(bbox ?? { width: fotoBox.width, height: fotoBox.height }, fotoBox)
   elements.push({
     type: 'foto',
     id: 'ph',

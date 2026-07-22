@@ -23,7 +23,7 @@ import { valutaQualita, type Qualita } from '@/lib/quality/valuta'
 import { prospettivaDaQuotaDiagonale } from '@/lib/images/vision-prospettiva'
 import { saveProspettiva } from '@/lib/images/prospettiva-repository'
 import { fitFoto, quoteFromBBox, celleProdotti, type QuotaSpec } from '@/lib/layout/engine'
-import { FOTO_BOX, TEMPLATE_ID } from '@/lib/layout/colonna-sinistra'
+import { FOTO_BOX_X, FOTO_BOX_Y, FOTO_BOX_WIDTH, fotoBoxHeight, CANVAS, TEMPLATE_ID } from '@/lib/layout/colonna-sinistra'
 import { parseDimensions, parseSetDimensions, type Dimensioni } from '@/lib/extraction/dimensions'
 import { db } from '@/lib/db'
 import { searchIconify, fetchIconifySvg, ICONIFY_SETS } from '@/lib/icons/iconify'
@@ -127,7 +127,11 @@ function descriviErrore(e: unknown): string {
 export async function cambiaFotoAction(
   sku: string,
   url: string,
-  opts?: { forzaVision?: boolean; gruppo?: string },
+  // `nBadge`: numero di badge della scena corrente (solo ramo prodotto singolo, senza `gruppo`) —
+  // dev'essere lo stesso usato al compose iniziale, altrimenti il riquadro-foto (fotoBoxHeight)
+  // cambierebbe dimensione tra compose e cambio-foto senza motivo. Passato dal client (StudioClient
+  // ha già la scena in memoria); assente/0 se non fornito.
+  opts?: { forzaVision?: boolean; gruppo?: string; nBadge?: number },
 ): Promise<{
   imageHash: string
   imageDataUri: string
@@ -163,8 +167,13 @@ export async function cambiaFotoAction(
 
   // Con `gruppo`: la scheda è un template "set" — dimensioni e cella-foto vanno ri-derivate dal
   // sotto-prodotto giusto (non dal prodotto-singolo). Senza `gruppo`: comportamento odierno
-  // (colonna-sinistra, FOTO_BOX, parseDimensions).
-  let cella: { x: number; y: number; width: number; height: number } = FOTO_BOX
+  // (colonna-sinistra, fotoBoxHeight, parseDimensions).
+  let cella: { x: number; y: number; width: number; height: number } = {
+    x: FOTO_BOX_X,
+    y: FOTO_BOX_Y,
+    width: FOTO_BOX_WIDTH,
+    height: fotoBoxHeight(opts?.nBadge ?? 0, CANVAS.height),
+  }
   let dim: Dimensioni | null
   if (opts?.gruppo) {
     const sottoProdotti = parseSetDimensions(product.notaTecnica)

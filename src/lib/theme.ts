@@ -58,11 +58,12 @@ export const theme = {
     colonnaGap: 96, // distanza verticale tra icone in colonna
     labelGap: 20, // distanza cerchio → etichetta
     // Larghezza massima (px) di un'etichetta prima di andare a capo: deve coincidere con
-    // lo spazio disponibile nel template colonna-sinistra (FOTO_BOX.x=480) meno un margine
-    // di sicurezza — se in futuro un template diverso posiziona la foto altrove, ricalcolare.
-    labelMaxLarghezza: 290,
+    // lo spazio disponibile nel template colonna-sinistra (FOTO_BOX.x, vedi colonna-sinistra.ts)
+    // meno un margine di sicurezza — se in futuro un template diverso posiziona la foto altrove,
+    // ricalcolare. Ridotta da 290 per lasciare più spazio orizzontale alla foto prodotto.
+    labelMaxLarghezza: 258,
     // Larghezza massima del titolo (nome prodotto) prima di andare a capo: colonna sinistra, dal
-    // margine (60) fin quasi all'hairline del pannello (452), con un po' d'aria.
-    titoloMaxLarghezza: 372,
+    // margine (60) fin quasi all'hairline del pannello, con un po' d'aria.
+    titoloMaxLarghezza: 362,
   },
 } as const

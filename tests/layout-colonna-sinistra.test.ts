@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { existsSync, readFileSync } from 'node:fs'
-import { composeColonnaSinistra, TEMPLATE_ID, CANVAS } from '@/lib/layout/colonna-sinistra'
+import { composeColonnaSinistra, TEMPLATE_ID, CANVAS, fotoBoxHeight } from '@/lib/layout/colonna-sinistra'
 import { parseScene } from '@/lib/scene/schema'
+import { theme } from '@/lib/theme'
 import type { SchedaProposal } from '@/lib/extraction/engine'
 
 const proposal: SchedaProposal = {
@@ -66,6 +67,41 @@ describe('composeColonnaSinistra', () => {
     const senzaHeader = composeColonnaSinistra({ proposal, imageHash: 'abc123', bbox: { width: 200, height: 200 } })
     const primaIconaSenzaHeader = senzaHeader.elements.find((e) => e.type === 'icona-label') as { y: number }
     expect(primaIcona.y).toBeGreaterThan(primaIconaSenzaHeader.y) // spazio riservato all'intestazione
+  })
+
+  it('bounds: la quota altezza e i badge non escono MAI dal canvas, con 0..3 badge', () => {
+    // Lezione della review multi-prodotto (overflow quote ultima cella, 2026-07-15): i golden
+    // byte-identici non validano i limiti del canvas — serve un test di bounds esplicito che
+    // replichi il worst-case reale (etichetta altezza più lunga plausibile, foto che riempie
+    // interamente il riquadro in entrambe le direzioni).
+    const larghezzaStimata = (t: string, fs: number) => t.length * fs * theme.testo.larghezzaCarattereEm
+    for (let nBadge = 0; nBadge <= 3; nBadge++) {
+      const p: SchedaProposal = {
+        ...proposal,
+        badges: Array.from({ length: nBadge }, (_, i) => ({
+          chiave: `b${i}`, etichetta: `Badge ${i}`, valore: '1', verificata: true, priorita: 90, badge: true,
+        })),
+        dimensioni: { larghezza: 90, profondita: null, altezza: 300.5 }, // "300,5 cm": 8 char, worst-case plausibile
+      }
+
+      // Caso 1: bbox width-bound (fitted.width = larghezza piena del riquadro) → stress sul margine destro.
+      const sceneLarga = composeColonnaSinistra({ proposal: p, imageHash: 'h', bbox: { width: 427, height: 1 } })
+      const quotaV = sceneLarga.elements.find((e) => e.type === 'quota' && e.orientamento === 'verticale') as
+        | { x1: number; x2: number; valore: string }
+        | undefined
+      if (quotaV) {
+        const rightEdge = Math.max(quotaV.x1, quotaV.x2) + theme.freccia.labelGap + larghezzaStimata(quotaV.valore, theme.testo.etichetta)
+        expect(rightEdge).toBeLessThanOrEqual(CANVAS.width)
+      }
+
+      // Caso 2: bbox height-bound (fitted.height = altezza piena del riquadro) → stress sul bordo basso (badge).
+      const h = fotoBoxHeight(nBadge, CANVAS.height)
+      const sceneAlta = composeColonnaSinistra({ proposal: p, imageHash: 'h', bbox: { width: 1, height: h } })
+      const badges = sceneAlta.elements.filter((e) => e.type === 'badge') as { y: number }[]
+      for (const b of badges) {
+        expect(b.y + theme.badge.altezza).toBeLessThanOrEqual(CANVAS.height)
+      }
+    }
   })
 
   it('corrisponde al golden committato', () => {

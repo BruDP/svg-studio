@@ -113,12 +113,21 @@ export function StudioClient() {
     })
   }
 
+  // Numero di badge della scena corrente (solo ramo prodotto singolo, senza gruppo): passato a
+  // cambiaFotoAction così il riquadro-foto mantiene le stesse dimensioni usate al compose iniziale
+  // (fotoBoxHeight dipende dal numero di badge, vedi colonna-sinistra.ts).
+  const nBadgeSingoloProdotto = scene?.elements.filter((e) => e.type === 'badge' && !e.gruppo).length ?? 0
+
   function cambiaFoto(url: string) {
     if (!prodotto) return
     setErrore(null); setMsg(null)
     start(async () => {
       try {
-        const r = await cambiaFotoAction(prodotto.sku, url, gruppoAttivo ? { gruppo: gruppoAttivo } : undefined)
+        const r = await cambiaFotoAction(
+          prodotto.sku,
+          url,
+          gruppoAttivo ? { gruppo: gruppoAttivo } : { nBadge: nBadgeSingoloProdotto },
+        )
         dispatch({ type: 'imposta-foto', imageHash: r.imageHash, foto: r.foto, quote: r.quote, ...(r.gruppo ? { gruppo: r.gruppo } : {}) })
         setBundle((b) => (b ? { ...b, imageMap: { ...b.imageMap, [r.imageHash]: r.imageDataUri } } : b))
         setFotoUrlCorrente(url)
@@ -134,7 +143,10 @@ export function StudioClient() {
     setErrore(null); setMsg(null)
     start(async () => {
       try {
-        const r = await cambiaFotoAction(prodotto.sku, fotoUrlCorrente, { forzaVision: true, ...(gruppoAttivo ? { gruppo: gruppoAttivo } : {}) })
+        const r = await cambiaFotoAction(prodotto.sku, fotoUrlCorrente, {
+          forzaVision: true,
+          ...(gruppoAttivo ? { gruppo: gruppoAttivo } : { nBadge: nBadgeSingoloProdotto }),
+        })
         dispatch({ type: 'imposta-foto', imageHash: r.imageHash, foto: r.foto, quote: r.quote, ...(r.gruppo ? { gruppo: r.gruppo } : {}) })
         setBundle((b) => (b ? { ...b, imageMap: { ...b.imageMap, [r.imageHash]: r.imageDataUri } } : b))
         setMsg(r.ritagliata ? 'Ritaglio ricalcolato con Vision.' : "Vision non ha rilevato un prodotto: uso l'immagine intera.")

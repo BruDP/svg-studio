@@ -179,7 +179,8 @@ export function renderScene(scene: Scene, deps: { icon: IconResolver; image: Ima
   // caratteristiche) con hairline di separazione dall'area foto. Solo per il template a colonna
   // singola (le celle multi-prodotto occupano tutta la larghezza; lì niente pannello).
   const conPannello = scene.templateId === 'colonna-sinistra'
-  const panelW = 452
+  // Deve restare appena a sinistra di FOTO_BOX_X (colonna-sinistra.ts, 438): 430 lascia 8px di gap.
+  const panelW = 430
   const sfondo =
     `<rect width="${w}" height="${h}" fill="${theme.colors.sfondo}"/>` +
     (conPannello
