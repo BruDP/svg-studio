@@ -64,6 +64,7 @@ const scene = z.object({
   templateId: z.string(),
   canvas: z.object({ width: z.number(), height: z.number() }),
   elements: z.array(element),
+  accento: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
 })
 
 // Guardia a compile-time: se lo schema zod diverge dal tipo Scene, qui fallisce la compilazione.

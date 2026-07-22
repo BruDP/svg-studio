@@ -3,6 +3,7 @@ import type { Scene, SceneElement } from '@/lib/scene/types'
 import { SCENE_VERSION } from '@/lib/scene/types'
 import { theme } from '@/lib/theme'
 import { celleProdotti, fitFoto, grigliaPositions } from './engine'
+import { accentoPerCategoria } from '@/lib/theme-satur'
 
 export const TEMPLATE_ID = 'multi-prodotto'
 export const CANVAS = { width: 1000, height: 1000 }
@@ -81,5 +82,6 @@ export function composeMultiProdotto(input: {
     templateId: TEMPLATE_ID,
     canvas: CANVAS,
     elements,
+    accento: accentoPerCategoria(proposal.categoria),
   }
 }

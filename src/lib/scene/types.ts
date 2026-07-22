@@ -91,6 +91,13 @@ export interface Scene {
   templateId: string
   canvas: SceneCanvas
   elements: SceneElement[]
+  /**
+   * Colore-accento "di famiglia" della scheda (icone, quote, eyebrow, badge), hex `#RRGGBB`.
+   * Risolto dalla categoria del prodotto al compose (vedi `theme-satur.ts`). Opzionale/retrocompatibile:
+   * le scene salvate prima di questo campo (o senza categoria riconosciuta) usano l'accento di
+   * default del tema (teal) — vedi `theme.colors.accento` nel renderer.
+   */
+  accento?: string
 }
 
 export const SCENE_VERSION = 1

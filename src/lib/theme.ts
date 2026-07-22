@@ -1,26 +1,31 @@
-/** Token di stile centralizzati della scheda. Nessun valore di stile va hard-coded altrove. */
-// Accento cromatico della scheda (icone, frecce-quota, badge). Testo/etichette restano neutri.
-const ACCENTO = '#1F6F78'
-const ACCENTO_SCURO = '#124A50'
+/**
+ * Token di stile centralizzati della scheda. Nessun valore di stile va hard-coded altrove.
+ *
+ * Palette allineata al Brand Book Satur 2025 (campionata a livello di pixel dagli swatch del PDF,
+ * non stimata a occhio): inchiostro = Pantone 7546C, accento di default = Pantone 320C (lo stesso
+ * teal già in uso, ora sull'esatto valore di brand), sfondo = crema caldo (non bianco/grigio freddo
+ * come nella versione precedente). Vedi `theme-satur.ts` per la palette "famiglia" per reparto
+ * (garden/kooper/ecc.) e la relativa attribuzione categoria→colore.
+ */
+const ACCENTO = '#127981' // Pantone 320 C
+const ACCENTO_SCURO = '#0C5860' // ACCENTO scurito, non da Pantone (nessun tono più scuro nel brand book)
 
 export const theme = {
   fontFamily: 'Poppins',
   colors: {
-    testo: '#242A2A', // inchiostro più profondo (contrasto premium)
+    testo: '#2F4153', // inchiostro Satur (Pantone 7546 C)
     testoMuto: '#7A8585', // etichette secondarie / eyebrow
-    cerchioStroke: ACCENTO, // (retro-compat; le icone ora usano chip pieno)
-    freccia: ACCENTO,
-    badgeBg: ACCENTO,
     badgeTesto: '#FFFFFF',
-    sfondo: '#FCFDFD', // off-white, non bianco puro
-    sfondoAlt: '#F5F9F9', // fascia/pannello tinta tenue
-    fotoPlaceholder: '#EEEEEE',
+    sfondo: '#FBFAF2', // crema caldo Satur (non bianco/grigio freddo)
+    sfondoAlt: '#F1EEE3', // pannello: tinta crema più profonda, neutra (non tinta d'accento)
+    fotoPlaceholder: '#EDEAE0', // grigio caldo, coerente col crema (era grigio freddo)
+    // Accento di DEFAULT/fallback (scene senza categoria riconosciuta o senza `accento` salvato).
+    // Le schede con categoria nota usano invece `scene.accento` (vedi theme-satur.ts): chip icona,
+    // quote, eyebrow e badge sono tinti dinamicamente sull'accento risolto, non su un colore fisso
+    // — vedi `mescola()` in render/colore.ts per i toni derivati (chip bg/ring, confetti).
     accento: ACCENTO,
     accentoScuro: ACCENTO_SCURO,
-    iconaBg: '#E7F1F1', // disco-chip dietro il glifo (accento al ~10%)
-    iconaRing: '#D4E6E6', // anello sottile del chip
-    iconaGlifo: ACCENTO,
-    divisore: '#E3EAEA',
+    divisore: '#E2DDCC', // hairline pannello, neutro caldo (era grigio freddo)
   },
   icona: {
     raggio: 42,
@@ -39,8 +44,10 @@ export const theme = {
   },
   badge: {
     altezza: 52,
-    raggio: 10, // rx dell'angolo arrotondato
+    raggio: 10, // rx dell'angolo arrotondato (retro-compat; il badge ora usa un path, non un rect)
     paddingX: 20, // spazio orizzontale per lato tra testo e bordo del box
+    // Profondità della punta a sinistra del "cartellino prezzo" (vedi renderElement case 'badge').
+    notch: 14,
   },
   testo: {
     titolo: 34,

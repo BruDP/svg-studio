@@ -1,5 +1,6 @@
 import type { Scene, SceneElement } from '@/lib/scene/types'
 import { theme } from '@/lib/theme'
+import { mescola } from './colore'
 
 export type IconResolver = (chiave: string) => string | null
 export type ImageResolver = (imageHash: string) => string | null
@@ -46,14 +47,14 @@ function spezzaEtichetta(testo: string, maxWidth: number, fontSize: number, maxR
   return tenute
 }
 
-function renderElement(el: SceneElement, deps: { icon: IconResolver; image: ImageResolver }): string {
+function renderElement(el: SceneElement, deps: { icon: IconResolver; image: ImageResolver }, accento: string): string {
   switch (el.type) {
     case 'testo': {
       if (el.nascosto) return ''
       if (el.ruolo === 'sottotitolo') {
         // Eyebrow: marchio in maiuscoletto spaziato, tinta accento — ancora editoriale sopra il titolo.
         const size = theme.testo.eyebrow
-        return `<text x="${el.x}" y="${el.y + size}" font-family="${theme.fontFamily}" font-size="${size}" font-weight="600" letter-spacing="2" fill="${theme.colors.accento}">${esc(el.testo.toUpperCase())}</text>`
+        return `<text x="${el.x}" y="${el.y + size}" font-family="${theme.fontFamily}" font-size="${size}" font-weight="600" letter-spacing="2" fill="${accento}">${esc(el.testo.toUpperCase())}</text>`
       }
       if (el.ruolo === 'titolo') {
         // Nome prodotto: SemiBold, inchiostro, a capo su max 2 righe entro la colonna sinistra.
@@ -74,16 +75,20 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       const cy = el.y + r
       const inner = deps.icon(el.chiave)
       // Chip: disco a tinta tenue + anello sottile (look "premium" invece del cerchio a filo).
+      // Tinte derivate dall'accento "di famiglia" della scheda (categoria), non fisse: ogni
+      // reparto ha il suo chip in tono, stessa struttura per tutte le schede.
+      const chipBg = mescola(accento, theme.colors.sfondo, 0.1)
+      const chipRing = mescola(accento, theme.colors.sfondo, 0.22)
       const chip =
-        `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${theme.colors.iconaBg}"/>` +
-        `<circle cx="${cx}" cy="${cy}" r="${r - 0.75}" fill="none" stroke="${theme.colors.iconaRing}" stroke-width="1.5"/>`
+        `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${chipBg}"/>` +
+        `<circle cx="${cx}" cy="${cy}" r="${r - 0.75}" fill="none" stroke="${chipRing}" stroke-width="1.5"/>`
       // glifo 24×24 scalato e centrato nel chip, tratti arrotondati
       const lato = theme.icona.iconaLato
       const scala = lato / 24
       const gx = cx - lato / 2
       const gy = cy - lato / 2
       const glifo = inner
-        ? `<g transform="translate(${gx} ${gy}) scale(${scala})" fill="none" stroke="${theme.colors.iconaGlifo}" stroke-width="${theme.icona.stroke / scala}" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`
+        ? `<g transform="translate(${gx} ${gy}) scale(${scala})" fill="none" stroke="${accento}" stroke-width="${theme.icona.stroke / scala}" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`
         : ''
       const cerchio = chip // (nome storico usato sotto)
       const labelX = el.x + r * 2 + theme.margini.labelGap
@@ -117,7 +122,7 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       // perpendicolari agli estremi (stile disegno tecnico) ed etichetta accostata alla
       // linea (non sopra), così l'estensione comunica esattamente la misura del prodotto.
       const { x1, y1, x2, y2 } = el
-      const col = theme.colors.freccia
+      const col = accento
       const sw = theme.freccia.stroke
       const t = theme.freccia.tick
       const fs = theme.testo.etichetta
@@ -156,7 +161,7 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
         anchor = 'middle'
         ruota = ` transform="rotate(${angolo} ${lx} ${ly})"`
       }
-      const etichetta = `<text x="${lx}" y="${ly}" text-anchor="${anchor}"${ruota} font-family="${theme.fontFamily}" font-size="${fs}" font-weight="500" fill="${theme.colors.accento}">${esc(el.valore)}</text>`
+      const etichetta = `<text x="${lx}" y="${ly}" text-anchor="${anchor}"${ruota} font-family="${theme.fontFamily}" font-size="${fs}" font-weight="500" fill="${accento}">${esc(el.valore)}</text>`
       return linea + ticks + etichetta
     }
     case 'badge': {
@@ -165,15 +170,40 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       // come "7000 BTU" non vengono tagliati dal box (il testo è centrato in x+w/2).
       const w = Math.ceil(larghezzaStimata(el.testo, theme.testo.badge)) + theme.badge.paddingX * 2
       const h = theme.badge.altezza
-      const rect = `<rect x="${el.x}" y="${el.y}" width="${w}" height="${h}" rx="${theme.badge.raggio}" fill="${theme.colors.badgeBg}"/>`
-      const t = `<text x="${el.x + w / 2}" y="${el.y + h / 2 + theme.testo.badge / 3}" text-anchor="middle" font-family="${theme.fontFamily}" font-size="${theme.testo.badge}" font-weight="600" fill="${theme.colors.badgeTesto}">${esc(el.testo)}</text>`
-      return rect + t
+      // Forma a "cartellino prezzo" (nastro con punta a sinistra), non un rettangolo arrotondato:
+      // riprende il motivo dei price-tag reali Satur (Brand Book, sezione "Le applicazioni").
+      const notch = theme.badge.notch
+      const { x, y } = el
+      const percorso =
+        `M ${x + notch} ${y} L ${x + w} ${y} L ${x + w} ${y + h} L ${x + notch} ${y + h} L ${x} ${y + h / 2} Z`
+      const forma = `<path d="${percorso}" fill="${accento}"/>`
+      const t = `<text x="${x + notch + (w - notch) / 2}" y="${y + h / 2 + theme.testo.badge / 3}" text-anchor="middle" font-family="${theme.fontFamily}" font-size="${theme.testo.badge}" font-weight="600" fill="${theme.colors.badgeTesto}">${esc(el.testo)}</text>`
+      return forma + t
     }
   }
 }
 
+/**
+ * Motivo "confetti": un piccolo gruppo di triangoli in angolo, richiamo diretto al logo Satur
+ * (cuore sfaccettato) e al pattern del Brand Book — firma discreta del marchio, non decorazione
+ * invadente: sta nel margine in alto a destra del canvas, sopra il riquadro foto (mai sopra
+ * icone/quote/testo), identica per geometria in entrambi i template, colorata sull'accento
+ * "di famiglia" della scheda + inchiostro, così resta in tono qualunque sia la categoria.
+ */
+function confetti(accento: string): string {
+  const chiaro = mescola(accento, theme.colors.sfondo, 0.45)
+  const t1 = `<polygon points="960,4 996,4 978,30" fill="${accento}"/>`
+  const t2 = `<polygon points="895,10 918,22 895,34" fill="${theme.colors.testo}"/>`
+  const t3 = `<polygon points="925,36 948,36 936,14" fill="${chiaro}"/>`
+  return t1 + t2 + t3
+}
+
 export function renderScene(scene: Scene, deps: { icon: IconResolver; image: ImageResolver }): string {
-  const body = scene.elements.map((el) => renderElement(el, deps)).join('\n  ')
+  // Accento "di famiglia": quello risolto al compose per la categoria del prodotto (scene.accento),
+  // con fallback sul teal di default per scene salvate prima di questo campo. Un solo valore per
+  // l'intera scheda: tutti gli elementi tinti (chip, quote, eyebrow, badge) restano in armonia.
+  const accento = scene.accento ?? theme.colors.accento
+  const body = scene.elements.map((el) => renderElement(el, deps, accento)).join('\n  ')
   const { width: w, height: h } = scene.canvas
   // Sfondo "spec sheet": off-white + pannello sinistro a tinta tenue (raggruppa la colonna
   // caratteristiche) con hairline di separazione dall'area foto. Solo per il template a colonna
@@ -186,7 +216,8 @@ export function renderScene(scene: Scene, deps: { icon: IconResolver; image: Ima
     (conPannello
       ? `<rect x="0" y="0" width="${panelW}" height="${h}" fill="${theme.colors.sfondoAlt}"/>` +
         `<line x1="${panelW}" y1="0" x2="${panelW}" y2="${h}" stroke="${theme.colors.divisore}" stroke-width="1.5"/>`
-      : '')
+      : '') +
+    confetti(accento)
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`,
     `  ${sfondo}`,

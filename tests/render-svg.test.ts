@@ -33,7 +33,7 @@ describe('renderScene', () => {
 
   it('usa i token di theme (colore testo) e nessun colore hard-coded diverso', () => {
     const svg = renderScene(scene, deps)
-    expect(svg).toContain('#242A2A') // theme.colors.testo (inchiostro)
+    expect(svg).toContain('#2F4153') // theme.colors.testo (inchiostro Satur, Pantone 7546 C)
   })
 
   it('è deterministico: due render sono byte-identici', () => {
@@ -55,12 +55,14 @@ describe('renderScene', () => {
       elements: [{ type: 'badge', id: 'b1', testo: '7000 BTU', x: 100, y: 100 }],
     })
     const svg = renderScene(badgeScene, deps)
-    // rect del badge identificato dall'altezza (theme.badge.altezza = 52)
-    const m = svg.match(/<rect[^>]*width="(\d+)" height="52"/)
+    // Badge ora è un <path> a forma di "cartellino" (punta a sinistra), non un <rect>: la
+    // larghezza totale è la distanza tra la punta (ultimo punto, x) e il bordo destro (secondo punto, x+w).
+    const m = svg.match(/<path d="M [\d.]+ [\d.]+ L ([\d.]+) [\d.]+ L [\d.]+ [\d.]+ L [\d.]+ [\d.]+ L ([\d.]+) [\d.]+ Z"/)
     expect(m).not.toBeNull()
-    const w = Number(m![1])
+    const w = Number(m![1]) - Number(m![2])
     // larghezza testo stimata "7000 BTU" (8 char) a font badge 30 con ratio 0.52 ≈ 125px:
-    // il box deve contenerla (il testo è centrato in x+w/2). La vecchia formula (8*8+40=104) tagliava.
+    // il box deve contenerla (il testo è centrato nella parte rettangolare). La vecchia formula
+    // (8*8+40=104) tagliava.
     expect(w).toBeGreaterThanOrEqual(125)
   })
 

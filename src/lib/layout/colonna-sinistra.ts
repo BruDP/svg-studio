@@ -5,6 +5,7 @@ import { SCENE_VERSION } from '@/lib/scene/types'
 import { theme } from '@/lib/theme'
 import { colonnaPositions, fitFoto, quoteFromBBox } from './engine'
 import { estraiTitolo } from './titolo'
+import { accentoPerCategoria } from '@/lib/theme-satur'
 
 export const TEMPLATE_ID = 'colonna-sinistra'
 export const CANVAS = { width: 1000, height: 1000 }
@@ -124,5 +125,6 @@ export function composeColonnaSinistra(input: {
     templateId: TEMPLATE_ID,
     canvas: CANVAS,
     elements,
+    accento: accentoPerCategoria(proposal.categoria),
   }
 }
