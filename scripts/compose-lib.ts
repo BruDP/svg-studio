@@ -88,6 +88,13 @@ export async function composeSceneForProduct(input: {
       ? await resolveProspettiva(bytes, hash, { askProspettiva: input.deps?.askProspettiva, mime })
       : null
 
-  const scene = composeColonnaSinistra({ proposal, imageHash, bbox, prospettiva })
+  const scene = composeColonnaSinistra({
+    proposal,
+    imageHash,
+    bbox,
+    prospettiva,
+    nome: product.descrizioneBreve,
+    marchio: product.marchio,
+  })
   return { scene, imageHash }
 }

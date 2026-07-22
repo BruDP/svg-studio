@@ -31,15 +31,28 @@ export function composeColonnaSinistra(input: {
   // monte in compose-lib.ts. Se assente/null la quota di profondità usa l'inclinazione di
   // default (nessuna prospettiva rilevata o foto frontale).
   prospettiva?: Prospettiva | null
+  // Nome prodotto (descrizioneBreve) e marchio per l'intestazione editoriale in alto a sinistra.
+  // Opzionali/retrocompatibili: senza nome, niente titolo e le icone partono più in alto.
+  nome?: string
+  marchio?: string
 }): Scene {
-  const { proposal, imageHash, bbox, prospettiva } = input
+  const { proposal, imageHash, bbox, prospettiva, nome, marchio } = input
   const elements: SceneElement[] = []
 
-  // Nessun titolo: le schede di riferimento non hanno intestazione (la chiave categoria
-  // grezza non è adatta come titolo). Le icone partono dall'alto della colonna.
+  // Intestazione: eyebrow (marchio, maiuscoletto) + titolo (nome prodotto, prima parte prima della
+  // virgola per togliere misure/varianti dalla riga-titolo). Ancora editoriale nella colonna sx.
+  let iconStartY = 160
+  if (nome) {
+    if (marchio) {
+      elements.push({ type: 'testo', id: 'eyebrow', testo: marchio, x: theme.margini.colonnaX, y: 52, ruolo: 'sottotitolo' })
+    }
+    const titolo = nome.split(',')[0].trim()
+    elements.push({ type: 'testo', id: 'titolo', testo: titolo, x: theme.margini.colonnaX, y: 80, ruolo: 'titolo' })
+    iconStartY = 232 // sotto l'intestazione (eyebrow + titolo fino a 2 righe)
+  }
 
   // Icone in colonna, nell'ordine del ranking
-  const posizioni = colonnaPositions(proposal.features.length, 160)
+  const posizioni = colonnaPositions(proposal.features.length, iconStartY)
   proposal.features.forEach((f, i) => {
     elements.push({
       type: 'icona-label',

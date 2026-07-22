@@ -33,7 +33,7 @@ describe('renderScene', () => {
 
   it('usa i token di theme (colore testo) e nessun colore hard-coded diverso', () => {
     const svg = renderScene(scene, deps)
-    expect(svg).toContain('#4A4A4A')
+    expect(svg).toContain('#242A2A') // theme.colors.testo (inchiostro)
   })
 
   it('è deterministico: due render sono byte-identici', () => {
@@ -74,7 +74,9 @@ describe('renderScene', () => {
     const quotaScene = parseScene({
       version: 1,
       sku: 'TEST',
-      templateId: 'colonna-sinistra',
+      // templateId senza pannello (il pannello colonna-sinistra aggiungerebbe l'hairline <line>):
+      // così contiamo solo le linee della quota.
+      templateId: 'multi-prodotto',
       canvas: { width: 1000, height: 1000 },
       elements: [
         { type: 'quota', id: 'q1', orientamento: 'verticale', valore: '10 cm', x1: 100, y1: 100, x2: 100, y2: 200 },
