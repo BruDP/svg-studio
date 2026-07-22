@@ -4,6 +4,7 @@ import type { Scene, SceneElement } from '@/lib/scene/types'
 import { SCENE_VERSION } from '@/lib/scene/types'
 import { theme } from '@/lib/theme'
 import { colonnaPositions, fitFoto, quoteFromBBox } from './engine'
+import { estraiTitolo } from './titolo'
 
 export const TEMPLATE_ID = 'colonna-sinistra'
 export const CANVAS = { width: 1000, height: 1000 }
@@ -46,7 +47,7 @@ export function composeColonnaSinistra(input: {
     if (marchio) {
       elements.push({ type: 'testo', id: 'eyebrow', testo: marchio, x: theme.margini.colonnaX, y: 52, ruolo: 'sottotitolo' })
     }
-    const titolo = nome.split(',')[0].trim()
+    const titolo = estraiTitolo(nome, marchio)
     elements.push({ type: 'testo', id: 'titolo', testo: titolo, x: theme.margini.colonnaX, y: 80, ruolo: 'titolo' })
     iconStartY = 232 // sotto l'intestazione (eyebrow + titolo fino a 2 righe)
   }
