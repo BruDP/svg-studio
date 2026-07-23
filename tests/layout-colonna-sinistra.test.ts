@@ -103,7 +103,7 @@ describe('composeColonnaSinistra', () => {
         | { x1: number; x2: number; valore: string }
         | undefined
       if (quotaV) {
-        const rightEdge = Math.max(quotaV.x1, quotaV.x2) + theme.freccia.labelGap + larghezzaStimata(quotaV.valore, theme.testo.etichetta)
+        const rightEdge = Math.max(quotaV.x1, quotaV.x2) + theme.freccia.labelGap + larghezzaStimata(quotaV.valore, theme.testo.quota)
         expect(rightEdge).toBeLessThanOrEqual(CANVAS.width)
       }
 

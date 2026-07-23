@@ -26,6 +26,10 @@ export const theme = {
     accento: ACCENTO,
     accentoScuro: ACCENTO_SCURO,
     divisore: '#E2DDCC', // hairline pannello, neutro caldo (era grigio freddo)
+    // Colore delle rette-quota e delle relative etichette: grigio neutro "da disegno tecnico",
+    // NON l'accento di reparto (su Kooper l'accento è bordeaux e le rette risultavano rosse,
+    // sgradite). Discreto e uguale per ogni categoria.
+    quota: '#8A9091',
   },
   icona: {
     // Ridotto da 42: le icone pesavano visivamente più della foto prodotto nonostante la foto
@@ -61,6 +65,7 @@ export const theme = {
     eyebrow: 18, // wordmark marchio (ripiego quando manca il file logo)
     logoAltezza: 40, // altezza del box del logo marchio (ancorato a sinistra, proporzioni preservate)
     etichetta: 26,
+    quota: 20, // numeri delle misure: più piccoli dell'etichetta (misure = info di supporto)
     badge: 30,
     // Rapporto larghezza/carattere calibrato empiricamente sul font Poppins reale
     // (via resvg + FONT_FILES, media su etichette rappresentative del dizionario: ~0.51 em/carattere).

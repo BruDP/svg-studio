@@ -139,14 +139,15 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
     case 'quota': {
       // Quota nascosta (toggle profondità): resta nella scena ma non si disegna.
       if (el.nascosta) return ''
-      // Linea di quota "premium": stessa cromia accento delle icone, con trattini
-      // perpendicolari agli estremi (stile disegno tecnico) ed etichetta accostata alla
-      // linea (non sopra), così l'estensione comunica esattamente la misura del prodotto.
+      // Linea di quota "da disegno tecnico": grigio neutro (theme.colors.quota, NON l'accento di
+      // reparto — su Kooper le rette risultavano rosse/bordeaux, sgradite), con trattini
+      // perpendicolari agli estremi ed etichetta (numero) accostata alla linea, in corpo piccolo
+      // (le misure sono info di supporto, non devono competere con titolo/feature).
       const { x1, y1, x2, y2 } = el
-      const col = accento
+      const col = theme.colors.quota
       const sw = theme.freccia.stroke
       const t = theme.freccia.tick
-      const fs = theme.testo.etichetta
+      const fs = theme.testo.quota
       const gap = theme.freccia.labelGap
       const len = Math.hypot(x2 - x1, y2 - y1) || 1
       const px = (-(y2 - y1) / len) * t // perpendicolare unitaria × t
@@ -182,7 +183,7 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
         anchor = 'middle'
         ruota = ` transform="rotate(${angolo} ${lx} ${ly})"`
       }
-      const etichetta = `<text x="${lx}" y="${ly}" text-anchor="${anchor}"${ruota} font-family="${theme.fontFamily}" font-size="${fs}" font-weight="500" fill="${accento}">${esc(el.valore)}</text>`
+      const etichetta = `<text x="${lx}" y="${ly}" text-anchor="${anchor}"${ruota} font-family="${theme.fontFamily}" font-size="${fs}" font-weight="500" fill="${col}">${esc(el.valore)}</text>`
       return linea + ticks + etichetta
     }
     case 'badge': {
