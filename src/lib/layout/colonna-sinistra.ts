@@ -69,8 +69,17 @@ export function composeColonnaSinistra(input: {
     iconStartY = 280 // sotto l'intestazione (logo/eyebrow + titolo fino a 2 righe)
   }
 
-  // Icone in colonna, nell'ordine del ranking
-  const posizioni = colonnaPositions(proposal.features.length, iconStartY)
+  // Icone in colonna, nell'ordine del ranking. Il blocco viene CENTRATO verticalmente nello spazio
+  // del pannello sotto l'intestazione [iconStartY .. bordo-basso]: così le schede con poche feature
+  // (es. barbecue con 2 icone, testo feed scarno) non restano sbilanciate in alto con un grande
+  // vuoto sotto — lo spazio bianco resta simmetrico e intenzionale. Con molte feature il blocco è
+  // già quasi pieno, quindi lo start resta ≈ iconStartY (offset ~0).
+  const nFeature = proposal.features.length
+  const gap = theme.margini.colonnaGap
+  const zonaBasso = CANVAS.height - theme.margini.canvas
+  const altezzaBlocco = nFeature > 0 ? (nFeature - 1) * gap + theme.icona.raggio * 2 : 0
+  const offsetCentratura = Math.max(0, (zonaBasso - iconStartY - altezzaBlocco) / 2)
+  const posizioni = colonnaPositions(nFeature, iconStartY + offsetCentratura)
   proposal.features.forEach((f, i) => {
     elements.push({
       type: 'icona-label',

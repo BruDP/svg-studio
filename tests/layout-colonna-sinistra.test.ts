@@ -43,6 +43,19 @@ describe('composeColonnaSinistra', () => {
     expect(labels).toEqual(['materiale_acciaio', 'montaggio_facile'])
   })
 
+  it('centra verticalmente la colonna di poche feature (blocco non incollato in alto)', () => {
+    // proposal ha 2 feature: con la centratura il blocco sta nella metà bassa del pannello,
+    // NON attaccato a iconStartY in alto → spazio bianco simmetrico. La prima icona deve stare
+    // ben sotto l'inizio-zona (che senza header è 160): prova che l'offset di centratura è attivo.
+    const scene = composeColonnaSinistra({ proposal, imageHash: 'abc123', bbox: { width: 200, height: 200 } })
+    const icone = scene.elements.filter((e) => e.type === 'icona-label') as { y: number }[]
+    expect(icone).toHaveLength(2)
+    expect(icone[0].y).toBeGreaterThan(300) // centrato, non a ridosso di iconStartY=160
+    // il baricentro del blocco è vicino al centro del pannello (≈ (160+940)/2 = 550)
+    const centroBlocco = (icone[0].y + icone[1].y) / 2 + 30 // +raggio per il centro del chip
+    expect(Math.abs(centroBlocco - 550)).toBeLessThan(60)
+  })
+
   it('è deterministico: due chiamate producono scene identiche', () => {
     const a = composeColonnaSinistra({ proposal, imageHash: 'abc123', bbox: { width: 200, height: 200 } })
     const b = composeColonnaSinistra({ proposal, imageHash: 'abc123', bbox: { width: 200, height: 200 } })

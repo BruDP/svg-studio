@@ -13,7 +13,7 @@
       "chiave": "materiale_acciaio",
       "etichetta": "Acciaio",
       "x": 60,
-      "y": 160,
+      "y": 482,
       "verificata": true
     },
     {
@@ -22,7 +22,7 @@
       "chiave": "montaggio_facile",
       "etichetta": "Montaggio facile",
       "x": 60,
-      "y": 236,
+      "y": 558,
       "verificata": false
     },
     {

@@ -1,8 +1,6 @@
 import type { Scene, SceneElement } from '@/lib/scene/types'
 import { theme } from '@/lib/theme'
 import { mescola } from './colore'
-import { PALETTE_REPARTO } from '@/lib/theme-satur'
-import { FOTO_BOX_X, FOTO_BOX_Y, FOTO_BOX_WIDTH, fotoBoxHeight } from '@/lib/layout/colonna-sinistra'
 import { chiaveLogo, marchioInfo } from '@/lib/branding/marchio'
 
 export type IconResolver = (chiave: string) => string | null
@@ -266,45 +264,6 @@ function logoSatur(): string {
   return cuore + wm + payoff
 }
 
-/**
- * Ciuffo di fogliame: 4 cerchi sovrapposti in due verdi, offset fissi (non casuali — il render
- * resta deterministico). Blocco base del motivo giardino sotto.
- */
-function ciuffo(cx: number, cy: number, scala: number, verdeScuro: string, verdeChiaro: string): string {
-  const c = (dx: number, dy: number, r: number, fill: string) =>
-    `<circle cx="${cx + dx}" cy="${cy + dy}" r="${r}" fill="${fill}"/>`
-  return (
-    c(-scala * 0.5, scala * 0.2, scala * 0.7, verdeChiaro) +
-    c(scala * 0.3, scala * 0.4, scala * 0.8, verdeScuro) +
-    c(0, -scala * 0.3, scala * 0.6, verdeChiaro) +
-    c(scala * 0.6, -scala * 0.1, scala * 0.5, verdeScuro)
-  )
-}
-
-/**
- * Sfondo "giardino": ciuffi di fogliame stilizzati agli angoli del riquadro foto (mood dell'illustrazione
- * di riferimento fornita dall'utente — gazebo/verde in stile flat — tradotto in un motivo discreto,
- * non letterale, adatto a uno sfondo di scheda tecnica). Disegnato PRIMA della foto nello z-order:
- * dove il prodotto ritagliato non riempie tutto il riquadro (lati/bordi, comune su prodotti larghi
- * o tondi da giardino: barbecue, ombrelloni, sedute) il fogliame fa capolino, altrimenti resta
- * coperto dalla foto — mai a scapito della dimensione della foto stessa. Solo per le schede del
- * reparto "garden" (vedi theme-satur.ts), solo template colonna-sinistra (unico con un riquadro
- * foto fisso da poter "inquadrare").
- */
-function sfondoGiardino(accento: string, canvasHeight: number, nBadge: number): string {
-  const scuro = mescola(accento, theme.colors.testo, 0.32)
-  const bx = FOTO_BOX_X
-  const by = FOTO_BOX_Y
-  const bw = FOTO_BOX_WIDTH
-  const bh = fotoBoxHeight(nBadge, canvasHeight)
-  return (
-    ciuffo(bx + 18, by + 12, 24, scuro, accento) + // angolo alto-sinistra del riquadro
-    ciuffo(bx + bw - 16, by + 10, 26, scuro, accento) + // angolo alto-destra
-    ciuffo(bx + 16, by + bh - 8, 42, scuro, accento) + // base sinistra (cespuglio più grande)
-    ciuffo(bx + bw - 18, by + bh - 6, 46, scuro, accento) // base destra
-  )
-}
-
 export function renderScene(scene: Scene, deps: { icon: IconResolver; image: ImageResolver }): string {
   // Accento "di famiglia": quello risolto al compose per la categoria del prodotto (scene.accento),
   // con fallback sul teal di default per scene salvate prima di questo campo. Un solo valore per
@@ -318,17 +277,12 @@ export function renderScene(scene: Scene, deps: { icon: IconResolver; image: Ima
   const conPannello = scene.templateId === 'colonna-sinistra'
   // Deve restare appena a sinistra di FOTO_BOX_X (colonna-sinistra.ts, 420): 412 lascia 8px di gap.
   const panelW = 412
-  // Fogliame giardino solo per le schede del reparto garden, solo colonna-sinistra (unico
-  // template con un riquadro foto fisso da "inquadrare" — vedi sfondoGiardino sopra).
-  const nBadge = scene.elements.filter((e) => e.type === 'badge' && !e.gruppo).length
-  const giardino = conPannello && accento === PALETTE_REPARTO.garden ? sfondoGiardino(accento, h, nBadge) : ''
   const sfondo =
     `<rect width="${w}" height="${h}" fill="${theme.colors.sfondo}"/>` +
     (conPannello
       ? `<rect x="0" y="0" width="${panelW}" height="${h}" fill="${theme.colors.sfondoAlt}"/>` +
         `<line x1="${panelW}" y1="0" x2="${panelW}" y2="${h}" stroke="${theme.colors.divisore}" stroke-width="1.5"/>`
       : '') +
-    giardino +
     logoSatur()
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`,
