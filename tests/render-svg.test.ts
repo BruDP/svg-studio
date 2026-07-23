@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { existsSync, readFileSync } from 'node:fs'
 import { renderScene } from '@/lib/render/svg'
 import { parseScene } from '@/lib/scene/schema'
+import { theme } from '@/lib/theme'
 
 const scene = parseScene(JSON.parse(readFileSync('tests/fixtures/scene-2137070.json', 'utf8')))
 
@@ -19,16 +20,12 @@ describe('renderScene', () => {
     expect(svg.trim().endsWith('</svg>')).toBe(true)
   })
 
-  it('porta il marchio Satur su ogni scheda: cuore sfaccettato (clipPath) + wordmark', () => {
+  it('design clean: niente cuore Satur, tela bianca, nessuna ombra/tile sulla foto', () => {
     const svg = renderScene(scene, deps)
-    expect(svg).toContain('clipPath id="satur-cuore"') // logo cuore ricostruito
-    expect(svg).toContain('>satur</text>') // wordmark
-  })
-
-  it('la foto è un tile arrotordato con ombra (clip-path + rect ombra)', () => {
-    const svg = renderScene(scene, deps)
-    expect(svg).toMatch(/clip-path="url\(#foto-/) // foto ritagliata ad angoli arrotondati
-    expect(svg).toMatch(/<rect[^>]*opacity="0\.10"/) // ombra flat sotto il tile
+    expect(svg).not.toContain('satur-cuore') // il cuore multicolore è stato rimosso
+    expect(svg).toContain(`fill="${theme.colors.sfondo}"`) // fondo bianco
+    expect(svg).not.toMatch(/opacity="0\.10"/) // niente ombra flat
+    expect(svg).not.toMatch(/clip-path="url\(#foto-/) // foto posata direttamente su bianco
   })
 
   it('eyebrow marchio: disegna il LOGO se il resolver immagini lo fornisce (chiave logo:<slug>)', () => {
@@ -60,11 +57,12 @@ describe('renderScene', () => {
     expect(svg).not.toContain('logo:') // nessun riferimento a chiave logo nel markup
   })
 
-  it('inserisce l\'icona risolta e il segnaposto per quella mancante', () => {
+  it('inserisce il glifo dell\'icona risolta (senza disco), etichetta anche per quella mancante', () => {
     const svg = renderScene(scene, deps)
-    expect(svg).toContain('M2 2h20') // icona risolta
-    // montaggio_facile non ha icona → deve comunque esserci il cerchio segnaposto
-    expect(svg).toMatch(/<circle/)
+    expect(svg).toContain('M2 2h20') // glifo icona risolta
+    expect(svg).not.toMatch(/<circle/) // design clean: niente disco/chip attorno all'icona
+    // l'icona mancante (montaggio_facile) non ha glifo ma l'etichetta è comunque presente
+    expect(svg).toContain('Montaggio facile')
   })
 
   it('incorpora la foto come data URI', () => {
@@ -74,7 +72,7 @@ describe('renderScene', () => {
 
   it('usa i token di theme (colore testo) e nessun colore hard-coded diverso', () => {
     const svg = renderScene(scene, deps)
-    expect(svg).toContain('#2F4153') // theme.colors.testo (inchiostro Satur, Pantone 7546 C)
+    expect(svg).toContain('#1D1D1F') // theme.colors.testo (inchiostro quasi-nero, design clean)
   })
 
   it('è deterministico: due render sono byte-identici', () => {
@@ -96,15 +94,12 @@ describe('renderScene', () => {
       elements: [{ type: 'badge', id: 'b1', testo: '7000 BTU', x: 100, y: 100 }],
     })
     const svg = renderScene(badgeScene, deps)
-    // Badge ora è un <path> a forma di "cartellino" (punta a sinistra), non un <rect>: la
-    // larghezza totale è la distanza tra la punta (ultimo punto, x) e il bordo destro (secondo punto, x+w).
-    const m = svg.match(/<path d="M [\d.]+ [\d.]+ L ([\d.]+) [\d.]+ L [\d.]+ [\d.]+ L [\d.]+ [\d.]+ L ([\d.]+) [\d.]+ Z"/)
+    // Badge design clean = pill neutra (<rect> con rx = metà altezza). La larghezza deve contenere
+    // il testo "7000 BTU" (il testo è centrato in x+w/2).
+    const m = svg.match(/<rect x="100" y="100" width="(\d+)" height="(\d+)" rx="[\d.]+" fill="[^"]*"\/>/)
     expect(m).not.toBeNull()
-    const w = Number(m![1]) - Number(m![2])
-    // larghezza testo stimata "7000 BTU" (8 char) a font badge 30 con ratio 0.52 ≈ 125px:
-    // il box deve contenerla (il testo è centrato nella parte rettangolare). La vecchia formula
-    // (8*8+40=104) tagliava.
-    expect(w).toBeGreaterThanOrEqual(125)
+    const w = Number(m![1])
+    expect(w).toBeGreaterThanOrEqual(110) // testo "7000 BTU" (8 char) a badge 26 ≈ 108 + padding
   })
 
   it('etichetta corta: resta un unico <text>, nessun <tspan> (nessuna regressione)', () => {

@@ -53,20 +53,18 @@ export function composeColonnaSinistra(input: {
   const { proposal, imageHash, bbox, prospettiva, nome, marchio } = input
   const elements: SceneElement[] = []
 
-  // Intestazione: eyebrow (marchio, maiuscoletto) + titolo (nome prodotto, prima parte prima della
-  // virgola per togliere misure/varianti dalla riga-titolo). Ancora editoriale nella colonna sx,
-  // SOTTO il lockup del marchio Satur (disegnato dal renderer in alto a sinistra, ~y34..82): da qui
-  // eyebrow/titolo partono a y≈108 per non sovrapporsi al lockup.
+  // Intestazione (design clean): logo/eyebrow marchio in alto al margine, poi il titolo prodotto
+  // grande. Niente più lockup Satur sopra, quindi l'intestazione parte dal margine alto.
   let iconStartY = 160
   if (nome) {
     if (marchio) {
       // Eyebrow = marchio: il renderer ci mette il LOGO se il file esiste (box ad altezza
       // theme.testo.logoAltezza da qui in giù), altrimenti il wordmark del marchio.
-      elements.push({ type: 'testo', id: 'eyebrow', testo: marchio, x: theme.margini.colonnaX, y: 100, ruolo: 'sottotitolo' })
+      elements.push({ type: 'testo', id: 'eyebrow', testo: marchio, x: theme.margini.colonnaX, y: 76, ruolo: 'sottotitolo' })
     }
     const titolo = estraiTitolo(nome, marchio)
     elements.push({ type: 'testo', id: 'titolo', testo: titolo, x: theme.margini.colonnaX, y: 150, ruolo: 'titolo' })
-    iconStartY = 280 // sotto l'intestazione (logo/eyebrow + titolo fino a 2 righe)
+    iconStartY = 300 // sotto l'intestazione (logo/eyebrow + titolo grande fino a 2 righe)
   }
 
   // Icone in colonna, nell'ordine del ranking. Il blocco viene CENTRATO verticalmente nello spazio

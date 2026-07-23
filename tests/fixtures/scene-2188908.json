@@ -12,9 +12,9 @@
       "id": "ph-g0",
       "imageHash": "hash-g0",
       "x": 40,
-      "y": 206,
-      "width": 216,
-      "height": 248,
+      "y": 204,
+      "width": 220,
+      "height": 252,
       "gruppo": "g0"
     },
     {
@@ -23,16 +23,16 @@
       "gruppo": "g0",
       "testo": "150 Kg",
       "x": 40,
-      "y": 126
+      "y": 124
     },
     {
       "type": "foto",
       "id": "ph-g1",
       "imageHash": "hash-g1",
-      "x": 391,
-      "y": 264,
-      "width": 216,
-      "height": 133,
+      "x": 390,
+      "y": 263,
+      "width": 220,
+      "height": 135,
       "gruppo": "g1"
     },
     {
@@ -40,17 +40,17 @@
       "id": "bg-g1-0",
       "gruppo": "g1",
       "testo": "300 Kg",
-      "x": 391,
-      "y": 184
+      "x": 390,
+      "y": 183
     },
     {
       "type": "foto",
       "id": "ph-g2",
       "imageHash": "hash-g2",
-      "x": 742,
+      "x": 740,
       "y": 290,
-      "width": 216,
-      "height": 80,
+      "width": 220,
+      "height": 81,
       "gruppo": "g2"
     },
     {
@@ -58,7 +58,7 @@
       "id": "bg-g2-0",
       "gruppo": "g2",
       "testo": "50 Kg",
-      "x": 742,
+      "x": 740,
       "y": 210
     },
     {

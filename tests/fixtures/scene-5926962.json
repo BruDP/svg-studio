@@ -12,9 +12,9 @@
       "id": "ph-g0",
       "imageHash": "hash-g0",
       "x": 40,
-      "y": 165,
-      "width": 216,
-      "height": 330,
+      "y": 162,
+      "width": 220,
+      "height": 336,
       "gruppo": "g0"
     },
     {
@@ -23,16 +23,16 @@
       "gruppo": "g0",
       "testo": "38 L",
       "x": 40,
-      "y": 85
+      "y": 82
     },
     {
       "type": "foto",
       "id": "ph-g1",
       "imageHash": "hash-g1",
-      "x": 391,
-      "y": 166,
-      "width": 216,
-      "height": 329,
+      "x": 390,
+      "y": 163,
+      "width": 220,
+      "height": 335,
       "gruppo": "g1"
     },
     {
@@ -40,17 +40,17 @@
       "id": "bg-g1-0",
       "gruppo": "g1",
       "testo": "60 L",
-      "x": 391,
-      "y": 86
+      "x": 390,
+      "y": 83
     },
     {
       "type": "foto",
       "id": "ph-g2",
       "imageHash": "hash-g2",
-      "x": 742,
-      "y": 158,
-      "width": 216,
-      "height": 345,
+      "x": 740,
+      "y": 155,
+      "width": 220,
+      "height": 351,
       "gruppo": "g2"
     },
     {
@@ -58,8 +58,8 @@
       "id": "bg-g2-0",
       "gruppo": "g2",
       "testo": "99 L",
-      "x": 742,
-      "y": 78
+      "x": 740,
+      "y": 75
     },
     {
       "type": "icona-label",

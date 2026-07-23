@@ -13,31 +13,29 @@ const ACCENTO_SCURO = '#0C5860' // ACCENTO scurito, non da Pantone (nessun tono 
 export const theme = {
   fontFamily: 'Poppins',
   colors: {
-    testo: '#2F4153', // inchiostro Satur (Pantone 7546 C)
-    testoMuto: '#7A8585', // etichette secondarie / eyebrow
-    badgeTesto: '#FFFFFF',
-    sfondo: '#FBFAF2', // crema caldo Satur (non bianco/grigio freddo)
-    sfondoAlt: '#F1EEE3', // pannello: tinta crema più profonda, neutra (non tinta d'accento)
-    fotoPlaceholder: '#EDEAE0', // grigio caldo, coerente col crema (era grigio freddo)
-    // Accento di DEFAULT/fallback (scene senza categoria riconosciuta o senza `accento` salvato).
-    // Le schede con categoria nota usano invece `scene.accento` (vedi theme-satur.ts): chip icona,
-    // quote, eyebrow e badge sono tinti dinamicamente sull'accento risolto, non su un colore fisso
-    // — vedi `mescola()` in render/colore.ts per i toni derivati (chip bg/ring, fogliame garden).
-    accento: ACCENTO,
+    // Palette MONOCROMATICA "clean/premium" (stile Apple): la scheda è bianca e neutra, il colore
+    // arriva SOLO dalla foto prodotto (e dai loghi di marchio). Nessun accento di reparto nella
+    // grafica — vedi il redesign clean 2026-07-23. (`accento`/theme-satur restano per retrocompat
+    // del campo scene.accento ma non tingono più chip/quote/badge.)
+    testo: '#1D1D1F', // inchiostro quasi-nero (headline, etichette)
+    testoMuto: '#6E6E73', // grigio secondario (eyebrow, testi di supporto)
+    badgeTesto: '#1D1D1F', // testo del badge: inchiostro su pill chiara (non più bianco su colore)
+    sfondo: '#FFFFFF', // bianco puro
+    sfondoAlt: '#F5F5F7', // grigio chiarissimo (pill badge, eventuale "stage" foto)
+    fotoPlaceholder: '#F5F5F7',
+    accento: ACCENTO, // (non usato nella grafica clean; conservato per compat)
     accentoScuro: ACCENTO_SCURO,
-    divisore: '#E2DDCC', // hairline pannello, neutro caldo (era grigio freddo)
-    // Colore delle rette-quota e delle relative etichette: grigio neutro "da disegno tecnico",
-    // NON l'accento di reparto (su Kooper l'accento è bordeaux e le rette risultavano rosse,
-    // sgradite). Discreto e uguale per ogni categoria.
-    quota: '#8A9091',
+    divisore: '#E8E8ED', // hairline neutro (se serve)
+    icona: '#1D1D1F', // glifo icona feature: inchiostro, tratto sottile (niente disco colorato)
+    quota: '#C7C7CC', // rette-misura: grigio chiaro discreto
+    quotaTesto: '#86868B', // numeri delle misure: grigio medio, leggibile ma sommesso
   },
   icona: {
-    // Ridotto da 42: le icone pesavano visivamente più della foto prodotto nonostante la foto
-    // fosse più grande in assoluto — chip più piccoli lasciano alla foto il ruolo di protagonista
-    // e liberano spazio orizzontale (colonna più stretta → FOTO_BOX più largo).
-    raggio: 30,
-    stroke: 3,
-    iconaLato: 30, // lato del glifo 24×24 scalato dentro il chip (stessa proporzione di prima)
+    // Design clean: niente disco colorato, solo il GLIFO a tratto sottile (monocromatico).
+    // `raggio` resta il riferimento di semi-altezza per il centro verticale dell'icona nella riga.
+    raggio: 26,
+    stroke: 2, // tratto sottile "Apple" (era 3, con il disco pieno)
+    iconaLato: 34, // lato del glifo 24×24
   },
   freccia: {
     stroke: 2.5,
@@ -61,12 +59,12 @@ export const theme = {
     notch: 14,
   },
   testo: {
-    titolo: 34,
+    titolo: 34, // headline prodotto (dimensione che fa stare i nomi lunghi su 2 righe senza ellissi)
     eyebrow: 18, // wordmark marchio (ripiego quando manca il file logo)
-    logoAltezza: 40, // altezza del box del logo marchio (ancorato a sinistra, proporzioni preservate)
-    etichetta: 26,
-    quota: 20, // numeri delle misure: più piccoli dell'etichetta (misure = info di supporto)
-    badge: 30,
+    logoAltezza: 38, // altezza del box del logo marchio (ancorato a sinistra, proporzioni preservate)
+    etichetta: 25,
+    quota: 18, // numeri delle misure: piccoli e sommessi
+    badge: 26,
     // Rapporto larghezza/carattere calibrato empiricamente sul font Poppins reale
     // (via resvg + FONT_FILES, media su etichette rappresentative del dizionario: ~0.51 em/carattere).
     larghezzaCarattereEm: 0.52,

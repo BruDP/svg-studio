@@ -113,10 +113,10 @@ describe('celleProdotti', () => {
   })
 
   it('lancia se n è troppo grande per il canvas (width risultante <= 0)', () => {
-    // Con le costanti di default (marginX=40, gutter=135) n=7 produce ancora width>0,
-    // mentre n=8 fa scendere la larghezza disponibile a zero o sotto.
-    expect(() => celleProdotti(7)).not.toThrow()
-    expect(() => celleProdotti(8)).toThrow()
+    // Con le costanti di default n=8 produce ancora width>0 (degenere ma valido),
+    // mentre n=9 fa scendere la larghezza disponibile a zero o sotto. (Set reali ≤ 3-4.)
+    expect(() => celleProdotti(8)).not.toThrow()
+    expect(() => celleProdotti(9)).toThrow()
   })
 })
 

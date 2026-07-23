@@ -13,7 +13,7 @@
       "chiave": "materiale_acciaio",
       "etichetta": "Acciaio",
       "x": 60,
-      "y": 482,
+      "y": 486,
       "verificata": true
     },
     {
@@ -22,7 +22,7 @@
       "chiave": "montaggio_facile",
       "etichetta": "Montaggio facile",
       "x": 60,
-      "y": 558,
+      "y": 562,
       "verificata": false
     },
     {
@@ -69,7 +69,7 @@
       "id": "bg0",
       "testo": "99 L",
       "x": 420,
-      "y": 761
+      "y": 760
     }
   ],
   "accento": "#6DBE4B"
