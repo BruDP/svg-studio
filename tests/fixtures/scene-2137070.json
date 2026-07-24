@@ -13,7 +13,7 @@
       "chiave": "materiale_acciaio",
       "etichetta": "Acciaio",
       "x": 60,
-      "y": 486,
+      "y": 426,
       "verificata": true
     },
     {
@@ -22,54 +22,56 @@
       "chiave": "montaggio_facile",
       "etichetta": "Montaggio facile",
       "x": 60,
-      "y": 562,
+      "y": 502,
       "verificata": false
     },
     {
       "type": "foto",
       "id": "ph",
       "imageHash": "abc123",
-      "x": 420,
-      "y": 248,
-      "width": 445,
-      "height": 445
+      "x": 412,
+      "y": 300,
+      "width": 460,
+      "height": 460
     },
     {
       "type": "quota",
       "id": "q0",
       "orientamento": "verticale",
       "valore": "84,5 cm",
-      "x1": 877,
-      "y1": 248,
-      "x2": 877,
-      "y2": 693
+      "x1": 884,
+      "y1": 300,
+      "x2": 884,
+      "y2": 760
     },
     {
       "type": "quota",
       "id": "q1",
       "orientamento": "orizzontale",
       "valore": "51 cm",
-      "x1": 420,
-      "y1": 705,
-      "x2": 865,
-      "y2": 705
+      "x1": 412,
+      "y1": 772,
+      "x2": 872,
+      "y2": 772
     },
     {
       "type": "quota",
       "id": "q2",
       "orientamento": "diagonale",
       "valore": "63 cm",
-      "x1": 865,
-      "y1": 705,
-      "x2": 909.5048250192058,
-      "y2": 722.9811164839638
+      "x1": 872,
+      "y1": 772,
+      "x2": 916.5048250192058,
+      "y2": 789.9811164839638
     },
     {
       "type": "badge",
       "id": "bg0",
       "testo": "99 L",
-      "x": 420,
-      "y": 760
+      "heroValore": "99 L",
+      "heroEtichetta": "",
+      "x": 60,
+      "y": 862
     }
   ],
   "accento": "#6DBE4B"

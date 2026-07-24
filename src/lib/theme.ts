@@ -34,13 +34,13 @@ export const theme = {
     // Design clean: niente disco colorato, solo il GLIFO a tratto sottile (monocromatico).
     // `raggio` resta il riferimento di semi-altezza per il centro verticale dell'icona nella riga.
     raggio: 26,
-    stroke: 2, // tratto sottile "Apple" (era 3, con il disco pieno)
-    iconaLato: 34, // lato del glifo 24×24
+    stroke: 1.8, // tratto sottile e delicato (lista feature curata)
+    iconaLato: 30, // lato del glifo 24×24 (leggermente più piccolo, più raffinato)
   },
   freccia: {
-    stroke: 2.5,
+    stroke: 1.5, // rette-quota sottili (callout minimal)
     testa: 12,
-    tick: 11, // semi-lunghezza dei trattini perpendicolari agli estremi della quota
+    tick: 11, // (non più usato: i trattini agli estremi sono stati rimossi nel design minimal)
     labelGap: 14, // distanza etichetta misura dalla linea
     // Angolo di ripiego per la profondità quando la prospettiva NON è disponibile (foto frontale/2D
     // o Vision non pervenuta): una diagonale modesta in giù a destra, come cue convenzionale. Sulle
@@ -65,6 +65,8 @@ export const theme = {
     etichetta: 25,
     quota: 18, // numeri delle misure: piccoli e sommessi
     badge: 26,
+    heroNumero: 46, // "hero stat": numero grande (es. capacità) nella colonna sinistra
+    heroEtichetta: 15, // etichetta piccola sopra il numero hero (maiuscoletto)
     // Rapporto larghezza/carattere calibrato empiricamente sul font Poppins reale
     // (via resvg + FONT_FILES, media su etichette rappresentative del dizionario: ~0.51 em/carattere).
     larghezzaCarattereEm: 0.52,

@@ -65,6 +65,14 @@ export interface BadgeElement {
   gruppo?: string
   /** Se true il badge è nascosto (stesso pattern di `QuotaElement.nascosta`). Opzionale, retrocompatibile. */
   nascosto?: boolean
+  /**
+   * Modalità "hero stat" (design clean): quando presenti, il badge è reso come NUMERO GRANDE
+   * (`heroValore`, es. "515 L") con etichetta piccola sopra (`heroEtichetta`, es. "Capienza"),
+   * ancorato nella colonna sinistra — invece della pill. Usato dal template colonna-sinistra;
+   * il multi-prodotto lascia i campi assenti → pill per cella. Opzionali, retrocompatibili.
+   */
+  heroValore?: string
+  heroEtichetta?: string
 }
 
 export interface TestoElement {

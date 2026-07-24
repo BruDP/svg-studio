@@ -21,9 +21,9 @@ export const CANVAS = { width: 1000, height: 1000 }
  * alla versione precedente) apposta per dare alla foto la parte larga del canvas: la foto
  * prodotto deve restare la protagonista visiva della scheda.
  */
-export const FOTO_BOX_X = 420
+export const FOTO_BOX_X = 412
 export const FOTO_BOX_Y = 60
-export const FOTO_BOX_WIDTH = 445
+export const FOTO_BOX_WIDTH = 460
 
 /**
  * Altezza del riquadro foto: il massimo che lascia comunque spazio, in basso, agli N badge
@@ -72,9 +72,12 @@ export function composeColonnaSinistra(input: {
   // (es. barbecue con 2 icone, testo feed scarno) non restano sbilanciate in alto con un grande
   // vuoto sotto — lo spazio bianco resta simmetrico e intenzionale. Con molte feature il blocco è
   // già quasi pieno, quindi lo start resta ≈ iconStartY (offset ~0).
+  // Se c'è un "hero stat" (capacità/portata) va in basso a sinistra: la zona di centratura delle
+  // feature si ferma prima, per non sovrapporsi.
+  const conHero = proposal.badges.length > 0
   const nFeature = proposal.features.length
   const gap = theme.margini.colonnaGap
-  const zonaBasso = CANVAS.height - theme.margini.canvas
+  const zonaBasso = conHero ? 820 : CANVAS.height - theme.margini.canvas
   const altezzaBlocco = nFeature > 0 ? (nFeature - 1) * gap + theme.icona.raggio * 2 : 0
   const offsetCentratura = Math.max(0, (zonaBasso - iconStartY - altezzaBlocco) / 2)
   const posizioni = colonnaPositions(nFeature, iconStartY + offsetCentratura)
@@ -91,13 +94,13 @@ export function composeColonnaSinistra(input: {
   })
 
   // Foto scalata dentro il riquadro (aspect ratio dal bbox, o riquadro pieno se assente).
-  // L'altezza del riquadro dipende dal numero di badge di QUESTA proposta (vedi fotoBoxHeight):
-  // con meno badge il riquadro (e quindi la foto) può essere più grande.
+  // I badge ora sono "hero stat" nella colonna sinistra (non più sotto la foto), quindi il riquadro
+  // foto usa l'altezza piena a prescindere dai badge.
   const fotoBox = {
     x: FOTO_BOX_X,
     y: FOTO_BOX_Y,
     width: FOTO_BOX_WIDTH,
-    height: fotoBoxHeight(proposal.badges.length, CANVAS.height),
+    height: fotoBoxHeight(0, CANVAS.height),
   }
   const fitted = fitFoto(bbox ?? { width: fotoBox.width, height: fotoBox.height }, fotoBox)
   elements.push({
@@ -117,18 +120,23 @@ export function composeColonnaSinistra(input: {
     })
   }
 
-  // Badge sotto la foto. Deve restare sotto l'etichetta della quota orizzontale (se presente),
-  // che nello stile "premium" è staccata dalla linea di labelGap+fontSize (non più centrata
-  // sulla linea come nello stile precedente) — senza questo margine badge e quota si toccano.
-  const badgeStartY =
-    fitted.y + fitted.height + theme.freccia.testa + theme.freccia.labelGap + theme.testo.etichetta + 16
+  // "Hero stat" in basso a sinistra: numero grande (es. "515 L") + etichetta piccola sopra
+  // (es. "Capienza"). Split della etichetta dizionario ("Capienza {valore} L") sul valore: prima
+  // del valore = etichetta piccola, dal valore in poi = numero+unità grande. Ancorato a colonnaX.
+  const heroLabelBaseline = 862
   proposal.badges.forEach((b, i) => {
+    const v = b.valore ?? ''
+    const idx = v ? b.etichetta.indexOf(v) : -1
+    const heroValore = idx >= 0 ? b.etichetta.slice(idx).trim() : b.etichetta
+    const heroEtichetta = idx > 0 ? b.etichetta.slice(0, idx).trim() : ''
     elements.push({
       type: 'badge',
       id: `bg${i}`,
       testo: b.etichetta,
-      x: fitted.x,
-      y: badgeStartY + i * 60,
+      heroValore,
+      heroEtichetta,
+      x: theme.margini.colonnaX,
+      y: heroLabelBaseline - (proposal.badges.length - 1 - i) * 88,
     })
   })
 

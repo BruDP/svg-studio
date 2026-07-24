@@ -44,6 +44,8 @@ const badge = z.object({
   y: z.number(),
   gruppo: z.string().optional(),
   nascosto: z.boolean().optional(),
+  heroValore: z.string().optional(),
+  heroEtichetta: z.string().optional(),
 })
 
 const testo = z.object({

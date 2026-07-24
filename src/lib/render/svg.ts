@@ -125,23 +125,15 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
     case 'quota': {
       // Quota nascosta (toggle profondità): resta nella scena ma non si disegna.
       if (el.nascosta) return ''
-      // Linea di quota "da disegno tecnico": grigio neutro (theme.colors.quota, NON l'accento di
-      // reparto — su Kooper le rette risultavano rosse/bordeaux, sgradite), con trattini
-      // perpendicolari agli estremi ed etichetta (numero) accostata alla linea, in corpo piccolo
-      // (le misure sono info di supporto, non devono competere con titolo/feature).
+      // Callout misura MINIMAL: una retta sottile grigio-chiaro + il numero accostato, SENZA
+      // i trattini perpendicolari agli estremi (rimossi nel design clean/Apple). Grigio neutro,
+      // corpo piccolo: le misure sono info di supporto, non competono con titolo/feature.
       const { x1, y1, x2, y2 } = el
       const col = theme.colors.quota
       const sw = theme.freccia.stroke
-      const t = theme.freccia.tick
       const fs = theme.testo.quota
       const gap = theme.freccia.labelGap
-      const len = Math.hypot(x2 - x1, y2 - y1) || 1
-      const px = (-(y2 - y1) / len) * t // perpendicolare unitaria × t
-      const py = ((x2 - x1) / len) * t
       const linea = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"/>`
-      const tick = (x: number, y: number) =>
-        `<line x1="${x - px}" y1="${y - py}" x2="${x + px}" y2="${y + py}" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"/>`
-      const ticks = tick(x1, y1) + tick(x2, y2)
       const mx = (x1 + x2) / 2
       const my = (y1 + y2) / 2
       let lx = mx
@@ -171,12 +163,23 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       }
       // Testo piccolo → tracking leggermente positivo per leggibilità (skill apple-design §15).
       const etichetta = `<text x="${lx}" y="${ly}" text-anchor="${anchor}"${ruota} font-family="${theme.fontFamily}" font-size="${fs}" font-weight="500" letter-spacing="0.2" fill="${theme.colors.quotaTesto}">${esc(el.valore)}</text>`
-      return linea + ticks + etichetta
+      return linea + etichetta
     }
     case 'badge': {
       if (el.nascosto) return ''
-      // Design clean: pill neutra (grigio chiarissimo, testo inchiostro) invece del cartellino
-      // colorato — evidenzia una spec chiave (es. capacità) senza rompere la monocromia.
+      // "Hero stat" (colonna-sinistra): numero grande + etichetta piccola in maiuscoletto sopra,
+      // ancorato a sinistra (x = el.x). Forte gerarchia, stile keynote Apple. Tracking negativo sul
+      // numero (corpo grande), positivo sull'etichetta (corpo piccolo) — vedi apple-design §15.
+      if (el.heroValore) {
+        const nSize = theme.testo.heroNumero
+        const lSize = theme.testo.heroEtichetta
+        const etich = el.heroEtichetta
+          ? `<text x="${el.x}" y="${el.y}" font-family="${theme.fontFamily}" font-size="${lSize}" font-weight="600" letter-spacing="1.2" fill="${theme.colors.testoMuto}">${esc(el.heroEtichetta.toUpperCase())}</text>`
+          : ''
+        const num = `<text x="${el.x}" y="${el.y + nSize}" font-family="${theme.fontFamily}" font-size="${nSize}" font-weight="600" letter-spacing="-0.8" fill="${theme.colors.testo}">${esc(el.heroValore)}</text>`
+        return etich + num
+      }
+      // Design clean (multi-prodotto): pill neutra (grigio chiarissimo, testo inchiostro).
       const w = Math.ceil(larghezzaStimata(el.testo, theme.testo.badge)) + theme.badge.paddingX * 2
       const h = theme.badge.altezza
       const { x, y } = el

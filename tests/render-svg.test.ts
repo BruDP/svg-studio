@@ -108,12 +108,10 @@ describe('renderScene', () => {
     expect(svg).not.toContain('<tspan')
   })
 
-  it('quota "premium" produce i trattini perpendicolari agli estremi, oltre alla linea principale', () => {
+  it('quota design minimal: una sola linea (niente trattini agli estremi) + il numero', () => {
     const quotaScene = parseScene({
       version: 1,
       sku: 'TEST',
-      // templateId senza pannello (il pannello colonna-sinistra aggiungerebbe l'hairline <line>):
-      // così contiamo solo le linee della quota.
       templateId: 'multi-prodotto',
       canvas: { width: 1000, height: 1000 },
       elements: [
@@ -122,8 +120,8 @@ describe('renderScene', () => {
     })
     const svg = renderScene(quotaScene, deps)
     const linee = [...svg.matchAll(/<line/g)]
-    // linea principale + 2 trattini (tick) agli estremi = 3
-    expect(linee.length).toBe(3)
+    expect(linee.length).toBe(1) // solo la linea principale, niente più i 2 trattini
+    expect(svg).toContain('10 cm') // il numero
   })
 
   it('etichetta troppo lunga per la colonna va a capo su piu righe (tspan) invece di essere coperta dalla foto', () => {
