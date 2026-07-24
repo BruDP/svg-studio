@@ -5,7 +5,7 @@ import { proposeSceneAction, exportSceneAction, saveSceneAction, loadSceneAction
 import type { ProposeResult } from '@/lib/ui/types'
 import type { Scene } from '@/lib/scene/types'
 import { applyMutation } from '@/lib/scene/mutations'
-import { EditorPreview } from '@/lib/ui/EditorPreview'
+import { EditorPreview, EditorPreviewSkeleton } from '@/lib/ui/EditorPreview'
 import { FeaturePanel } from './FeaturePanel'
 import { ElementiPanel } from './ElementiPanel'
 import { IconPicker } from './IconPicker'
@@ -192,33 +192,43 @@ export function StudioClient() {
     <div className="flex flex-col gap-4">
       <button
         type="button"
-        className="min-h-[40px] self-start rounded border border-zinc-300 px-4 py-2 text-sm text-zinc-700 transition-colors duration-150 hover:border-emerald-600 disabled:opacity-50"
+        className="min-h-[40px] self-start rounded-[var(--r-md)] px-4 py-2 text-sm disabled:opacity-50"
+        style={{ border: '1px solid var(--border)', color: 'var(--fg)' }}
         onClick={tornaAlBanco}
         disabled={inCorso}
       >
         ← Torna al banco
       </button>
 
-      {errore && <p role="alert" className="text-red-600">{errore}</p>}
-      {msg && <p className="text-emerald-700">{msg}</p>}
-      {inCorso && !scene && <p className="text-zinc-500">Carico scheda {sku}…</p>}
+      {errore && (
+        <p role="alert" className="rounded-[var(--r-md)] px-3 py-2 text-sm" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
+          {errore}
+        </p>
+      )}
+      {msg && (
+        <p className="rounded-[var(--r-md)] px-3 py-2 text-sm" style={{ background: 'var(--success-bg)', color: 'var(--success)' }}>
+          {msg}
+        </p>
+      )}
+      {inCorso && !scene && <EditorPreviewSkeleton sku={sku} />}
 
       {scene && bundle && prodotto && (
         <div className="flex flex-col gap-4 md:flex-row">
           <div className="flex-1"><EditorPreview scene={scene} iconMap={bundle.iconMap} imageMap={bundle.imageMap} dispatch={dispatch} inRevisione={bundle.iconeNonApprovate} /></div>
           <aside className="w-full md:w-80 space-y-3">
             <div>
-              <h2 className="font-medium text-zinc-700">{prodotto.descrizioneBreve}</h2>
-              <p className="text-sm text-zinc-500">SKU {prodotto.sku}</p>
+              <h2 className="font-medium" style={{ color: 'var(--fg)' }}>{prodotto.descrizioneBreve}</h2>
+              <p className="text-sm" style={{ color: 'var(--fg-muted)' }}>SKU {prodotto.sku}</p>
             </div>
             {gruppi.length > 0 && (
               <div>
-                <label htmlFor="gruppo-attivo" className="block text-sm font-medium text-zinc-700">
+                <label htmlFor="gruppo-attivo" className="block text-sm font-medium" style={{ color: 'var(--fg-muted)' }}>
                   Pezzo da modificare
                 </label>
                 <select
                   id="gruppo-attivo"
-                  className="mt-1 w-full rounded border border-zinc-300 px-2 py-1.5 text-sm"
+                  className="mt-1 w-full rounded-[var(--r-md)] px-2 py-1.5 text-sm"
+                  style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--fg)' }}
                   value={gruppoAttivo ?? gruppi[0]}
                   onChange={(e) => setGruppoAttivo(e.target.value)}
                   disabled={inCorso}
@@ -255,34 +265,64 @@ export function StudioClient() {
               }}
             />
             <ElementiPanel scene={scene} dispatch={dispatch} />
-            <div className="flex gap-2">
-              <button className="rounded bg-zinc-700 px-4 py-2 text-white disabled:opacity-50" onClick={salva} disabled={inCorso}>Salva</button>
-              <button className="rounded bg-emerald-700 px-4 py-2 text-white disabled:opacity-50" onClick={esporta} disabled={inCorso}>Esporta</button>
+            <div
+              className="sticky bottom-0 flex flex-wrap gap-2 rounded-[var(--r-lg)] p-3"
+              style={{ background: 'var(--surface)', boxShadow: 'var(--shadow-lg)' }}
+            >
+              <button
+                className="min-h-[44px] flex-1 rounded-[var(--r-md)] px-4 py-2 font-medium text-white disabled:opacity-50"
+                style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)' }}
+                onClick={salva} disabled={inCorso}
+              >
+                Salva
+              </button>
+              <button
+                className="min-h-[44px] flex-1 rounded-[var(--r-md)] px-4 py-2 font-medium text-white disabled:opacity-50"
+                style={{ background: 'var(--accent-cta)' }}
+                onClick={esporta} disabled={inCorso}
+              >
+                ⬇ Esporta
+              </button>
               {salvataDisponibile && (
-                <button className="rounded border border-zinc-300 px-4 py-2 text-zinc-700 disabled:opacity-50" onClick={riprendi} disabled={inCorso}>Riprendi salvata</button>
+                <button
+                  className="min-h-[44px] rounded-[var(--r-md)] px-4 py-2 disabled:opacity-50"
+                  style={{ border: '1px solid var(--border)', color: 'var(--fg)' }}
+                  onClick={riprendi} disabled={inCorso}
+                >
+                  Riprendi salvata
+                </button>
               )}
             </div>
             {esportata && prodotto && (
               <div>
-                <p className="text-sm text-zinc-500">Esportata:</p>
-                <img alt="Anteprima esportata" src={esportata.jpegDataUri} className="mt-1 border border-zinc-200" width={240} height={240} />
+                <p className="text-sm" style={{ color: 'var(--fg-muted)' }}>Esportata:</p>
+                <img
+                  alt="Anteprima esportata" src={esportata.jpegDataUri} className="mt-1 rounded-[var(--r-md)]"
+                  style={{ border: '1px solid var(--border)' }} width={240} height={240}
+                />
                 <div className="mt-1 flex gap-2">
                   <a
                     href={esportata.jpegDataUri}
                     download={`${prodotto.sku}.jpg`}
-                    className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:border-emerald-600"
+                    className="rounded-[var(--r-md)] px-3 py-1.5 text-sm"
+                    style={{ border: '1px solid var(--border)', color: 'var(--fg)' }}
                   >
                     Scarica JPEG
                   </a>
                   <button
                     type="button"
                     onClick={scaricaSvg}
-                    className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:border-emerald-600"
+                    className="rounded-[var(--r-md)] px-3 py-1.5 text-sm"
+                    style={{ border: '1px solid var(--border)', color: 'var(--fg)' }}
                   >
                     Scarica SVG
                   </button>
                 </div>
-                {avvisoExport && <p role="alert" className="mt-1 text-sm text-amber-700">{avvisoExport}</p>}
+                {avvisoExport && (
+                  <p role="alert" className="mt-1 rounded-[var(--r-md)] px-2 py-1 text-sm" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
+                    {avvisoExport}
+                  </p>
+                )}
               </div>
             )}
           </aside>

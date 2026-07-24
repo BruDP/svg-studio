@@ -1,5 +1,7 @@
 'use client'
 
+import { Accordion } from './Accordion'
+
 export function PhotoPicker({
   immagini,
   urlCorrente,
@@ -17,40 +19,67 @@ export function PhotoPicker({
   pezzoAttivo?: string | null
 }) {
   if (immagini.length < 1) return null
-  return (
-    <div>
-      {pezzoAttivo && (
-        <p className="text-xs font-medium text-emerald-700">Sto modificando: {pezzoAttivo}</p>
-      )}
-      {immagini.length > 1 && (
-        <>
-          <h3 className="font-medium text-zinc-700">Foto</h3>
-          <div className="mt-1 flex flex-wrap gap-2">
-            {immagini.map((url, i) => (
-              <button
-                key={url}
-                aria-label={`Foto ${i + 1}`}
-                onClick={() => onScegli(url)}
-                className={`h-16 w-16 overflow-hidden rounded border hover:border-emerald-600 ${
-                  url === urlCorrente ? 'border-emerald-600' : 'border-zinc-300'
-                }`}
-              >
-                {/* miniatura remota: solo anteprima di scelta, non entra nella scena */}
-                <img src={url} alt={`Foto ${i + 1}`} className="h-full w-full object-cover" />
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-      <button
-        type="button"
-        onClick={onRicalcola}
-        disabled={!urlCorrente || inCorso}
-        className="mt-2 rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:border-emerald-600 disabled:opacity-50"
+
+  const header = (
+    <>
+      <span
+        className="grid h-7 w-7 shrink-0 place-items-center rounded-[var(--r-sm)] text-sm"
+        style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)' }}
+        aria-hidden
       >
-        Ricalcola ritaglio con Vision
-      </button>
-      <p className="mt-1 text-xs text-zinc-500">Rifà il rilevamento del prodotto con l&apos;AI di visione, anche su sfondo uniforme.</p>
-    </div>
+        🖼️
+      </span>
+      <h3 className="truncate font-medium" style={{ color: 'var(--fg)' }}>Foto</h3>
+    </>
+  )
+
+  return (
+    <Accordion header={header}>
+      <div className="space-y-2">
+        {pezzoAttivo && (
+          <p className="text-xs font-medium" style={{ color: 'var(--primary)' }}>Sto modificando: {pezzoAttivo}</p>
+        )}
+        {immagini.length > 1 && (
+          <div className="grid grid-cols-4 gap-2">
+            {immagini.map((url, i) => {
+              const selezionata = url === urlCorrente
+              return (
+                <button
+                  key={url}
+                  aria-label={`Foto ${i + 1}`}
+                  onClick={() => onScegli(url)}
+                  className="h-16 w-16 overflow-hidden rounded-[var(--r-md)] transition-transform duration-150"
+                  style={{
+                    border: selezionata ? '2px solid var(--primary)' : '1px solid var(--border)',
+                    boxShadow: selezionata ? 'var(--focus-ring)' : 'none',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)'
+                    ;(e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-md)'
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = 'scale(1)'
+                    ;(e.currentTarget as HTMLElement).style.boxShadow = selezionata ? 'var(--focus-ring)' : 'none'
+                  }}
+                >
+                  {/* miniatura remota: solo anteprima di scelta, non entra nella scena */}
+                  <img src={url} alt={`Foto ${i + 1}`} className="h-full w-full object-cover" />
+                </button>
+              )
+            })}
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={onRicalcola}
+          disabled={!urlCorrente || inCorso}
+          className="w-full rounded-[var(--r-md)] px-3 py-2 text-sm disabled:opacity-50"
+          style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--fg)' }}
+        >
+          ↻ Ricalcola Vision
+        </button>
+        <p className="text-xs" style={{ color: 'var(--fg-muted)' }}>Rifà il rilevamento del prodotto con l&apos;AI di visione, anche su sfondo uniforme.</p>
+      </div>
+    </Accordion>
   )
 }

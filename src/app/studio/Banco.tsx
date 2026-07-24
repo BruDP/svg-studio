@@ -101,22 +101,38 @@ export function Banco({
   return (
     <div className="flex flex-col gap-6 md:flex-row">
       <section aria-label="Ricerca prodotti" className="flex-1 space-y-3">
-        <div>
-          <label htmlFor="ricerca-banco" className="block text-sm font-medium text-zinc-700">
+        <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--surface)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)' }}>
+          <label htmlFor="ricerca-banco" className="block text-sm font-medium" style={{ color: 'var(--fg)' }}>
             Cerca per codice o descrizione
           </label>
           <input
             id="ricerca-banco"
             aria-label="Cerca per codice o descrizione"
-            className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 transition-colors duration-150 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/40"
+            className="mt-3 w-full transition-all duration-150"
+            style={{
+              backgroundColor: 'var(--surface)',
+              color: 'var(--fg)',
+              borderRadius: 'var(--r-md)',
+              border: '1px solid var(--border)',
+              padding: '8px 12px',
+              outline: 'none',
+            }}
             placeholder="Es. 2137070 oppure barbecue"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onFocus={(e) => {
+              e.currentTarget.style.boxShadow = 'var(--focus-ring)'
+              e.currentTarget.style.borderColor = 'var(--primary)'
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.borderColor = 'var(--border)'
+            }}
           />
         </div>
 
-        <div>
-          <label htmlFor="reparto-banco" className="block text-sm font-medium text-zinc-700">
+        <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--surface)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)' }}>
+          <label htmlFor="reparto-banco" className="block text-sm font-medium" style={{ color: 'var(--fg)' }}>
             Reparto
           </label>
           <select
@@ -124,32 +140,63 @@ export function Banco({
             aria-label="Reparto (prossimamente disponibile)"
             title="Il feed non ha ancora la colonna reparto: filtro non disponibile"
             disabled
-            className="mt-1 w-full cursor-not-allowed rounded border border-zinc-300 bg-zinc-100 px-2 py-2 text-sm text-zinc-400"
+            className="mt-3 w-full cursor-not-allowed text-sm transition-colors"
+            style={{
+              borderRadius: 'var(--r-md)',
+              border: '1px solid var(--border)',
+              padding: '8px 12px',
+              backgroundColor: 'var(--surface-2)',
+              color: 'var(--fg-muted)',
+            }}
           >
             <option>Reparto (prossimamente)</option>
           </select>
         </div>
 
-        {cercando && <p className="text-sm text-zinc-500">Cerco…</p>}
+        {cercando && <p className="text-sm" style={{ color: 'var(--fg-muted)' }}>Cerco…</p>}
         {!cercando && query.trim().length >= 2 && risultati.length === 0 && (
-          <p className="text-sm text-zinc-500">Nessun risultato per &laquo;{query.trim()}&raquo;.</p>
+          <p className="text-sm" style={{ color: 'var(--fg-muted)' }}>Nessun risultato per &laquo;{query.trim()}&raquo;.</p>
         )}
 
         {risultati.length > 0 && (
-          <ul className="divide-y divide-zinc-200 rounded border border-zinc-200">
-            {risultati.map((r) => {
+          <ul className="rounded-lg overflow-hidden" style={{ backgroundColor: 'var(--surface)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)' }}>
+            {risultati.map((r, idx) => {
               const giaAggiunto = skuInLista.has(r.sku)
               return (
-                <li key={r.sku} className="flex items-center gap-2 px-3 py-2">
+                <li key={r.sku} className="flex items-center gap-3 px-4 py-3 transition-colors duration-150" style={{
+                  backgroundColor: idx % 2 === 0 ? 'var(--surface)' : 'var(--surface-2)',
+                  borderBottom: idx < risultati.length - 1 ? '1px solid var(--border)' : 'none',
+                }}>
                   <div className="min-w-0 flex-1 text-sm">
-                    <span className="text-zinc-500">{r.sku}</span> — {r.descrizioneBreve}
+                    <span style={{ color: 'var(--fg-muted)' }}>{r.sku}</span>
+                    <span style={{ color: 'var(--fg)' }}> — {r.descrizioneBreve}</span>
                   </div>
                   <button
                     type="button"
                     aria-label={giaAggiunto ? `${r.sku} già aggiunto alla lista` : `Aggiungi ${r.sku} alla lista di lavoro`}
-                    className="min-h-[40px] shrink-0 rounded bg-emerald-700 px-3 py-2 text-sm text-white transition-colors duration-150 hover:bg-emerald-800 disabled:bg-zinc-300 disabled:text-zinc-600"
+                    className="min-h-[40px] shrink-0 text-sm font-medium transition-all duration-150"
+                    style={{
+                      borderRadius: 'var(--r-md)',
+                      border: '1px solid var(--border)',
+                      padding: '8px 12px',
+                      backgroundColor: giaAggiunto ? 'var(--surface-2)' : 'var(--surface)',
+                      color: giaAggiunto ? 'var(--fg-muted)' : 'var(--primary)',
+                      cursor: giaAggiunto ? 'default' : 'pointer',
+                    }}
                     disabled={giaAggiunto}
                     onClick={() => aggiungi(r)}
+                    onMouseEnter={(e) => {
+                      if (!giaAggiunto) {
+                        e.currentTarget.style.backgroundColor = 'var(--surface-2)'
+                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!giaAggiunto) {
+                        e.currentTarget.style.backgroundColor = 'var(--surface)'
+                        e.currentTarget.style.boxShadow = 'none'
+                      }
+                    }}
                   >
                     {giaAggiunto ? '✓ aggiunto' : '+ Aggiungi'}
                   </button>
@@ -162,10 +209,17 @@ export function Banco({
 
       <section aria-label="Lista di lavoro" className="flex-1 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="font-medium text-zinc-700">Lista di lavoro ({listaLavoro.length})</h2>
+          <h2 className="font-medium" style={{ color: 'var(--fg)' }}>Lista di lavoro ({listaLavoro.length})</h2>
           <button
             type="button"
-            className="min-h-[40px] rounded px-3 py-2 text-sm text-zinc-600 underline decoration-zinc-400 underline-offset-2 transition-colors duration-150 hover:text-zinc-900 disabled:opacity-40"
+            className="text-sm transition-colors duration-150"
+            style={{
+              color: 'var(--primary)',
+              textDecoration: 'underline',
+              textDecorationColor: 'var(--border)',
+              cursor: listaLavoro.length === 0 || generazioneInCorso ? 'default' : 'pointer',
+              opacity: listaLavoro.length === 0 || generazioneInCorso ? 0.4 : 1,
+            }}
             onClick={svuota}
             disabled={listaLavoro.length === 0 || generazioneInCorso}
           >
@@ -174,43 +228,85 @@ export function Banco({
         </div>
 
         {listaLavoro.length === 0 ? (
-          <p className="text-sm text-zinc-500">Nessuna scheda in lista. Cerca un prodotto a sinistra e aggiungilo.</p>
+          <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--surface-2)', color: 'var(--fg-muted)' }}>
+            <p className="text-sm">Nessuna scheda in lista. Cerca un prodotto a sinistra e aggiungilo.</p>
+          </div>
         ) : (
-          <ul className="divide-y divide-zinc-200 rounded border border-zinc-200">
-            {listaLavoro.map((voce) => {
+          <ul className="rounded-lg overflow-hidden" style={{ backgroundColor: 'var(--surface)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)' }}>
+            {listaLavoro.map((voce, idx) => {
               const s = statoRighe[voce.sku]
               return (
-                <li key={voce.sku} className="flex items-center gap-1 px-3 py-2">
+                <li key={voce.sku} className="flex items-center gap-2 px-4 py-3" style={{
+                  backgroundColor: 'var(--surface)',
+                  borderBottom: idx < listaLavoro.length - 1 ? '1px solid var(--border)' : 'none',
+                }}>
                   <div className="min-w-0 flex-1 text-sm">
                     <div>
-                      <span className="text-zinc-500">{voce.sku}</span> — {voce.descrizioneBreve}
+                      <span style={{ color: 'var(--fg-muted)' }}>{voce.sku}</span>
+                      <span style={{ color: 'var(--fg)' }}> — {voce.descrizioneBreve}</span>
                     </div>
-                    {s?.stato === 'in-corso' && <p className="text-xs text-amber-700">⏳ in corso</p>}
+                    {s?.stato === 'in-corso' && <p className="text-xs mt-1" style={{ color: 'var(--warning)' }}>⏳ in corso</p>}
                     {s?.stato === 'fatto' &&
                       (s.qualita?.daRivedere ? (
-                        <p role="alert" className="text-xs text-amber-700">⚠ da rivedere: {s.qualita.problemi.join('; ')}</p>
+                        <p role="alert" className="text-xs mt-1" style={{ color: 'var(--warning)' }}>⚠ da rivedere: {s.qualita.problemi.join('; ')}</p>
                       ) : (
-                        <p className="text-xs text-emerald-700">✓ fatto</p>
+                        <p className="text-xs mt-1" style={{ color: 'var(--success)' }}>✓ fatto</p>
                       ))}
                     {s?.stato === 'errore' && (
-                      <p role="alert" className="text-xs text-red-600">✗ {s.errore}</p>
+                      <p role="alert" className="text-xs mt-1" style={{ color: 'var(--danger)' }}>✗ {s.errore}</p>
                     )}
                   </div>
                   <button
                     type="button"
                     aria-label={`Apri ${voce.sku}`}
-                    className="min-h-[40px] shrink-0 rounded border border-zinc-300 px-3 py-2 text-sm text-zinc-700 transition-colors duration-150 hover:border-emerald-600 disabled:opacity-40"
+                    className="min-h-[40px] shrink-0 text-sm font-medium transition-all duration-150"
+                    style={{
+                      borderRadius: 'var(--r-md)',
+                      border: '1px solid var(--border)',
+                      padding: '8px 12px',
+                      color: 'var(--fg)',
+                      backgroundColor: 'var(--surface)',
+                    }}
                     onClick={() => onApri(voce.sku)}
                     disabled={generazioneInCorso}
+                    onMouseEnter={(e) => {
+                      if (!generazioneInCorso) {
+                        e.currentTarget.style.backgroundColor = 'var(--surface-2)'
+                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!generazioneInCorso) {
+                        e.currentTarget.style.backgroundColor = 'var(--surface)'
+                        e.currentTarget.style.boxShadow = 'none'
+                      }
+                    }}
                   >
                     Apri
                   </button>
                   <button
                     type="button"
                     aria-label={`Rimuovi ${voce.sku} dalla lista`}
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded text-red-600 transition-colors duration-150 hover:bg-red-50 disabled:opacity-30"
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded transition-all duration-150"
+                    style={{
+                      color: 'var(--danger)',
+                      backgroundColor: 'transparent',
+                      borderRadius: 'var(--r-md)',
+                      cursor: generazioneInCorso ? 'default' : 'pointer',
+                      opacity: generazioneInCorso ? 0.3 : 1,
+                    }}
                     onClick={() => rimuovi(voce.sku)}
                     disabled={generazioneInCorso}
+                    onMouseEnter={(e) => {
+                      if (!generazioneInCorso) {
+                        e.currentTarget.style.backgroundColor = 'var(--danger-bg)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!generazioneInCorso) {
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                      }
+                    }}
                   >
                     ×
                   </button>
@@ -220,19 +316,39 @@ export function Banco({
           </ul>
         )}
 
-        <div className="sticky bottom-0 flex flex-wrap items-center gap-3 border-t border-zinc-200 bg-white py-3">
+        <div className="flex flex-wrap items-center gap-3 rounded-lg p-4" style={{ backgroundColor: 'var(--surface)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)' }}>
           <button
             type="button"
-            className="min-h-[40px] rounded bg-zinc-800 px-4 py-2 text-white transition-colors duration-150 hover:bg-zinc-900 disabled:opacity-50"
+            className="min-h-[40px] text-sm font-medium transition-all duration-150"
+            style={{
+              borderRadius: 'var(--r-md)',
+              padding: '10px 16px',
+              backgroundColor: 'var(--accent-cta)',
+              color: 'white',
+              boxShadow: 'var(--glow-accent)',
+              border: 'none',
+              cursor: listaLavoro.length === 0 || generazioneInCorso ? 'default' : 'pointer',
+              opacity: listaLavoro.length === 0 || generazioneInCorso ? 0.5 : 1,
+            }}
             onClick={generaTutte}
             disabled={listaLavoro.length === 0 || generazioneInCorso}
+            onMouseEnter={(e) => {
+              if (!(listaLavoro.length === 0 || generazioneInCorso)) {
+                e.currentTarget.style.filter = 'brightness(1.1)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!(listaLavoro.length === 0 || generazioneInCorso)) {
+                e.currentTarget.style.filter = 'brightness(1)'
+              }
+            }}
           >
             {generazioneInCorso ? 'Genero…' : 'Genera tutte'}
           </button>
           {riepilogo && (
-            <p className="text-sm text-zinc-700">
+            <p className="text-sm" style={{ color: 'var(--fg)' }}>
               {riepilogo.ok} generate, {riepilogo.errori} errori
-              {riepilogo.daRivedere > 0 && <span className="text-amber-700">, {riepilogo.daRivedere} da rivedere</span>}
+              {riepilogo.daRivedere > 0 && <span style={{ color: 'var(--warning)' }}>, {riepilogo.daRivedere} da rivedere</span>}
             </p>
           )}
         </div>

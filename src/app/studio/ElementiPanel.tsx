@@ -2,6 +2,7 @@
 
 import type { Scene, QuotaElement, TestoElement, BadgeElement } from '@/lib/scene/types'
 import type { SceneAction } from '@/lib/scene/mutations'
+import { Accordion } from './Accordion'
 
 const NOME_MISURA: Record<QuotaElement['orientamento'], string> = {
   verticale: 'Altezza',
@@ -13,6 +14,25 @@ const NOME_RUOLO: Record<TestoElement['ruolo'], string> = {
   titolo: 'Titolo',
   sottotitolo: 'Eyebrow (marchio)',
   corpo: 'Testo',
+}
+
+/** Chip di stato mostra/nascondi: "attiva" (elemento visibile) = tint secondary + testo primary. */
+function ChipToggle({ visibile, label, onClick }: { visibile: boolean; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      className="shrink-0 rounded-[var(--r-full)] px-2.5 py-1 text-xs"
+      style={
+        visibile
+          ? { background: 'rgba(167, 139, 250, .25)', color: 'var(--primary)', fontWeight: 600 }
+          : { background: 'var(--surface-2)', color: 'var(--fg-muted)' }
+      }
+      onClick={onClick}
+    >
+      {visibile ? 'Mostrato' : 'Nascosto'}
+    </button>
+  )
 }
 
 /**
@@ -27,66 +47,71 @@ export function ElementiPanel({ scene, dispatch }: { scene: Scene; dispatch: (a:
 
   if (quote.length === 0 && testi.length === 0 && badges.length === 0) return null
 
+  const header = (
+    <>
+      <span
+        className="grid h-7 w-7 shrink-0 place-items-center rounded-[var(--r-sm)] text-sm"
+        style={{ background: 'linear-gradient(135deg, #EC4899, #7C3AED)' }}
+        aria-hidden
+      >
+        🧩
+      </span>
+      <h3 className="truncate font-medium" style={{ color: 'var(--fg)' }}>Elementi</h3>
+    </>
+  )
+
   return (
-    <div className="space-y-2">
-      <h3 className="font-medium text-zinc-700">Elementi</h3>
-      <ul className="space-y-1">
+    <Accordion header={header}>
+      <ul className="space-y-1.5">
         {testi.map((el) => (
-          <li key={el.id} className="flex items-center gap-1">
+          <li key={el.id} className="flex items-center gap-1.5 rounded-[var(--r-md)] px-2 py-1.5" style={{ background: 'var(--surface-2)' }}>
             <label className="sr-only" htmlFor={`testo-${el.id}`}>{NOME_RUOLO[el.ruolo]}</label>
             <input
               id={`testo-${el.id}`}
               aria-label={NOME_RUOLO[el.ruolo]}
-              className="flex-1 rounded border border-zinc-300 px-2 py-1 text-sm"
+              className="min-w-0 flex-1 rounded-[var(--r-sm)] px-2 py-1 text-sm"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--fg)' }}
               value={el.testo}
               onChange={(e) => dispatch({ type: 'modifica-testo', id: el.id, testo: e.target.value })}
             />
-            <button
-              type="button"
-              aria-label={`${el.nascosto ? 'Mostra' : 'Nascondi'} ${NOME_RUOLO[el.ruolo]}`}
-              className="rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-700 hover:border-emerald-600"
+            <ChipToggle
+              visibile={!el.nascosto}
+              label={`${el.nascosto ? 'Mostra' : 'Nascondi'} ${NOME_RUOLO[el.ruolo]}`}
               onClick={() => dispatch({ type: 'toggle-elemento', id: el.id })}
-            >
-              {el.nascosto ? 'Mostra' : 'Nascondi'}
-            </button>
+            />
           </li>
         ))}
         {quote.map((el) => (
-          <li key={el.id} className="flex items-center gap-1">
-            <span className="flex-1 text-sm text-zinc-700">
-              {NOME_MISURA[el.orientamento]} <span className="text-zinc-400">({el.valore})</span>
+          <li key={el.id} className="flex items-center gap-1.5 rounded-[var(--r-md)] px-2 py-1.5" style={{ background: 'var(--surface-2)' }}>
+            <span className="min-w-0 flex-1 text-sm" style={{ color: 'var(--fg)' }}>
+              {NOME_MISURA[el.orientamento]} <span style={{ color: 'var(--fg-muted)' }}>({el.valore})</span>
             </span>
-            <button
-              type="button"
-              aria-label={`${el.nascosta ? 'Mostra' : 'Nascondi'} ${NOME_MISURA[el.orientamento]}`}
-              className="rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-700 hover:border-emerald-600"
+            <ChipToggle
+              visibile={!el.nascosta}
+              label={`${el.nascosta ? 'Mostra' : 'Nascondi'} ${NOME_MISURA[el.orientamento]}`}
               onClick={() => dispatch({ type: 'toggle-elemento', id: el.id })}
-            >
-              {el.nascosta ? 'Mostra' : 'Nascondi'}
-            </button>
+            />
           </li>
         ))}
         {badges.map((el, i) => (
-          <li key={el.id} className="flex items-center gap-1">
+          <li key={el.id} className="flex items-center gap-1.5 rounded-[var(--r-md)] px-2 py-1.5" style={{ background: 'var(--surface-2)' }}>
             <label className="sr-only" htmlFor={`badge-${el.id}`}>{`Badge ${i + 1}`}</label>
             <input
               id={`badge-${el.id}`}
               aria-label={`Badge ${i + 1}`}
-              className="flex-1 rounded border border-zinc-300 px-2 py-1 text-sm"
+              className="min-w-0 flex-1 rounded-[var(--r-sm)] px-2 py-1 text-sm"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--fg)' }}
               value={el.testo}
               onChange={(e) => dispatch({ type: 'modifica-testo', id: el.id, testo: e.target.value })}
             />
-            <button
-              type="button"
-              aria-label={`${el.nascosto ? 'Mostra' : 'Nascondi'} badge ${i + 1}`}
-              className="rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-700 hover:border-emerald-600"
+            <ChipToggle
+              visibile={!el.nascosto}
+              label={`${el.nascosto ? 'Mostra' : 'Nascondi'} badge ${i + 1}`}
               onClick={() => dispatch({ type: 'toggle-elemento', id: el.id })}
-            >
-              {el.nascosto ? 'Mostra' : 'Nascondi'}
-            </button>
+            />
           </li>
         ))}
       </ul>
-    </div>
+    </Accordion>
   )
 }
