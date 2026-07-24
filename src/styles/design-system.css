@@ -1,26 +1,26 @@
-/* SVG Studio Design System — "Soft Builder" (viola/pink, no-code builder aesthetic) */
+/* SVG Studio Design System — Blueprint (blu freddo, stile tecnico professionale) */
 /* Solo token. Reset/base styling vive in globals.css. */
 /* Niente @import remoto per il font: il progetto gira anche offline (vedi overview.md, E2E
    offline) e un @import annidato dopo "tailwindcss" è comunque CSS non valido una volta
    concatenato (@import deve precedere ogni altra regola). Fallback di sistema su DM Sans. */
 
 :root {
-  /* Brand */
-  --primary: #7C3AED;
-  --primary-dark: #6D28D9;
-  --secondary: #A78BFA;
-  --accent: #EC4899;
-  --accent-cta: #DB2777; /* pink profondo per testo/bg CTA */
+  /* Brand — Blueprint palette */
+  --primary: #1E40AF;
+  --primary-dark: #1E3A8A;
+  --secondary: #3B82F6;
+  --accent: #06B6D4;
+  --accent-cta: #0369A1; /* blu profondo per testo/bg CTA */
 
-  /* Superfici */
-  --color-background: #FAF5FF;
+  /* Superfici — grigio freddo blueprint */
+  --color-background: #F0F4F8;
   --surface: #FFFFFF;
-  --surface-2: #F3E8FF;
-  --border: #E9D5FF;
+  --surface-2: #E8ECED;
+  --border: #CBD5E1;
 
   /* Testo */
-  --fg: #4C1D95;
-  --fg-muted: #8B7AA8;
+  --fg: #0F172A;
+  --fg-muted: #475569;
 
   /* Feedback */
   --success: #16A34A;
@@ -36,11 +36,11 @@
   --r-lg: 16px;
   --r-full: 999px;
 
-  /* Shadows — tinte viola, mai nere */
-  --shadow-sm: 0 1px 2px rgba(124, 58, 237, .06), 0 1px 1px rgba(124, 58, 237, .04);
-  --shadow-md: 0 4px 12px rgba(124, 58, 237, .10), 0 2px 4px rgba(124, 58, 237, .06);
-  --shadow-lg: 0 12px 32px rgba(124, 58, 237, .16), 0 4px 8px rgba(124, 58, 237, .08);
-  --glow-accent: 0 0 0 4px rgba(219, 39, 119, .18), 0 4px 14px rgba(219, 39, 119, .35);
+  /* Shadows — tinte blu, mai nere */
+  --shadow-sm: 0 1px 2px rgba(30, 64, 175, .06), 0 1px 1px rgba(30, 64, 175, .04);
+  --shadow-md: 0 4px 12px rgba(30, 64, 175, .10), 0 2px 4px rgba(30, 64, 175, .06);
+  --shadow-lg: 0 12px 32px rgba(30, 64, 175, .16), 0 4px 8px rgba(30, 64, 175, .08);
+  --glow-accent: 0 0 0 4px rgba(6, 182, 212, .18), 0 4px 14px rgba(6, 182, 212, .35);
 
   /* Typography */
   --font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -69,17 +69,17 @@
   --transition-slow: 300ms cubic-bezier(.2, .7, .3, 1);
 
   /* Focus ring */
-  --focus-ring: 0 0 0 3px rgba(124, 58, 237, .45), 0 0 0 1px rgba(124, 58, 237, .9);
+  --focus-ring: 0 0 0 3px rgba(30, 64, 175, .45), 0 0 0 1px rgba(30, 64, 175, .9);
 }
 
 /* Dark mode: override esplicito via data-theme, oppure segue il sistema se non forzato a "light" */
 :root[data-theme='dark'] {
-  --color-background: #1A1027;
-  --surface: #241A38;
-  --surface-2: #2E2145;
-  --border: rgba(236, 72, 153, .18);
-  --fg: #F3E8FF;
-  --fg-muted: #B9A6D9;
+  --color-background: #0F172A;
+  --surface: #1E293B;
+  --surface-2: #334155;
+  --border: rgba(59, 130, 246, .18);
+  --fg: #F1F5F9;
+  --fg-muted: #94A3B8;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .30), 0 1px 1px rgba(0, 0, 0, .20);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, .35), 0 2px 4px rgba(0, 0, 0, .25);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, .45), 0 4px 8px rgba(0, 0, 0, .30);
@@ -87,12 +87,12 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --color-background: #1A1027;
-    --surface: #241A38;
-    --surface-2: #2E2145;
-    --border: rgba(236, 72, 153, .18);
-    --fg: #F3E8FF;
-    --fg-muted: #B9A6D9;
+    --color-background: #0F172A;
+    --surface: #1E293B;
+    --surface-2: #334155;
+    --border: rgba(59, 130, 246, .18);
+    --fg: #F1F5F9;
+    --fg-muted: #94A3B8;
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, .30), 0 1px 1px rgba(0, 0, 0, .20);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, .35), 0 2px 4px rgba(0, 0, 0, .25);
     --shadow-lg: 0 12px 32px rgba(0, 0, 0, .45), 0 4px 8px rgba(0, 0, 0, .30);
