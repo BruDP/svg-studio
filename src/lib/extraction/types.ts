@@ -25,4 +25,7 @@ export interface RawExtraction {
 // Titolo è fonte PRIMARIA, non secondaria. Estrattore estrae TUTTI i numeri/aggettivi dal titolo.
 // Categoria fallback (piccoli_elettrodomestici → watt, velocità, cavo; barbecue → alimentazione, etc).
 // Invalida cache: ri-estrae con nuova strategia tutti i prodotti.
-export const PROMPT_VERSION = 13
+// Bump a 14: estensione enrichment a fitness (potenza, peso_max, programmi) e barbecue (bruciatori, materiale).
+// Pattern categoria-specifici in enrich.ts: piccoli_elettrodomestici, fitness, barbecue, arredo_esterno.
+// Invalida cache: ri-estrae feature enriched per categorie ad alto valore.
+export const PROMPT_VERSION = 14
