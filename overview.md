@@ -5,7 +5,7 @@ Per ogni SKU: estrae le caratteristiche dal testo del prodotto (Gemini vincolato
 scena vettoriale, la renderizza in SVG deterministico e la esporta in JPEG (per l'ecommerce) + SVG.
 
 Stato: MVP completo e usabile (SKU → proposta → editing → export) con due template, libreria icone,
-identità visiva Satur, loghi marchio. Ultimo aggiornamento doc: **2026-07-23**.
+identità visiva clean/Apple, loghi marchio e linea, selezione target ad alto valore. Ultimo aggiornamento doc: **2026-07-24**.
 
 ---
 
@@ -92,6 +92,7 @@ src/
     scene/                tipi Scene, schema Zod, mutations (reducer editor)
     render/               svg.ts (renderScene puro), bundle.ts (risorse), colore.ts
     branding/             marchio.ts (slug/display) + logo-loader.ts (loghi da assets/loghi)
+                          linea.ts (rileva linea da descrizioneBreve) + selezione.ts (target ad alto valore)
     export/               raster.ts (JPEG+SVG)
     quality/              valuta.ts (segnale qualità: poche icone / da-verificare)
     theme.ts theme-satur.ts   token di stile + palette per reparto
@@ -129,9 +130,17 @@ docs/                     design-system.md + superpowers/{specs,plans} (storico 
 ## Dati chiave
 
 - **3 marchi** reali nel campo `marchio`: Galileo (~4221), Villa d'Este/VdE (~2134), Kooper (~712).
-  Le "linee" (BestBQ, Esté, FitLover, SìChef…) sono nella descrizione, non nel campo marchio.
+  **Le "linee"** (BestBQ, Esté, FitLover, SìChef, Kooper X…) sono nella descrizione (ultimo segmento
+  di `descrizioneBreve`), rilevate via `linea.ts` senza Gemini. L'eyebrow mostra la linea se
+  riconosciuta, altrimenti il marchio.
+- **Selezione target** (`selezione.ts`): i prodotti si classificano in `kooper`, `garden`, `fitness`
+  a partire da marchio + linea rilevata (no Gemini). Serve per escludere i ~6200 prodotti non
+  prioritari e generare le schede solo per i ~780 target ad alto valore.
+- **Loghi di linea** (`assets/loghi/`): BestBQ, Esté, FitLover, Kooper X, Duppidù, SìChef, Sìordine,
+  Santa's House, Sibilla (PNG trasparenti, data URI). Marchi: galileo, kooper, villa-d-este.
 - **Dizionario**: 90 chiavi feature (v7), 19 categorie (v4). Completo per le categorie prioritarie
   (arredo, garden, grandi/piccoli elettrodomestici, ombrelloni, valigie, illuminazione).
+  **FitLover/fitness non ha ancora feature specifiche** — da estendere.
 - **Due template**: `colonna-sinistra` (prodotto singolo) e `multi-prodotto` (set, N sotto-prodotti).
 
 ---
