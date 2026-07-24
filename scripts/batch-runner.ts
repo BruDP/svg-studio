@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { refreshFeedIfStale } from '@/lib/feed/fetcher'
 import { getProduct, searchProducts } from '@/lib/feed/repository'
 import { loadDictionary } from '@/lib/dictionary/loader'
 import { inScopeAltoValore } from '@/lib/branding/selezione'
@@ -14,15 +15,17 @@ const force = args.includes('--force')
 
 async function main() {
   console.log(`🚀 Batch runner: limit=${limit}, force=${force}`)
+  await refreshFeedIfStale({})
   const dict = loadDictionary()
 
-  // Seleziona target ad alto valore
-  const all = await searchProducts('')
+  // Seleziona target ad alto valore (tutti i prodotti del DB)
+  const allProducts = await db.product.findMany({ take: 10000 })
+  console.log(`🔍 Prodotti totali nel DB: ${allProducts.length}`)
   const target: string[] = []
-  for (const { sku } of all.slice(0, limit * 2)) {
-    const product = await getProduct(sku)
-    if (product && inScopeAltoValore(product.descrizioneBreve, product.marchio)) {
-      target.push(sku)
+  for (const row of allProducts) {
+    const product = JSON.parse(row.payload)
+    if (inScopeAltoValore(product.descrizioneBreve, product.marchio)) {
+      target.push(row.sku)
       if (target.length >= limit) break
     }
   }
