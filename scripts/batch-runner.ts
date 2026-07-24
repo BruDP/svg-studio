@@ -1,4 +1,13 @@
 #!/usr/bin/env node
+import 'dotenv/config'
+
+// Verifica GEMINI_API_KEY
+if (!process.env.GEMINI_API_KEY) {
+  console.error('❌ GEMINI_API_KEY non impostato.')
+  console.error('Usa: GEMINI_API_KEY="..." npm run batch -- --limit N')
+  process.exit(1)
+}
+
 import { refreshFeedIfStale } from '@/lib/feed/fetcher'
 import { getProduct, searchProducts } from '@/lib/feed/repository'
 import { loadDictionary } from '@/lib/dictionary/loader'
@@ -56,7 +65,8 @@ async function main() {
       console.log(`✅ ${sku}`)
       generated++
     } catch (err) {
-      console.error(`❌ ${sku}`)
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error(`❌ ${sku}: ${msg.slice(0, 80)}`)
       errors++
     }
   }

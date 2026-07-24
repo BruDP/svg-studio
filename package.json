@@ -11,6 +11,7 @@
     "propose": "tsx scripts/propose.ts",
     "seed:icons": "tsx scripts/seed-icons.ts",
     "compose": "tsx scripts/compose.ts",
+    "batch": "tsx scripts/batch-runner.ts",
     "e2e": "playwright test"
   },
   "dependencies": {
