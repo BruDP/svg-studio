@@ -74,7 +74,8 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
         const tspans = righe
           .map((r, i) => `<tspan x="${el.x}" y="${el.y + size + i * lineH}">${esc(r)}</tspan>`)
           .join('')
-        return `<text font-family="${theme.fontFamily}" font-size="${size}" font-weight="600" fill="${theme.colors.testo}">${tspans}</text>`
+        // Tracking leggermente stretto: dà al titolo un tono "headline" premium (stile Apple).
+        return `<text font-family="${theme.fontFamily}" font-size="${size}" font-weight="600" letter-spacing="-0.4" fill="${theme.colors.testo}">${tspans}</text>`
       }
       const size = theme.testo.etichetta
       return `<text x="${el.x}" y="${el.y + size}" font-family="${theme.fontFamily}" font-size="${size}" font-weight="400" fill="${theme.colors.testo}">${esc(el.testo)}</text>`

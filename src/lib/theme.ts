@@ -59,7 +59,7 @@ export const theme = {
     notch: 14,
   },
   testo: {
-    titolo: 34, // headline prodotto (dimensione che fa stare i nomi lunghi su 2 righe senza ellissi)
+    titolo: 34, // headline prodotto (tracking stretto in svg.ts; regge i nomi lunghi su 2 righe)
     eyebrow: 18, // wordmark marchio (ripiego quando manca il file logo)
     logoAltezza: 38, // altezza del box del logo marchio (ancorato a sinistra, proporzioni preservate)
     etichetta: 25,
@@ -74,7 +74,7 @@ export const theme = {
     canvas: 60,
     colonnaX: 60,
     colonnaGap: 76, // distanza verticale tra icone in colonna (ridotta insieme al raggio icona)
-    labelGap: 16, // distanza cerchio → etichetta
+    labelGap: 20, // distanza glifo icona → etichetta (un filo d'aria in più, look clean)
     // Larghezza massima (px) di un'etichetta prima di andare a capo: deve coincidere con
     // lo spazio disponibile nel template colonna-sinistra (FOTO_BOX_X, vedi colonna-sinistra.ts)
     // meno un margine di sicurezza — se in futuro un template diverso posiziona la foto altrove,

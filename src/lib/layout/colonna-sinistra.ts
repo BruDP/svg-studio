@@ -63,8 +63,8 @@ export function composeColonnaSinistra(input: {
       elements.push({ type: 'testo', id: 'eyebrow', testo: marchio, x: theme.margini.colonnaX, y: 76, ruolo: 'sottotitolo' })
     }
     const titolo = estraiTitolo(nome, marchio)
-    elements.push({ type: 'testo', id: 'titolo', testo: titolo, x: theme.margini.colonnaX, y: 150, ruolo: 'titolo' })
-    iconStartY = 300 // sotto l'intestazione (logo/eyebrow + titolo grande fino a 2 righe)
+    elements.push({ type: 'testo', id: 'titolo', testo: titolo, x: theme.margini.colonnaX, y: 158, ruolo: 'titolo' })
+    iconStartY = 308 // sotto l'intestazione (logo/eyebrow + titolo grande fino a 2 righe)
   }
 
   // Icone in colonna, nell'ordine del ranking. Il blocco viene CENTRATO verticalmente nello spazio
