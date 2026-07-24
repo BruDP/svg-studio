@@ -3,11 +3,12 @@ import { db } from '@/lib/db'
 import { stableStringify } from '@/lib/stable'
 import type { Dictionary } from '@/lib/dictionary/types'
 import type { ProductRecord } from '@/lib/feed/types'
-import { extractRaw } from './gemini'
+import { extractRaw, buildPrompt, defaultGenerateWithCost } from './gemini'
 import { validateExtraction } from './validator'
 import { rankFeatures, type ProposedFeature } from './ranking'
 import { parseDimensions, parseSetDimensions, type Dimensioni } from './dimensions'
 import { PROMPT_VERSION } from './types'
+import { logCost } from './cost-tracker'
 
 export interface SottoProdotto {
   gruppo: string
@@ -59,7 +60,16 @@ export async function extractProposal(
   })
   if (cached) return JSON.parse(cached.proposal) as SchedaProposal
 
-  const raw = await extractRaw(product, dict, generate)
+  let raw
+  if (generate) {
+    raw = await extractRaw(product, dict, generate)
+  } else {
+    const prompt = buildPrompt(product, dict)
+    const result = await defaultGenerateWithCost(prompt, dict)
+    raw = result.data
+    await logCost(product.sku, 'extraction', 'gemini-2.5-pro', result.inputTokens, result.outputTokens)
+  }
+
   const validated = validateExtraction(raw, product)
   const { features, badges } = rankFeatures(validated, raw.categoria, dict)
   const sotto = parseSetDimensions(product.notaTecnica)

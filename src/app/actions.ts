@@ -353,3 +353,39 @@ export async function seedIconeAction(): Promise<{ create: number; salta: number
   }
   return { create, salta }
 }
+
+// Tracker costi
+import { getTotalCost, getTotalCostAllTime, getAverageCostPerScheda, estimateCostForN } from '@/lib/extraction/cost-tracker'
+
+export async function getCostSummaryAction(sessionMinutes?: number): Promise<{
+  sessionCost: number
+  allTimeCost: number
+  avgPerScheda: number
+}> {
+  const sessionStart = sessionMinutes ? new Date(Date.now() - sessionMinutes * 60000) : undefined
+  return {
+    sessionCost: await getTotalCost(sessionStart),
+    allTimeCost: await getTotalCostAllTime(),
+    avgPerScheda: await getAverageCostPerScheda(),
+  }
+}
+
+export async function estimateCostAction(n: number): Promise<number> {
+  return estimateCostForN(n)
+}
+
+export async function exportCostsCsvAction(): Promise<string> {
+  const logs = await db.costLog.findMany({ orderBy: { createdAt: 'asc' } })
+  const header = ['Data', 'SKU', 'Operazione', 'Modello', 'Input Token', 'Output Token', 'Costo USD']
+  const rows = logs.map((log) => [
+    log.createdAt.toISOString(),
+    log.sku,
+    log.operazione,
+    log.modello,
+    log.inputTokens.toString(),
+    log.outputTokens.toString(),
+    log.costUsd.toFixed(6),
+  ])
+  const csv = [header, ...rows].map((r) => r.map((c) => `"${c}"`).join(',')).join('\n')
+  return csv
+}

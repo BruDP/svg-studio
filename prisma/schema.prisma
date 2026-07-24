@@ -70,3 +70,20 @@ model VisionProspettiva {
   origine   String   @default("vision")
   createdAt DateTime @default(now())
 }
+
+// Tracker costi Gemini: per ogni estrazione/Vision, registra input token, output token, costo USD.
+// Tracciamento da 2026-07-24 in poi. Esportabile CSV per amministrazione.
+model CostLog {
+  id            Int      @id @default(autoincrement())
+  sku           String
+  operazione    String   // 'extraction' | 'vision'
+  modello       String   // es. 'gemini-2.5-pro', 'gemini-vision'
+  inputTokens   Int
+  outputTokens  Int
+  costUsd       Float    // calcolato da Gemini response
+  createdAt     DateTime @default(now())
+
+  @@index([sku])
+  @@index([createdAt])
+}
+

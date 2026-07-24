@@ -63,14 +63,44 @@ async function defaultGenerate(prompt: string, dict: Dictionary): Promise<string
     config: {
       temperature: 0,
       seed: 1,
-      // 2.5 Pro non permette di disattivare il thinking (a differenza di Flash):
-      // budget dinamico, il modello decide quanto ragionare.
       thinkingConfig: { thinkingBudget: -1 },
       responseMimeType: 'application/json',
       responseSchema: buildResponseSchema(dict),
     },
   })
   return res.text ?? ''
+}
+
+export interface ExtractionResult {
+  data: RawExtraction
+  inputTokens: number
+  outputTokens: number
+}
+
+export async function defaultGenerateWithCost(prompt: string, dict: Dictionary): Promise<ExtractionResult> {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) throw new Error('GEMINI_API_KEY non impostata (usa .env.local)')
+  const ai = new GoogleGenAI({ apiKey })
+  const res = await ai.models.generateContent({
+    model: 'gemini-2.5-pro',
+    contents: prompt,
+    config: {
+      temperature: 0,
+      seed: 1,
+      thinkingConfig: { thinkingBudget: -1 },
+      responseMimeType: 'application/json',
+      responseSchema: buildResponseSchema(dict),
+    },
+  })
+  const text = res.text ?? ''
+  if (!text.trim()) throw new Error('Gemini ha restituito una risposta vuota')
+  const data = JSON.parse(text) as RawExtraction
+  const usage = (res as any).usageMetadata || { promptTokenCount: 0, candidatesTokenCount: 0 }
+  return {
+    data,
+    inputTokens: usage.promptTokenCount ?? 0,
+    outputTokens: usage.candidatesTokenCount ?? 0,
+  }
 }
 
 export async function extractRaw(
