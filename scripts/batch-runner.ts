@@ -19,7 +19,7 @@ import { renderSceneServer } from '@/lib/render/bundle'
 import { exportScene } from '@/lib/export/raster'
 
 const args = process.argv.slice(2)
-const limit = parseInt(args[args.indexOf('--limit') + 1] || '50', 10)
+const limit = parseInt(args[args.indexOf('--limit') + 1] || '10000', 10)
 const force = args.includes('--force')
 
 async function main() {
