@@ -390,6 +390,41 @@ export async function exportCostsCsvAction(): Promise<string> {
   return csv
 }
 
+// Stima costi batch
+export async function simulateBatchCostAction(): Promise<{
+  totalProducts: number
+  targetProducts: number
+  avgCostPerExtraction: number
+  estimatedTotalCost: number
+  note: string
+}> {
+  const { inScopeAltoValore } = await import('@/lib/branding/selezione')
+
+  // Conta target
+  const allProducts = await db.product.findMany({ take: 10000 })
+  let targetCount = 0
+  for (const row of allProducts) {
+    try {
+      const product = JSON.parse(row.payload)
+      if (inScopeAltoValore(product.descrizioneBreve, product.marchio)) targetCount++
+    } catch {
+      // skip malformed
+    }
+  }
+
+  // Costo medio per estrazione (da CostLog)
+  const logs = await db.costLog.findMany({ where: { operazione: 'extraction' } })
+  const avgCost = logs.length > 0 ? logs.reduce((sum: number, l: any) => sum + l.costUsd, 0) / logs.length : 0.001
+
+  return {
+    totalProducts: allProducts.length,
+    targetProducts: targetCount,
+    avgCostPerExtraction: avgCost,
+    estimatedTotalCost: avgCost * targetCount,
+    note: `${logs.length} estrazioni già fatte, media $${avgCost.toFixed(6)}/scheda`,
+  }
+}
+
 // Batch generation
 export async function batchGenerateAction(limit: number = 50, force: boolean = false): Promise<{
   generated: number
