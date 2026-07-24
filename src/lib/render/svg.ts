@@ -68,14 +68,15 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
       }
       if (el.ruolo === 'titolo') {
         // Nome prodotto: SemiBold, inchiostro, a capo su max 2 righe entro la colonna sinistra.
+        // Tipografia "headline" Apple (skill apple-design §15): tracking negativo (~-0.02em) e
+        // leading stretto per il corpo grande.
         const size = theme.testo.titolo
-        const lineH = size * theme.testo.interlinea
+        const lineH = size * theme.testo.interlineaTitolo
         const righe = spezzaEtichetta(el.testo, theme.margini.titoloMaxLarghezza, size, 2)
         const tspans = righe
           .map((r, i) => `<tspan x="${el.x}" y="${el.y + size + i * lineH}">${esc(r)}</tspan>`)
           .join('')
-        // Tracking leggermente stretto: dà al titolo un tono "headline" premium (stile Apple).
-        return `<text font-family="${theme.fontFamily}" font-size="${size}" font-weight="600" letter-spacing="-0.4" fill="${theme.colors.testo}">${tspans}</text>`
+        return `<text font-family="${theme.fontFamily}" font-size="${size}" font-weight="600" letter-spacing="-0.6" fill="${theme.colors.testo}">${tspans}</text>`
       }
       const size = theme.testo.etichetta
       return `<text x="${el.x}" y="${el.y + size}" font-family="${theme.fontFamily}" font-size="${size}" font-weight="400" fill="${theme.colors.testo}">${esc(el.testo)}</text>`
@@ -168,7 +169,8 @@ function renderElement(el: SceneElement, deps: { icon: IconResolver; image: Imag
         anchor = 'middle'
         ruota = ` transform="rotate(${angolo} ${lx} ${ly})"`
       }
-      const etichetta = `<text x="${lx}" y="${ly}" text-anchor="${anchor}"${ruota} font-family="${theme.fontFamily}" font-size="${fs}" font-weight="500" fill="${theme.colors.quotaTesto}">${esc(el.valore)}</text>`
+      // Testo piccolo → tracking leggermente positivo per leggibilità (skill apple-design §15).
+      const etichetta = `<text x="${lx}" y="${ly}" text-anchor="${anchor}"${ruota} font-family="${theme.fontFamily}" font-size="${fs}" font-weight="500" letter-spacing="0.2" fill="${theme.colors.quotaTesto}">${esc(el.valore)}</text>`
       return linea + ticks + etichetta
     }
     case 'badge': {

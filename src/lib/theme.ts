@@ -68,7 +68,10 @@ export const theme = {
     // Rapporto larghezza/carattere calibrato empiricamente sul font Poppins reale
     // (via resvg + FONT_FILES, media su etichette rappresentative del dizionario: ~0.51 em/carattere).
     larghezzaCarattereEm: 0.52,
-    interlinea: 1.15, // moltiplicatore di riga per le etichette spezzate su piu' righe
+    interlinea: 1.15, // moltiplicatore di riga per le etichette (corpo) spezzate su piu' righe
+    // Leading del TITOLO più stretto (disciplina tipografica Apple: il leading è inverso alla
+    // dimensione → headline grande = interlinea corta). Vedi skill apple-design §15.
+    interlineaTitolo: 1.06,
   },
   margini: {
     canvas: 60,
