@@ -9,20 +9,41 @@ export function FeaturePanel({
   categoriaFeatures,
   dispatch,
   onCambiaIcona,
+  sku,
+  onMiglioraFeature,
 }: {
   scene: Scene
   categoriaFeatures: { chiave: string; etichetta: string }[]
   dispatch: (a: SceneAction) => void
   onCambiaIcona: (chiave: string) => void
+  sku: string
+  onMiglioraFeature?: (sku: string) => Promise<void>
 }) {
   const [daAggiungere, setDaAggiungere] = useState('')
   const icone = scene.elements.filter((e): e is IconLabelElement => e.type === 'icona-label')
   const presenti = new Set(icone.map((e) => e.chiave))
   const aggiungibili = categoriaFeatures.filter((f) => !presenti.has(f.chiave))
 
+  const [migliorando, setMigliorando] = useState(false)
+
   return (
     <div className="space-y-2">
-      <h3 className="font-medium text-zinc-700">Caratteristiche</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="font-medium text-zinc-700">Caratteristiche</h3>
+        {onMiglioraFeature && (
+          <button
+            onClick={() => {
+              setMigliorando(true)
+              onMiglioraFeature(sku).finally(() => setMigliorando(false))
+            }}
+            disabled={migliorando || !sku}
+            className="text-xs rounded bg-blue-600 px-2 py-1 text-white disabled:opacity-50 hover:bg-blue-700"
+            title="Ri-estrai le feature con prompt migliorato"
+          >
+            {migliorando ? '⏳' : '🔄'} Migliora
+          </button>
+        )}
+      </div>
       <ul className="space-y-1">
         {icone.map((el, i) => (
           <li key={el.id} className="flex items-center gap-1">

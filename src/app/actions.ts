@@ -425,6 +425,47 @@ export async function simulateBatchCostAction(): Promise<{
   }
 }
 
+// Re-estrazione feature (migliorata)
+export async function reextractFeaturesAction(sku: string): Promise<ProposeResult> {
+  const s = (sku ?? '').trim()
+  if (!s) throw new Error('SKU mancante')
+
+  const dict = loadDictionary()
+  const product = await getProduct(s)
+  if (!product) throw new Error(`SKU ${s} non trovato`)
+
+  // Estrai con il prompt migliorato (ignora cache, forza nuova estrazione)
+  const proposal = await extractProposal(product, dict, undefined)
+
+  // Salva la nuova proposta nella cache (sovrascrive la vecchia)
+  const inputHash = (await import('@/lib/extraction/engine')).computeInputHash(product, dict)
+  await db.extraction.upsert({
+    where: { sku_inputHash: { sku: s, inputHash } },
+    create: { sku: s, inputHash, proposal: JSON.stringify(proposal) },
+    update: { proposal: JSON.stringify(proposal) },
+  })
+
+  // Ritorna la proposta come proposeSceneAction
+  const composed = await composeSceneForProduct({ proposal, product })
+  const bundle = await resolveRenderBundle(composed.scene)
+  const applicabili = Object.entries(dict.features)
+    .filter(([, def]) => def.categorie.includes(proposal.categoria))
+    .map(([chiave, def]) => ({ chiave, etichetta: def.label.replace('{valore}', '').trim() }))
+  const editor = await resolveEditorIcons(applicabili.map((f) => f.chiave))
+
+  const salvata = await db.scene.findUnique({ where: { sku: s } })
+  return {
+    scene: composed.scene,
+    iconMap: editor.iconMap,
+    imageMap: bundle.imageMap,
+    prodotto: { sku: product.sku, descrizioneBreve: product.descrizioneBreve },
+    categoriaFeatures: applicabili,
+    salvataDisponibile: salvata !== null,
+    immagini: product.images,
+    iconeNonApprovate: editor.inRevisione,
+  }
+}
+
 // Batch generation
 export async function batchGenerateAction(limit: number = 50, force: boolean = false): Promise<{
   generated: number

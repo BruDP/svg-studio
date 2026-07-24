@@ -1,0 +1,92 @@
+
+> svg-studio@0.1.0 batch
+> tsx scripts/batch-runner.ts
+
+🚀 Batch runner: limit=10000, force=false
+🔍 Prodotti totali nel DB: 7073
+📦 Target trovati: 1353
+✅ 2137071
+✅ 2145379
+✅ 2145380
+✅ 2145381
+✅ 2145382
+✅ 2151432
+✅ 2160663
+✅ 2160664
+✅ 2160665
+✅ 2160666
+✅ 2160818
+✅ 2169801
+✅ 2169802
+✅ 2169803
+✅ 2169819
+❌ 2170125: Prodotto 2170125 senza immagini nel feed
+✅ 2170129
+✅ 217✅ 2❌ 217✅ 2170822
+✅ 2172386
+✅ 2174702
+❌ 2174989: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\svg-st
+❌ 2175058: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\svg-st
+❌ 2175747: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\svg-st
+✅ 2175883
+❌ 2175884: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\svg-st
+✅ 2179173
+❌ 2179174: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\svg-st
+✅ 2179175
+❌ 2179176: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\svg-st
+❌ 2179233: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\svg-st
+❌ 2✅ 2179274
+❌ 2179276: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzi✅ 2179276
+❌ 2✅ 2179277
+❌ 2179283: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\sv✅ 2179285
+❌ 2179287: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\✅ 217✅ 2179451
+❌ 2184296: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\svg-st
+❌ 2✅ 2187876
+❌ 2188236: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzi✅ 2188236
+❌ 2188238: 
+Inv✅ 2188240
+✅ 2188241
+✅ 2188242
+❌ 2188244: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\svg-st
+❌ 2188245: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\svg-st
+❌ 2188279: 
+Invalid `db.extraction.create()` invocation in
+C:\Users\deporzib\Desktop\svg-st
+✅ 2188386
+✅ 2188391
+✅ 2188392
+✅ 2188393
+✅ 2188416
+✅ 2188420
+✅ 2188421
+✅ 2188422
+✅ 2188423
+✅ 2188424

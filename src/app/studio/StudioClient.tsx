@@ -1,7 +1,7 @@
 'use client'
 
 import { useReducer, useState, useTransition } from 'react'
-import { proposeSceneAction, exportSceneAction, saveSceneAction, loadSceneAction, cambiaFotoAction } from '../actions'
+import { proposeSceneAction, exportSceneAction, saveSceneAction, loadSceneAction, cambiaFotoAction, reextractFeaturesAction } from '../actions'
 import type { ProposeResult } from '@/lib/ui/types'
 import type { Scene } from '@/lib/scene/types'
 import { applyMutation } from '@/lib/scene/mutations'
@@ -237,7 +237,23 @@ export function StudioClient() {
               inCorso={inCorso}
               pezzoAttivo={gruppi.length > 0 ? `Pezzo ${gruppi.indexOf(gruppoAttivo ?? gruppi[0]) + 1}` : null}
             />
-            <FeaturePanel scene={scene} categoriaFeatures={bundle.categoriaFeatures} dispatch={dispatch} onCambiaIcona={setPickerChiave} />
+            <FeaturePanel
+              scene={scene}
+              categoriaFeatures={bundle.categoriaFeatures}
+              dispatch={dispatch}
+              onCambiaIcona={setPickerChiave}
+              sku={sku}
+              onMiglioraFeature={async (s) => {
+                try {
+                  const result = await reextractFeaturesAction(s)
+                  const { scene: newScene } = result
+                  dispatch({ type: 'reset', scene: newScene })
+                  setBundle((b) => b ? { ...b, categoriaFeatures: result.categoriaFeatures } : null)
+                } catch (e) {
+                  alert(`Errore: ${e instanceof Error ? e.message : 'sconosciuto'}`)
+                }
+              }}
+            />
             <ElementiPanel scene={scene} dispatch={dispatch} />
             <div className="flex gap-2">
               <button className="rounded bg-zinc-700 px-4 py-2 text-white disabled:opacity-50" onClick={salva} disabled={inCorso}>Salva</button>
