@@ -21,4 +21,4 @@ export interface RawExtraction {
 // specchio con "ripiani/cuscini"). Ora le schede scarne mostrano meno icone ma tutte vere; il
 // conteggio icone resta come SEGNALE di qualità (⚠ poche icone), non come pavimento forzato.
 // Invalida la cache: rimuove i proposal col padding scritti a v10.
-export const PROMPT_VERSION = 11
+export const PROMPT_VERSION = 12

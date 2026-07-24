@@ -1,4 +1,4 @@
-version: 4
+version: 5
 categorie:
   - frigorifero
   - congelatore
@@ -18,4 +18,5 @@ categorie:
   - barbecue
   - valigie
   - bagno_doccia
+  - fitness
   - altro

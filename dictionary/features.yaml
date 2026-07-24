@@ -1,4 +1,4 @@
-version: 7
+version: 8
 features:
   classe_energetica:
     label: "Classe {valore}"
@@ -630,3 +630,94 @@ features:
     badge: true
     valore: obbligatorio
     categorie: [illuminazione]
+  potenza_watt:
+    label: "Motore {valore} W"
+    icona: tabler:zap-fast
+    priorita: 88
+    badge: true
+    valore: obbligatorio
+    categorie: [fitness]
+  peso_max_utente_kg:
+    label: "Supporta fino a {valore} kg"
+    icona: tabler:weight
+    priorita: 86
+    badge: true
+    valore: obbligatorio
+    categorie: [fitness]
+  superficie_appoggio_cm:
+    label: "Superficie {valore} cm"
+    icona: tabler:ruler-measure
+    priorita: 82
+    badge: false
+    valore: obbligatorio
+    categorie: [fitness]
+  programmi_allenamento:
+    label: "{valore} programmi di allenamento"
+    icona: tabler:list-details
+    priorita: 80
+    badge: false
+    valore: obbligatorio
+    categorie: [fitness]
+  display_digitale:
+    label: "Display digitale LCD"
+    icona: tabler:screen-share
+    priorita: 75
+    badge: false
+    valore: assente
+    categorie: [fitness]
+  regolazione_inclinazione:
+    label: "Inclinazione regolabile"
+    icona: tabler:angle-incline
+    priorita: 72
+    badge: false
+    valore: assente
+    categorie: [fitness]
+  ammortizzamento:
+    label: "Sistema ammortizzamento"
+    icona: tabler:spring
+    priorita: 70
+    badge: false
+    valore: assente
+    categorie: [fitness]
+  maniglie_ergonomiche:
+    label: "Maniglie ergonomiche"
+    icona: tabler:hand-grab
+    priorita: 65
+    badge: false
+    valore: assente
+    categorie: [fitness]
+  pieghevole_fitness:
+    label: "Pieghevole e salvaspazio"
+    icona: tabler:fold
+    priorita: 60
+    badge: false
+    valore: assente
+    categorie: [fitness]
+  monitoraggio_cardio:
+    label: "Monitoraggio frequenza cardiaca"
+    icona: tabler:heart-pulse
+    priorita: 68
+    badge: false
+    valore: assente
+    categorie: [fitness]
+  app_fitness_integrata:
+    label: "App fitness integrata"
+    icona: tabler:device-mobile
+    priorita: 62
+    badge: false
+    valore: assente
+    categorie: [fitness]
+  resistenza_regolabile:
+    label: "{valore} livelli di resistenza"
+    icona: tabler:adjustments-horizontal
+    priorita: 70
+    badge: false
+    valore: obbligatorio
+    categorie: [fitness]
+  pedali_anti_scivolo:
+    label: "Pedali anti-scivolo"
+    icona: tabler:grip-horizontal
+    priorita: 55
+    badge: false
+    valore: assente
+    categorie: [fitness]
