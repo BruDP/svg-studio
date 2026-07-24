@@ -1,4 +1,4 @@
-version: 8
+version: 9
 features:
   classe_energetica:
     label: "Classe {valore}"
@@ -636,7 +636,7 @@ features:
     priorita: 88
     badge: true
     valore: obbligatorio
-    categorie: [fitness]
+    categorie: [fitness, piccoli_elettrodomestici]
   peso_max_utente_kg:
     label: "Supporta fino a {valore} kg"
     icona: tabler:weight
@@ -685,7 +685,7 @@ features:
     priorita: 65
     badge: false
     valore: assente
-    categorie: [fitness]
+    categorie: [fitness, piccoli_elettrodomestici]
   pieghevole_fitness:
     label: "Pieghevole e salvaspazio"
     icona: tabler:fold

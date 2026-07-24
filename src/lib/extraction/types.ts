@@ -21,4 +21,8 @@ export interface RawExtraction {
 // specchio con "ripiani/cuscini"). Ora le schede scarne mostrano meno icone ma tutte vere; il
 // conteggio icone resta come SEGNALE di qualità (⚠ poche icone), non come pavimento forzato.
 // Invalida la cache: rimuove i proposal col padding scritti a v10.
-export const PROMPT_VERSION = 12
+// Bump a 13: prompt AGGRESSIVO con inferenza per categoria (fallback per testi scarni).
+// Titolo è fonte PRIMARIA, non secondaria. Estrattore estrae TUTTI i numeri/aggettivi dal titolo.
+// Categoria fallback (piccoli_elettrodomestici → watt, velocità, cavo; barbecue → alimentazione, etc).
+// Invalida cache: ri-estrae con nuova strategia tutti i prodotti.
+export const PROMPT_VERSION = 13

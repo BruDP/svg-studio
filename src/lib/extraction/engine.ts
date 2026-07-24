@@ -5,6 +5,7 @@ import type { Dictionary } from '@/lib/dictionary/types'
 import type { ProductRecord } from '@/lib/feed/types'
 import { extractRaw, buildPrompt, defaultGenerateWithCost } from './gemini'
 import { validateExtraction } from './validator'
+import { enrichExtraction } from './enrich'
 import { rankFeatures, type ProposedFeature } from './ranking'
 import { parseDimensions, parseSetDimensions, type Dimensioni } from './dimensions'
 import { PROMPT_VERSION } from './types'
@@ -70,7 +71,8 @@ export async function extractProposal(
     await logCost(product.sku, 'extraction', 'gemini-2.5-pro', result.inputTokens, result.outputTokens)
   }
 
-  const validated = validateExtraction(raw, product)
+  const enriched = enrichExtraction(raw, product)
+  const validated = validateExtraction(enriched, product)
   const { features, badges } = rankFeatures(validated, raw.categoria, dict)
   const sotto = parseSetDimensions(product.notaTecnica)
 
