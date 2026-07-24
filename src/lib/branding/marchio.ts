@@ -7,7 +7,8 @@
  * Kooper 712). Le "linee" come BestBQ/Esté/FitLover/SìChef vivono nella descrizione, non qui.
  */
 
-function base(m: string): string {
+/** Normalizza un testo di marca/linea: minuscolo, senza diacritici (é→e) né ®/™, trim. */
+export function normalizzaBrand(m: string): string {
   return (m ?? '')
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '') // toglie i diacritici combinanti (é→e)
@@ -15,6 +16,7 @@ function base(m: string): string {
     .trim()
     .toLowerCase()
 }
+const base = normalizzaBrand
 
 function slugify(s: string): string {
   return base(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')

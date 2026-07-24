@@ -61,7 +61,7 @@ export const theme = {
   testo: {
     titolo: 34, // headline prodotto (tracking stretto in svg.ts; regge i nomi lunghi su 2 righe)
     eyebrow: 18, // wordmark marchio (ripiego quando manca il file logo)
-    logoAltezza: 38, // altezza del box del logo marchio (ancorato a sinistra, proporzioni preservate)
+    logoAltezza: 46, // altezza del box del logo marchio/linea (ancorato a sinistra, proporzioni preservate)
     etichetta: 25,
     quota: 18, // numeri delle misure: piccoli e sommessi
     badge: 26,

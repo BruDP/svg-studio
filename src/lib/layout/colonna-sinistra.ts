@@ -6,6 +6,7 @@ import { theme } from '@/lib/theme'
 import { colonnaPositions, fitFoto, quoteFromBBox } from './engine'
 import { estraiTitolo } from './titolo'
 import { accentoPerCategoria } from '@/lib/theme-satur'
+import { brandDaMostrare } from '@/lib/branding/linea'
 
 export const TEMPLATE_ID = 'colonna-sinistra'
 export const CANVAS = { width: 1000, height: 1000 }
@@ -58,9 +59,11 @@ export function composeColonnaSinistra(input: {
   let iconStartY = 160
   if (nome) {
     if (marchio) {
-      // Eyebrow = marchio: il renderer ci mette il LOGO se il file esiste (box ad altezza
-      // theme.testo.logoAltezza da qui in giù), altrimenti il wordmark del marchio.
-      elements.push({ type: 'testo', id: 'eyebrow', testo: marchio, x: theme.margini.colonnaX, y: 76, ruolo: 'sottotitolo' })
+      // Eyebrow = LINEA se riconosciuta dalla descrizione (es. BestBQ/Esté/FitLover/Kooper X),
+      // altrimenti il marchio del feed. Il renderer ci mette il LOGO (assets/loghi/<slug>) se il
+      // file esiste, altrimenti il wordmark. Vedi branding/linea.ts.
+      const brand = brandDaMostrare(nome, marchio)
+      elements.push({ type: 'testo', id: 'eyebrow', testo: brand, x: theme.margini.colonnaX, y: 76, ruolo: 'sottotitolo' })
     }
     const titolo = estraiTitolo(nome, marchio)
     elements.push({ type: 'testo', id: 'titolo', testo: titolo, x: theme.margini.colonnaX, y: 158, ruolo: 'titolo' })
