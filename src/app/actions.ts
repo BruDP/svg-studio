@@ -389,3 +389,54 @@ export async function exportCostsCsvAction(): Promise<string> {
   const csv = [header, ...rows].map((r) => r.map((c) => `"${c}"`).join(',')).join('\n')
   return csv
 }
+
+// Batch generation
+export async function batchGenerateAction(limit: number = 50, force: boolean = false): Promise<{
+  generated: number
+  skipped: number
+  errors: number
+  costUsd: number
+}> {
+  const dict = loadDictionary()
+  const { inScopeAltoValore } = await import('@/lib/branding/selezione')
+
+  const all = await searchProducts('')
+  const targetSkus: string[] = []
+  for (const { sku } of all.slice(0, limit * 2)) {
+    const product = await getProduct(sku)
+    if (product && inScopeAltoValore(product.descrizioneBreve, product.marchio)) {
+      targetSkus.push(sku)
+      if (targetSkus.length >= limit) break
+    }
+  }
+
+  let generated = 0,
+    skipped = 0,
+    errors = 0
+  const costStart = (await db.costLog.findMany()).reduce((sum: number, l: any) => sum + l.costUsd, 0)
+
+  for (const sku of targetSkus) {
+    try {
+      const existing = await db.scene.findUnique({ where: { sku } })
+      if (existing && !force) {
+        skipped++
+        continue
+      }
+
+      const product = await getProduct(sku)
+      if (!product) throw new Error('non trovato')
+
+      const proposal = await extractProposal(product, dict)
+      const { scene } = await composeSceneForProduct({ proposal, product })
+      const svg = await renderSceneServer(scene)
+      await exportScene({ svg, sku })
+
+      generated++
+    } catch {
+      errors++
+    }
+  }
+  const costEnd = (await db.costLog.findMany()).reduce((sum: number, l: any) => sum + l.costUsd, 0)
+
+  return { generated, skipped, errors, costUsd: costEnd - costStart }
+}
