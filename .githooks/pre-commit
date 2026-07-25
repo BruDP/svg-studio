@@ -1,0 +1,47 @@
+#!/bin/bash
+# Pre-commit hook: blocca i commit se contengono segreti
+# Installa: git config core.hooksPath .githooks && chmod +x .githooks/pre-commit
+
+# Colori output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+SECRETS_FOUND=0
+
+# Pattern da bloccare
+SECRET_PATTERNS=(
+  "GEMINI_API_KEY="
+  "OPENAI_API_KEY="
+  "DATABASE_PASSWORD="
+  "private_key"
+  "-----BEGIN.*PRIVATE"
+  "aws_secret_access_key"
+  "github_token"
+  "stripe_secret"
+)
+
+echo -e "${YELLOW}🔍 Scanning for secrets...${NC}"
+
+# Controlla i file staged
+for PATTERN in "${SECRET_PATTERNS[@]}"; do
+  if git diff --cached -S "$PATTERN" --name-only | grep -q .; then
+    echo -e "${RED}❌ RILEVATO: $PATTERN${NC}"
+    git diff --cached -S "$PATTERN" | head -5
+    SECRETS_FOUND=1
+  fi
+done
+
+# Blocca il commit se segreti trovati
+if [ $SECRETS_FOUND -eq 1 ]; then
+  echo -e "${RED}❌ COMMIT BLOCCATO: Segreti rilevati nel codice!${NC}"
+  echo -e "${YELLOW}Azioni:${NC}"
+  echo "1. Rimuovi il segreto dal file"
+  echo "2. Aggiungi il file a .gitignore se è un file di configurazione"
+  echo "3. Usa 'git reset' per unstage se sbagliato"
+  exit 1
+fi
+
+echo -e "${GREEN}✅ Nessun segreto rilevato${NC}"
+exit 0
