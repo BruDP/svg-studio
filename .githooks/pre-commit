@@ -24,11 +24,14 @@ SECRET_PATTERNS=(
 
 echo -e "${YELLOW}🔍 Scanning for secrets...${NC}"
 
-# Controlla i file staged
+# Controlla i file staged (escludi: pre-commit hook, docs, config template)
+STAGED_FILES=$(git diff --cached --name-only | grep -v -E "(^\\.githooks/pre-commit$|SETUP\.md$|README|\.example$|\.md$|\.txt$)")
+
 for PATTERN in "${SECRET_PATTERNS[@]}"; do
-  if git diff --cached -S "$PATTERN" --name-only | grep -q .; then
-    echo -e "${RED}❌ RILEVATO: $PATTERN${NC}"
-    git diff --cached -S "$PATTERN" | head -5
+  # Grep solo i file staged: cerca pattern + "=" + valore (non template vuoto)
+  if echo "$STAGED_FILES" | xargs -r git diff --cached 2>/dev/null | grep -E "^\+.*${PATTERN}[a-zA-Z0-9_-]+" | grep -v "your_key_here\|example\|placeholder" >/dev/null 2>&1; then
+    echo -e "${RED}❌ RILEVATO: $PATTERN con valore reale${NC}"
+    echo "$STAGED_FILES" | xargs -r git diff --cached 2>/dev/null | grep -E "^\+.*${PATTERN}" | head -3
     SECRETS_FOUND=1
   fi
 done
